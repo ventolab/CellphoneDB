@@ -149,7 +149,7 @@ def mean_pvalue_result_build(real_mean_analysis: pd.DataFrame, result_percent: p
     return mean_pvalue_result
 
 
-def get_cluster_combinations(cluster_names: np.array) -> np.array:
+def get_cluster_combinations(cluster_names: np.array, microenvs: pd.DataFrame = pd.DataFrame()) -> np.array:
     """
     Calculates and sort combinations including itself
 
@@ -163,8 +163,27 @@ def get_cluster_combinations(cluster_names: np.array) -> np.array:
      ('cluster2','cluster1'),('cluster2','cluster2'),('cluster2','cluster3'),
      ('cluster3','cluster1'),('cluster3','cluster2'),('cluster3','cluster3')]
 
+    if microenvironments are provided combinations are performed only within each microenv
+
+    INPUT
+    cluster_names = ['cluster1', 'cluster2', 'cluster3']
+    microenvs = [('cluster1', 'env1'), ('cluster2', 'env1'), ('cluster3', env2)]
+
+    RESULT
+    [('cluster1','cluster1'),('cluster1','cluster2'),
+     ('cluster2','cluster1'),('cluster2','cluster2'),
+     ('cluster3','cluster3')]
+
     """
-    return np.array(np.meshgrid(cluster_names.values, cluster_names.values)).T.reshape(-1, 2)
+    if microenvs.empty:
+        return np.array(np.meshgrid(cluster_names.values, cluster_names.values)).T.reshape(-1, 2)
+    else:
+        core_logger.info('Limiting cluster combinations using microenvironments')
+        cluster_combinations = []
+        for me in microenvs["microenvironment"].unique():
+            me_cell_types = microenvs[microenvs["microenvironment"]==me]["cell_type"]
+            cluster_combinations.extend(np.array(np.meshgrid(me_cell_types,me_cell_types)).T.reshape(-1,2))
+        return np.array(cluster_combinations)
 
 
 def build_result_matrix(interactions: pd.DataFrame, cluster_interactions: list, separator: str) -> pd.DataFrame:
