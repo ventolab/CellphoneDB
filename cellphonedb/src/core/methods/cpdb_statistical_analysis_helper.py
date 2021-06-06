@@ -181,7 +181,7 @@ def get_cluster_combinations(cluster_names: np.array, microenvs: pd.DataFrame = 
         core_logger.info('Limiting cluster combinations using microenvironments')
         cluster_combinations = []
         for me in microenvs["microenvironment"].unique():
-            me_cell_types = microenvs[microenvs["microenvironment"]==me]["cell_type"]
+            me_cell_types = microenvs[microenvs["microenvironment"]==me]["cell_type"].unique()
             cluster_combinations.extend(np.array(np.meshgrid(me_cell_types,me_cell_types)).T.reshape(-1,2))
         return np.array(cluster_combinations)
 
