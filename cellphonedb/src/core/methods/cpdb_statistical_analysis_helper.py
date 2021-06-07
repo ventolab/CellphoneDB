@@ -167,7 +167,10 @@ def get_cluster_combinations(cluster_names: np.array, microenvs: pd.DataFrame = 
 
     INPUT
     cluster_names = ['cluster1', 'cluster2', 'cluster3']
-    microenvs = [('cluster1', 'env1'), ('cluster2', 'env1'), ('cluster3', env2)]
+    microenvs = [
+        ('cluster1', 'env1'),
+        ('cluster2', 'env1'),
+        ('cluster3', 'env2')]
 
     RESULT
     [('cluster1','cluster1'),('cluster1','cluster2'),
@@ -181,9 +184,10 @@ def get_cluster_combinations(cluster_names: np.array, microenvs: pd.DataFrame = 
         core_logger.info('Limiting cluster combinations using microenvironments')
         cluster_combinations = []
         for me in microenvs["microenvironment"].unique():
-            me_cell_types = microenvs[microenvs["microenvironment"]==me]["cell_type"].unique()
-            cluster_combinations.extend(np.array(np.meshgrid(me_cell_types,me_cell_types)).T.reshape(-1,2))
-        return np.array(cluster_combinations)
+            me_cell_types = microenvs[microenvs["microenvironment"]==me]["cell_type"]
+            combinations = np.array(np.meshgrid(me_cell_types, me_cell_types))
+            cluster_combinations.extend(combinations.T.reshape(-1, 2))
+        return pd.DataFrame(cluster_combinations).drop_duplicates().to_numpy()
 
 
 def build_result_matrix(interactions: pd.DataFrame, cluster_interactions: list, separator: str) -> pd.DataFrame:

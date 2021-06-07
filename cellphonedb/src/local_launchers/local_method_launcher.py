@@ -148,6 +148,7 @@ class LocalMethodLauncher(object):
         if not microenvs_filename:
             return pd.DataFrame()
         microenvs = utils.read_data_table_from_file(os.path.realpath(microenvs_filename))
+        microenvs.drop_duplicates(inplace = True)
         if any(~microenvs.iloc[:,0].isin(meta.iloc[:,1])):
             raise Exception("Some clusters/cell_types from Microenvironment are not present in meta")
         microenvs.columns = ["cell_type","microenvironment"]
