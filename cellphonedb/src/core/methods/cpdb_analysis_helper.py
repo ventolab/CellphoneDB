@@ -8,64 +8,33 @@ def percent_analysis(clusters: dict,
                      base_result: pd.DataFrame,
                      separator: str,
                      ) -> pd.DataFrame:
-    result = base_result.copy()
-    percents = {}
-    for cluster_name in clusters['names']:
-        counts = clusters['counts'][cluster_name]
+    GENE_ID1 = 'multidata_1_id'
+    GENE_ID2 = 'multidata_2_id'
 
-        percents[cluster_name] = counts.apply(lambda count: counts_percent(count, threshold), axis=1)
+    cluster1_names = cluster_interactions[:, 0]
+    cluster2_names = cluster_interactions[:, 1]
+    gene1_ids = interactions[GENE_ID1].values
+    gene2_ids = interactions[GENE_ID2].values
 
-    for interaction_index, interaction in interactions.iterrows():
-        for cluster_interaction in cluster_interactions:
-            cluster_interaction_string = '{}{}{}'.format(cluster_interaction[0], separator, cluster_interaction[1])
+    x = clusters['percents'].loc[gene1_ids, cluster1_names].values
+    y = clusters['percents'].loc[gene2_ids, cluster2_names].values
 
-            interaction_percent = cluster_interaction_percent(cluster_interaction, interaction, percents)
-
-            result.at[interaction_index, cluster_interaction_string] = interaction_percent
+    result = pd.DataFrame(
+        ((x > threshold) * (y > threshold)).astype(int),
+        index=interactions.index,
+        columns=(pd.Series(cluster1_names) + separator + pd.Series(cluster2_names)).values)
 
     return result
 
 
-def counts_percent(counts: pd.Series,
-                   threshold: float) -> int:
-    total = len(counts)
-    positive = len(counts[counts > 0])
-
-    if (positive / total) > threshold:
-        return 1
-    else:
-        return 0
-
-
-def cluster_interaction_percent(cluster_interaction: tuple,
-                                interaction: pd.Series,
-                                clusters_percents: dict,
-                                ) -> int:
-    percent_cluster_receptors = clusters_percents[cluster_interaction[0]]
-    percent_cluster_ligands = clusters_percents[cluster_interaction[1]]
-
-    receptor = interaction['multidata_1_id']
-    percent_receptor = percent_cluster_receptors.loc[receptor]
-    ligand = interaction['multidata_2_id']
-    percent_ligand = percent_cluster_ligands.loc[ligand]
-
-    if percent_receptor and percent_ligand:
-        interaction_percent = 1
-
-    else:
-        interaction_percent = 0
-
-    return interaction_percent
-
-
 def get_significant_means(mean_analysis: pd.DataFrame,
                           result_percent: pd.DataFrame) -> pd.DataFrame:
-    significant_means = mean_analysis.copy()
-    for index, mean_analysis in mean_analysis.iterrows():
-        for cluster_interaction in list(result_percent.columns):
-            if not result_percent.at[index, cluster_interaction]:
-                significant_means.at[index, cluster_interaction] = np.nan
-    return significant_means
+    significant_means = mean_analysis.values.copy()
+    mask = result_percent == 0
+    significant_means[mask] = np.nan
+    return pd.DataFrame(significant_means,
+                        index=mean_analysis.index,
+                        columns=mean_analysis.columns)
 
 
 def build_significant_means(mean_analysis: pd.DataFrame,

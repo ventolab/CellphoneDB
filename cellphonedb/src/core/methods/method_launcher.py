@@ -120,12 +120,14 @@ class MethodLauncher:
         if not len(counts.columns):
             raise ParseCountsException('Counts values are not decimal values', 'Incorrect file format')
         try:
-            counts = counts.astype(np.float)  # type: pd.DataFrame
+            if np.any(counts.dtypes.values != np.dtype('float32')):
+                counts = counts.astype(np.float32)  # type: pd.DataFrame
         except:
             raise ParseCountsException
         meta.index = meta.index.astype(str)
-        for cell in meta.index.values:
-            if cell not in counts.columns.values:
-                raise ParseCountsException('Some cells in meta didnt exist in counts columns',
-                                           'Maybe incorrect file format')
+        if np.any(~meta.index.isin(counts.columns)):
+            raise ParseCountsException('Some cells in meta didnt exist in counts',
+                                       'Maybe incorrect file format')
+        if np.any(~counts.columns.isin(meta.index)):
+            counts = counts.loc[:, counts.columns.isin(meta.index)].copy()
         return counts

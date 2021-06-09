@@ -13,8 +13,12 @@ class LocalQueryLauncher:
 
         self.cellphonedb_app = cellphonedb_app
 
-    def find_interactions_by_element(self, element: str) -> None:
-        print(self.cellphonedb_app.query.find_interactions_by_element(element).to_csv(index=False))
+    def find_interactions_by_element(self, element: str, output:str = None) -> None:
+        csv = self.cellphonedb_app.query.find_interactions_by_element(element).to_csv(output, index=False)
+        if output:
+            app_logger.info("Saving query results as '{}'".format(output))
+        else:
+            print(csv)
 
     def get_interaction_gene(self, columns: str) -> None:
         if columns:

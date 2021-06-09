@@ -10,7 +10,7 @@ setup(
     name='CellPhoneDB',
     author='TeichLab',
     author_email='contact@cellphonedb.org',
-    version='2.1.7',
+    version='2.1.8',
     description='Inferring cell-cell communication',
     long_description=long_description_readme_md,
     long_description_content_type='text/markdown',

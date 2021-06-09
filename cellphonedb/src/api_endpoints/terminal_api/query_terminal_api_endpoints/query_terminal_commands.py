@@ -22,8 +22,9 @@ def common_options(f: Callable) -> Callable:
 @click.command()
 @click.argument('element')
 @common_options
-def find_interactions_by_element(element: str, verbose: bool, database: str):
-    LocalQueryLauncher(cpdb_app.create_app(verbose, database)).find_interactions_by_element(element)
+@click.option('--output', default=None, help='If provided results will be saved to this path as a csv file [None]')
+def find_interactions_by_element(element: str, verbose: bool, database: str, output:str = None):
+    LocalQueryLauncher(cpdb_app.create_app(verbose, database)).find_interactions_by_element(element, output)
 
 
 @click.command()

@@ -47,7 +47,8 @@ def call(meta: pd.DataFrame,
 
     counts.set_index('id_multidata', inplace=True, drop=True)
     counts = counts[cells_names]
-    counts = counts.astype('float32')
+    if np.any(counts.dtypes.values != np.dtype('float32')):
+        counts = counts.astype(np.float32)
     counts = counts.groupby(counts.index).mean()
 
     if counts.empty:
@@ -63,7 +64,9 @@ def call(meta: pd.DataFrame,
     if interactions_filtered.empty:
         raise NoInteractionsFound()
 
-    clusters = cpdb_statistical_analysis_helper.build_clusters(meta, counts_filtered, complex_composition_filtered)
+    meta = meta.loc[counts.columns]
+
+    clusters = cpdb_statistical_analysis_helper.build_clusters(meta, counts_filtered, complex_composition_filtered, skip_percent=False)
     core_logger.info('Running Real Analysis')
 
     cluster_interactions = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'])
@@ -92,6 +95,7 @@ def call(meta: pd.DataFrame,
                                                                                    interactions_filtered,
                                                                                    cluster_interactions,
                                                                                    complex_composition_filtered,
+                                                                                   real_mean_analysis,
                                                                                    base_result,
                                                                                    threads,
                                                                                    separator)
