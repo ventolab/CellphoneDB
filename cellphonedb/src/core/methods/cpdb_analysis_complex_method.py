@@ -14,6 +14,7 @@ def call(meta: pd.DataFrame,
          genes: pd.DataFrame,
          complexes: pd.DataFrame,
          complex_compositions: pd.DataFrame,
+         microenvs: pd.DataFrame,
          separator: str,
          threshold: float = 0.1,
          result_precision: int = 3
@@ -56,7 +57,7 @@ def call(meta: pd.DataFrame,
     clusters = cpdb_statistical_analysis_helper.build_clusters(meta, counts_filtered, complex_composition_filtered, skip_percent=False)
     core_logger.info('Running Real Analysis')
 
-    cluster_interactions = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'])
+    cluster_interactions = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'], microenvs)
 
     base_result = cpdb_statistical_analysis_helper.build_result_matrix(interactions_filtered,
                                                                        cluster_interactions,

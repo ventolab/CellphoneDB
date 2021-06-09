@@ -25,6 +25,7 @@ class LocalMethodLauncher(object):
     def cpdb_statistical_analysis_local_method_launcher(self, meta_filename: str,
                                                         counts_filename: str,
                                                         counts_data: str,
+                                                        microenvs_filename: str,
                                                         project_name: str = '',
                                                         iterations: int = 1000,
                                                         threshold: float = 0.1,
@@ -50,11 +51,18 @@ class LocalMethodLauncher(object):
 
         counts, meta = self._load_meta_counts(counts_filename, meta_filename)
 
+        if not microenvs_filename:
+            microenvs =pd.DataFrame()
+        else:
+            microenvs = self._load_microenvs(microenvs_filename, meta)
+
+        
         pvalues_simple, means_simple, significant_means_simple, deconvoluted_simple = \
             self.cellphonedb_app.method.cpdb_statistical_analysis_launcher(
                 meta,
                 counts,
                 counts_data,
+                microenvs,
                 iterations,
                 threshold,
                 threads,
@@ -72,6 +80,7 @@ class LocalMethodLauncher(object):
     def cpdb_analysis_local_method_launcher(self, meta_filename: str,
                                             counts_filename: str,
                                             counts_data: str,
+                                            microenvs_filename: str,
                                             project_name: str = '',
                                             threshold: float = 0.1,
                                             output_path: str = '',
@@ -89,10 +98,16 @@ class LocalMethodLauncher(object):
 
         counts, meta = self._load_meta_counts(counts_filename, meta_filename)
 
+        if not microenvs_filename:
+            microenvs =pd.DataFrame()
+        else:
+            microenvs = self._load_microenvs(microenvs_filename, meta)
+
         means, significant_means, deconvoluted = \
             self.cellphonedb_app.method.cpdb_method_analysis_launcher(meta,
                                                                       counts,
                                                                       counts_data,
+                                                                      microenvs,
                                                                       threshold,
                                                                       result_precision,
                                                                       subsampler)
@@ -126,3 +141,15 @@ class LocalMethodLauncher(object):
         counts = utils.read_data_table_from_file(os.path.realpath(counts_filename), index_column_first=True)
 
         return counts, meta
+
+
+    @staticmethod
+    def _load_microenvs(microenvs_filename: str, meta: pd.DataFrame) -> pd.DataFrame:
+        if not microenvs_filename:
+            return pd.DataFrame()
+        microenvs = utils.read_data_table_from_file(os.path.realpath(microenvs_filename))
+        microenvs.drop_duplicates(inplace = True)
+        if any(~microenvs.iloc[:,0].isin(meta.iloc[:,1])):
+            raise Exception("Some clusters/cell_types from Microenvironment are not present in meta")
+        microenvs.columns = ["cell_type","microenvironment"]
+        return microenvs
