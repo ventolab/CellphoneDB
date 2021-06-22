@@ -1,4 +1,6 @@
 import warnings
+
+from pandas.core.frame import DataFrame
 warnings.simplefilter("ignore", UserWarning)
 
 import itertools
@@ -13,8 +15,7 @@ from cellphonedb.src.core.models.complex import complex_helper
 
 
 def get_significant_means(real_mean_analysis: pd.DataFrame,
-                          result_percent: pd.DataFrame,
-                          min_significant_mean: float) -> pd.DataFrame:
+                          relevant_interactions: pd.DataFrame) -> pd.DataFrame:
     """
     If the result_percent value is > min_significant_mean, sets the value to NaN, else, sets the mean value.
 
@@ -44,21 +45,11 @@ def get_significant_means(real_mean_analysis: pd.DataFrame,
     ensembl3    NaN         NaN         0.5
     """
     significant_means = real_mean_analysis.values.copy()
-    mask = result_percent > min_significant_mean
+    mask = relevant_interactions == 0
     significant_means[mask] = np.nan
     return pd.DataFrame(significant_means,
                         index=real_mean_analysis.index,
                         columns=real_mean_analysis.columns)
-
-
-def shuffle_meta(meta: pd.DataFrame) -> pd.DataFrame:
-    """
-    Permutates the meta values aleatory generating a new meta file
-    """
-    meta_copy = meta.copy()
-    np.random.shuffle(meta_copy['cell_type'].values)
-
-    return meta_copy
 
 
 def build_clusters(meta: pd.DataFrame,
@@ -106,6 +97,7 @@ def build_clusters(meta: pd.DataFrame,
                 index=cluster_pcts.columns
             ).T
             cluster_pcts = cluster_pcts.append(complex_cluster_pcts)
+
 
     return {'names': cluster_names, 'means': cluster_means, 'percents': cluster_pcts}
 
@@ -185,6 +177,7 @@ def get_cluster_combinations(cluster_names: np.array, microenvs: pd.DataFrame = 
         cluster_combinations = []
         for me in microenvs["microenvironment"].unique():
             me_cell_types = microenvs[microenvs["microenvironment"]==me]["cell_type"]
+            me_cell_types[np.isin(me_cell_types,cluster_names.values)]
             combinations = np.array(np.meshgrid(me_cell_types, me_cell_types))
             cluster_combinations.extend(combinations.T.reshape(-1, 2))
         return pd.DataFrame(cluster_combinations).drop_duplicates().to_numpy()
@@ -207,7 +200,6 @@ def build_result_matrix(interactions: pd.DataFrame, cluster_interactions: list, 
 def mean_analysis(interactions: pd.DataFrame,
                   clusters: dict,
                   cluster_interactions: list,
-                  base_result: pd.DataFrame,
                   separator: str) -> pd.DataFrame:
     """
     Calculates the mean for the list of interactions and for each cluster
@@ -257,7 +249,6 @@ def percent_analysis(clusters: dict,
                      threshold: float,
                      interactions: pd.DataFrame,
                      cluster_interactions: list,
-                     base_result: pd.DataFrame,
                      separator: str) -> pd.DataFrame:
     """
     Calculates the percents for cluster interactions and foreach gene interaction
@@ -315,72 +306,8 @@ def percent_analysis(clusters: dict,
     return result
 
 
-def shuffled_analysis(iterations: int,
-                      meta: pd.DataFrame,
-                      counts: pd.DataFrame,
-                      interactions: pd.DataFrame,
-                      cluster_interactions: list,
-                      complex_composition: pd.DataFrame,
-                      real_mean_analysis: pd.DataFrame,
-                      base_result: pd.DataFrame,
-                      threads: int,
-                      separator: str) -> list:
-    """
-    Shuffles meta and calculates the means for each and saves it in a list.
-
-    Runs it in a multiple threads to run it faster
-    """
-    with Pool(processes=threads) as pool:
-        statistical_analysis_thread = partial(_statistical_analysis,
-                                              base_result,
-                                              cluster_interactions,
-                                              counts,
-                                              interactions,
-                                              meta,
-                                              complex_composition,
-                                              separator,
-                                              real_mean_analysis)
-        results = pool.map(statistical_analysis_thread, range(iterations))
-
-    return results
-
-
-def _statistical_analysis(base_result,
-                          cluster_interactions,
-                          counts,
-                          interactions,
-                          meta,
-                          complex_composition: pd.DataFrame,
-                          separator,
-                          real_mean_analysis: pd.DataFrame,
-                          iteration_number) -> pd.DataFrame:
-    """
-    Shuffles meta dataset and calculates calculates the means
-    """
-    shuffled_meta = shuffle_meta(meta)
-    shuffled_clusters = build_clusters(shuffled_meta,
-                                       counts,
-                                       complex_composition,
-                                       skip_percent=True)
-
-    shuffled_mean_analysis = mean_analysis(interactions,
-                                           shuffled_clusters,
-                                           cluster_interactions,
-                                           base_result,
-                                           separator)
-
-    result_mean_analysis = shuffled_greater_than_real(shuffled_mean_analysis,
-                                                    real_mean_analysis)
-    return result_mean_analysis
-
-
-def shuffled_greater_than_real(shuffled_mean_analysis: pd.DataFrame,
-                             real_mean_analysis: pd.DataFrame):
-    return np.packbits(shuffled_mean_analysis.values > real_mean_analysis.values, axis=None)
-
-
 def build_percent_result(real_mean_analysis: pd.DataFrame, real_percents_analysis: pd.DataFrame,
-                         statistical_mean_analysis: list, interactions: pd.DataFrame, cluster_interactions: list,
+                         degs_analysis: pd.DataFrame, interactions: pd.DataFrame, cluster_interactions: list,
                          base_result: pd.DataFrame, separator: str) -> pd.DataFrame:
     """
     Calculates the pvalues after statistical analysis.
@@ -428,12 +355,12 @@ def build_percent_result(real_mean_analysis: pd.DataFrame, real_percents_analysi
 
 
     """
-    core_logger.info('Building Pvalues result')
+    core_logger.info('Building relevant_interactions result')
     percent_result = np.zeros(real_mean_analysis.shape)
     result_size = percent_result.size
     result_shape = percent_result.shape
 
-    for statistical_mean in statistical_mean_analysis:
+    for statistical_mean in degs_analysis:
         percent_result += np.unpackbits(statistical_mean, axis=None)[:result_size].reshape(result_shape)
     percent_result /= len(statistical_mean_analysis)
 
@@ -465,12 +392,11 @@ def interacting_pair_build(interactions: pd.DataFrame) -> pd.Series:
 
 
 def build_significant_means(real_mean_analysis: pd.DataFrame,
-                            result_percent: pd.DataFrame,
-                            min_significant_mean: float) -> (pd.Series, pd.DataFrame):
+                            relevant_interactions: pd.DataFrame) -> (pd.Series, pd.DataFrame):
     """
     Calculates the significant means and add rank (number of non empty entries divided by total entries)
     """
-    significant_means = get_significant_means(real_mean_analysis, result_percent, min_significant_mean)
+    significant_means = get_significant_means(real_mean_analysis, relevant_interactions)
     significant_mean_rank = significant_means.count(axis=1)  # type: pd.Series
     number_of_clusters = len(significant_means.columns)
     significant_mean_rank = significant_mean_rank.apply(lambda rank: rank / number_of_clusters)
@@ -553,3 +479,64 @@ def get_involved_complex_from_counts(counts: pd.DataFrame,
         counts_filtered.apply(lambda count: count.name in available_complex_proteins, axis=1)]
 
     return complex_composition_filtered, counts_filtered
+
+
+def prepare_degs_matrix(degs:pd.DataFrame, genes:pd.DataFrame, counts_data:str) -> pd.DataFrame:
+
+    return degs
+
+
+def degs_analysis(degs: pd.DataFrame,
+                genes: pd.DataFrame,
+                interactions: pd.DataFrame,
+                cluster_interactions: list,
+                counts_data:pd.DataFrame,
+                separator: str) -> pd.DataFrame:
+    """
+    Calculates the filter matrix based on the DEGs for the list of interactions and for each cluster
+    Sets 1 if one of both is 1.
+
+    EXAMPLE:
+        DEGs (input deg file is transformed into matrix)
+        
+               cluster1   cluster2    cluster3
+        ensembl1     0           1           0
+        ensembl2     1           1           0
+        ensembl3     0           0           1
+
+        interactions:
+
+        ensembl1,ensembl2
+        ensembl2,ensembl3
+
+        RESULT:
+                            cluster1_cluster1   cluster1_cluster2   ...   cluster3_cluster2   cluster3_cluster3
+        ensembl1_ensembl2      (0,1) -> 1          (0,1) -> 1                (0,1) -> 1             (0,0) -> 0
+        ensembl2_ensembl3      (1,0) -> 1          (1,0) -> 1                (0,0) -> 0             (0,1) -> 1
+        
+    """    
+
+    #Prepare DEGs matrix from input file
+    degs["deg"]=1
+    degs = pd.pivot_table(degs, values="deg", index="gene", columns="cluster", fill_value=0)
+    degs = degs.merge(genes[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']], left_on="gene", right_on=counts_data)
+    degs.set_index("id_multidata", inplace=True)
+    degs = degs[~degs.index.duplicated(keep='first')]
+
+    GENE_ID1 = 'multidata_1_id'
+    GENE_ID2 = 'multidata_2_id'
+
+    cluster1_names = cluster_interactions[:, 0]
+    cluster2_names = cluster_interactions[:, 1]
+    gene1_ids = interactions[GENE_ID1].values
+    gene2_ids = interactions[GENE_ID2].values
+
+    x = degs.reindex(index=gene1_ids, columns=cluster1_names, fill_value=0).values
+    y = degs.reindex(index=gene2_ids, columns=cluster2_names, fill_value=0).values
+
+    result = pd.DataFrame(
+        ((x + y) > 0).astype(int),
+        index=interactions.index,
+        columns=(pd.Series(cluster1_names) + separator + pd.Series(cluster2_names)).values)
+
+    return result

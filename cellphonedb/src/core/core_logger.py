@@ -5,7 +5,7 @@ import sys
 core_logger = logging.getLogger(__name__)
 
 
-def setLevel(level: str = 'WARNING'):
+def setLevel(level: str = 'DEBUG'):
     core_logger.setLevel(getattr(logging, level))
 
 

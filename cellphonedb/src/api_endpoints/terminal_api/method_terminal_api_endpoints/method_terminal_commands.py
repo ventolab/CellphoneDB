@@ -199,8 +199,7 @@ def analysis(meta_filename: str,
         LocalMethodLauncher(cpdb_app.create_app(verbose,
                                                 database)).cpdb_analysis_local_method_launcher(meta_filename,
                                                                                                counts_filename,
-                                                                                               counts_data,
-                                                                                               microenvs,
+                                                                                               counts_data,                                                                                                                        microenvs,
                                                                                                project_name,
                                                                                                threshold,
                                                                                                output_path,
@@ -230,5 +229,87 @@ def analysis(meta_filename: str,
     except:
         app_logger.error('Unexpected error')
 
+        if verbose:
+            traceback.print_exc(file=sys.stdout)
+
+@click.command()
+@common_options
+@click.argument('degs-filename', type=click.Path(exists=True))
+@click.option('--debug-seed', default='-1', type=int, help='Debug random seed 0 for disable it. >=0 to set it [-1]')
+@click.option('--pvalue', default=0.05, type=float, help='Pvalue threshold [0.05]')
+@click.option('--relevant-interactions-filename', default='relevant_interactions', type=str, help='Relevant interactions result filename [relevant_interactions]')
+@click.option('--iterations', default=1000, type=int, help='Number of pvalues analysis iterations [1000]')
+@click.option('--threads', default=4, type=int, help='Max of threads to process the data [4]')
+def degs_analysis(meta_filename: str,
+                counts_filename: str,
+                degs_filename:str,
+                counts_data: str,
+                microenvs: str,
+                project_name: str,
+                threshold: float,
+                result_precision: int,
+                output_path: str,
+                output_format: str,
+                means_result_name: str,
+                significant_means_result_name: str,
+                deconvoluted_result_name: str,
+                verbose: bool,
+                database: Optional[str],
+                subsampling: bool,
+                subsampling_log: bool,
+                subsampling_num_pc: int,
+                subsampling_num_cells: Optional[int],
+                debug_seed: int,
+                pvalue: float,
+                relevant_interactions_filename: str,
+                iterations: int,
+                threads: int
+                ) -> None:
+    try:
+
+        subsampler = Subsampler(subsampling_log,
+                                subsampling_num_pc,
+                                subsampling_num_cells,
+                                verbose) if subsampling else None
+
+        LocalMethodLauncher(cpdb_app.create_app(verbose, database)). \
+            cpdb_degs_analysis_local_method_launcher(meta_filename,
+                                                            counts_filename,
+                                                            degs_filename,
+                                                            counts_data,
+                                                            microenvs,
+                                                            project_name,
+                                                            iterations,
+                                                            threshold,
+                                                            output_path,
+                                                            output_format,
+                                                            means_result_name,
+                                                            relevant_interactions_filename,
+                                                            significant_means_result_name,
+                                                            deconvoluted_result_name,
+                                                            debug_seed,
+                                                            threads,
+                                                            result_precision,
+                                                            pvalue,
+                                                            subsampler,
+                                                            )
+    except (ReadFileException, ParseMetaException, ParseCountsException, ThresholdValueException,
+            AllCountsFilteredException) as e:
+        app_logger.error(str(e) +
+                         (':' if (hasattr(e, 'description') and e.description) or (
+                                 hasattr(e, 'hint') and e.hint) else '') +
+                         (' {}.'.format(e.description) if hasattr(e, 'description') and e.description else '') +
+                         (' {}.'.format(e.hint) if hasattr(e, 'hint') and e.hint else '')
+                         )
+
+    except EmptyResultException as e:
+        app_logger.warning(str(e) +
+                           (':' if (hasattr(e, 'description') and e.description) or (
+                                   hasattr(e, 'hint') and e.hint) else '') +
+                           (' {}.'.format(e.description) if hasattr(e, 'description') and e.description else '') +
+                           (' {}.'.format(e.hint) if hasattr(e, 'hint') and e.hint else '')
+                           )
+    except:
+        app_logger.error('Unexpected error')
         if verbose:
             traceback.print_exc(file=sys.stdout)
