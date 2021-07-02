@@ -49,17 +49,23 @@ Note: counts file can be a text file or `h5ad` (recoommended), `h5` or a path to
 cellphonedb method statistical_analysis test_meta.txt test_counts.txt
 ```
 
-
 #### Example without using the statistical method
-**Using text files**
+ - **Using text files**
 ```shell
 cellphonedb method analysis test_meta.txt test_counts.txt 
 ```
 
-**Using h5ad count file**
+ - **Using h5ad count file**
 ```shell
 cellphonedb method analysis test_meta.txt test_counts.h5ad
 ```
+
+
+####  Example running a microenviroments file
+```shell
+cellphonedb method statistical_analysis test_meta.txt test_counts.txt --microenvs test_microenvs.txt
+```
+
 
 Please check the [results documentation](Docs/RESULTS-DOCUMENTATION.md) in order to understand the results.
 
@@ -84,6 +90,7 @@ Please check the [results documentation](Docs/RESULTS-DOCUMENTATION.md) in order
 
 
 ~ **Optional Method Statistical parameters**
+- `--microenvs`: Spatial microenviroments input file. Restricts the cluster/cell_type interacting pairs to the cluster/cell_type sharing a microenviroment (i.e. only test a combination of clusters if these coexist in a microenviroment). This file should contain two columns: 1st column indicates the cluster/cell_type, 2nd column indicates the microenviroment name.  See example [here](https://github.com/ventolab/CellphoneDB/tree/master/in). 
 - `--pvalues-result-name`: P-values result filename [pvalues]
 - `--pvalue`: P-value threshold [0.05]
 - `--debug-seed`: Debug random seed -1. To disable it please use a value >=0 [-1]

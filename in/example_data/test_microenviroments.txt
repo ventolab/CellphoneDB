@@ -1,0 +1,5 @@
+cell_type	microenviroment
+NKcells_1	location_1
+NKcells_0	location_2
+Tcells	location_1
+Myeloid	location_2
