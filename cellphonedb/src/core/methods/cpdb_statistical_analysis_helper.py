@@ -178,8 +178,9 @@ def get_cluster_combinations(cluster_names: np.array, microenvs: pd.DataFrame = 
      ('cluster3','cluster3')]
 
     """
+    result = np.array([])
     if microenvs.empty:
-        return np.array(np.meshgrid(cluster_names.values, cluster_names.values)).T.reshape(-1, 2)
+        result = np.array(np.meshgrid(cluster_names.values, cluster_names.values)).T.reshape(-1, 2)
     else:
         core_logger.info('Limiting cluster combinations using microenvironments')
         cluster_combinations = []
@@ -187,8 +188,9 @@ def get_cluster_combinations(cluster_names: np.array, microenvs: pd.DataFrame = 
             me_cell_types = microenvs[microenvs["microenvironment"]==me]["cell_type"]
             combinations = np.array(np.meshgrid(me_cell_types, me_cell_types))
             cluster_combinations.extend(combinations.T.reshape(-1, 2))
-        return pd.DataFrame(cluster_combinations).drop_duplicates().to_numpy()
-
+        result = pd.DataFrame(cluster_combinations).drop_duplicates().to_numpy()
+    core_logger.debug(f'Using {len(result)} cluster combinations for analysis')
+    return result
 
 def build_result_matrix(interactions: pd.DataFrame, cluster_interactions: list, separator: str) -> pd.DataFrame:
     """
@@ -207,7 +209,6 @@ def build_result_matrix(interactions: pd.DataFrame, cluster_interactions: list, 
 def mean_analysis(interactions: pd.DataFrame,
                   clusters: dict,
                   cluster_interactions: list,
-                  base_result: pd.DataFrame,
                   separator: str) -> pd.DataFrame:
     """
     Calculates the mean for the list of interactions and for each cluster
@@ -257,7 +258,6 @@ def percent_analysis(clusters: dict,
                      threshold: float,
                      interactions: pd.DataFrame,
                      cluster_interactions: list,
-                     base_result: pd.DataFrame,
                      separator: str) -> pd.DataFrame:
     """
     Calculates the percents for cluster interactions and foreach gene interaction
@@ -366,7 +366,6 @@ def _statistical_analysis(base_result,
     shuffled_mean_analysis = mean_analysis(interactions,
                                            shuffled_clusters,
                                            cluster_interactions,
-                                           base_result,
                                            separator)
 
     result_mean_analysis = shuffled_greater_than_real(shuffled_mean_analysis,

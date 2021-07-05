@@ -66,14 +66,12 @@ def call(meta: pd.DataFrame,
     mean_analysis = cpdb_statistical_analysis_helper.mean_analysis(interactions_filtered,
                                                                    clusters,
                                                                    cluster_interactions,
-                                                                   base_result,
                                                                    separator)
 
     percent_analysis = cpdb_analysis_helper.percent_analysis(clusters,
                                                              threshold,
                                                              interactions_filtered,
                                                              cluster_interactions,
-                                                             base_result,
                                                              separator)
 
     means_result, significant_means, deconvoluted_result = build_results(

@@ -1,3 +1,4 @@
+from typing import Tuple
 import pandas as pd
 
 from cellphonedb.src.core.methods import cpdb_degs_analysis_complex_method
@@ -17,29 +18,24 @@ def call(meta: pd.DataFrame,
          threads: int,
          debug_seed: int,
          result_precision: int,
-         pvalue: float,
          separator: str
-         ) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
-
+         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     relevant_interactions, means, significant_means, deconvoluted = \
         cpdb_degs_analysis_complex_method.call(meta.copy(),
-                                                count.copy(),
-                                                degs.copy(),
-                                                counts_data,
-                                                interactions,
-                                                genes,
-                                                complex_expanded,
-                                                complex_composition,
-                                                microenvs,
-                                                pvalue,
-                                                separator,
-                                                iterations,
-                                                threshold,
-                                                threads,
-                                                debug_seed,
-                                                result_precision,
-                                                )
-
+                                               count.copy(),
+                                               degs.copy(),
+                                               counts_data,
+                                               interactions,
+                                               genes,
+                                               complex_expanded,
+                                               complex_composition,
+                                               microenvs,
+                                               separator,
+                                               iterations,
+                                               threshold,
+                                               threads,
+                                               debug_seed,
+                                               result_precision)
 
     max_rank = significant_means['rank'].max()
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))

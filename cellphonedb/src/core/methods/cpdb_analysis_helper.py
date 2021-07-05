@@ -5,7 +5,6 @@ def percent_analysis(clusters: dict,
                      threshold: float,
                      interactions: pd.DataFrame,
                      cluster_interactions: list,
-                     base_result: pd.DataFrame,
                      separator: str,
                      ) -> pd.DataFrame:
     GENE_ID1 = 'multidata_1_id'

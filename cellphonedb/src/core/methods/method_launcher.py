@@ -1,3 +1,4 @@
+from typing import Tuple
 import pandas as pd
 import numpy as np
 
@@ -39,7 +40,7 @@ class MethodLauncher:
                                            result_precision: int,
                                            pvalue: float,
                                            subsampler: Subsampler = None,
-                                           ) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
+                                           ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
         if threads < 1:
             core_logger.info('Using Default thread number: %s' % self.default_threads)
@@ -87,7 +88,7 @@ class MethodLauncher:
                                       threshold: float,
                                       result_precision: int,
                                       subsampler: Subsampler = None,
-                                      ) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
+                                      ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
         if threshold < 0 or threshold > 1:
             raise ThresholdValueException(threshold)
@@ -131,9 +132,8 @@ class MethodLauncher:
                                     threads: int,
                                     debug_seed: int,
                                     result_precision: int,
-                                    pvalue: float,
                                     subsampler: Subsampler = None,
-                                    ) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
+                                    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
         if threads < 1:
             core_logger.info('Using Default thread number: %s' % self.default_threads)
@@ -169,7 +169,6 @@ class MethodLauncher:
                                             threads,
                                             debug_seed,
                                             result_precision,
-                                            pvalue,
                                             self.separator)
 
         return relevant_interactions, means, significant_means, deconvoluted

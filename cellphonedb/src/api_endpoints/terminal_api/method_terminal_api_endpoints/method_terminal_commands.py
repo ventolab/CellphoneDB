@@ -290,7 +290,6 @@ def degs_analysis(meta_filename: str,
                                                             debug_seed,
                                                             threads,
                                                             result_precision,
-                                                            pvalue,
                                                             subsampler,
                                                             )
     except (ReadFileException, ParseMetaException, ParseCountsException, ThresholdValueException,

@@ -79,14 +79,12 @@ def call(meta: pd.DataFrame,
     real_mean_analysis = cpdb_statistical_analysis_helper.mean_analysis(interactions_filtered,
                                                                         clusters,
                                                                         cluster_interactions,
-                                                                        base_result,
                                                                         separator)
 
     real_percents_analysis = cpdb_statistical_analysis_helper.percent_analysis(clusters,
                                                                                threshold,
                                                                                interactions_filtered,
                                                                                cluster_interactions,
-                                                                               base_result,
                                                                                separator)
 
     core_logger.info('Running Statistical Analysis')
