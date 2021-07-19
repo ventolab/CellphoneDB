@@ -26,7 +26,7 @@ class LocalMethodLauncher(object):
     def cpdb_statistical_analysis_local_method_launcher(self, meta_filename: str,
                                                         counts_filename: str,
                                                         counts_data: str,
-                                                        microenvs_filename: str,
+                                                        microenvs_filename: str = '',
                                                         project_name: str = '',
                                                         iterations: int = 1000,
                                                         threshold: float = 0.1,
@@ -41,6 +41,7 @@ class LocalMethodLauncher(object):
                                                         result_precision: int = 3,
                                                         pvalue: float = 0.05,
                                                         subsampler: Subsampler = None,
+                                                        debug: bool = False
                                                         ) -> None:
         output_path = self._set_paths(output_path, project_name)
 
@@ -69,7 +70,9 @@ class LocalMethodLauncher(object):
                 debug_seed,
                 result_precision,
                 pvalue,
-                subsampler
+                subsampler,
+                debug,
+                output_path
             )
 
         write_to_file(means_simple, means_filename, output_path, output_format)
@@ -80,7 +83,7 @@ class LocalMethodLauncher(object):
     def cpdb_analysis_local_method_launcher(self, meta_filename: str,
                                             counts_filename: str,
                                             counts_data: str,
-                                            microenvs_filename: str,
+                                            microenvs_filename: str = '',
                                             project_name: str = '',
                                             threshold: float = 0.1,
                                             output_path: str = '',
@@ -90,6 +93,7 @@ class LocalMethodLauncher(object):
                                             deconvoluted_filename='deconvoluted',
                                             result_precision: int = 3,
                                             subsampler: Subsampler = None,
+                                            debug: bool = False,
                                             ) -> None:
         output_path = self._set_paths(output_path, project_name)
 
@@ -110,7 +114,9 @@ class LocalMethodLauncher(object):
                                                                       microenvs,
                                                                       threshold,
                                                                       result_precision,
-                                                                      subsampler)
+                                                                      subsampler,
+                                                                      debug,
+                                                                      output_path)
 
         write_to_file(means, means_filename, output_path, output_format)
         write_to_file(significant_means, significant_means_filename, output_path, output_format)
@@ -135,6 +141,7 @@ class LocalMethodLauncher(object):
                                                         threads: int = -1,
                                                         result_precision: int = 3,
                                                         subsampler: Subsampler = None,
+                                                        debug: bool = True,
                                                         ) -> None:
         output_path = self._set_paths(output_path, project_name)
 
@@ -164,7 +171,9 @@ class LocalMethodLauncher(object):
                 threads,
                 debug_seed,
                 result_precision,
-                subsampler
+                subsampler,
+                debug,
+                output_path
             )
 
         write_to_file(means_simple, means_filename, output_path, output_format)
@@ -179,6 +188,12 @@ class LocalMethodLauncher(object):
 
     @staticmethod
     def _set_paths(output_path, project_name):
+        """
+        Set and create the output path.
+        
+        Defines output path based on the output_path and project_name options
+        and then creates the required folder if it doesn't exist already.
+        """
         if not output_path:
             output_path = output_dir
         if project_name:
@@ -198,15 +213,16 @@ class LocalMethodLauncher(object):
 
         Parameters
         ----------
-        counts_filename
+        counts_filename: str
             Path to the counts file.
-        meta_filename
+        meta_filename: str
             Path to the meta file.
 
         Returns
         -------
-        Tuple
-            Two dataframes representing counts and meta.
+        Tuple: A tuple containing:
+            - counts loaded as a DataFrame.
+            - meta loaded as a DataFrame.
         
         Raises
         ------
@@ -236,9 +252,8 @@ class LocalMethodLauncher(object):
 
         Returns
         -------
-        DataFrame
-            Microenvrionments as a DataFrame with cluster and cluster
-            and microenvironment name columns.
+        pd.DataFrame
+            Microenvrionments as a DataFrame read fro the input file.
         """
         CELL_TYPE = "cell_type"
         MICRO_ENVIRONMENT = "microenvironment"
@@ -295,6 +310,18 @@ class LocalMethodLauncher(object):
 
     @staticmethod
     def _check_counts_data(counts: pd.DataFrame, counts_data: str) -> None:
+        """Naive check count data agains counts gene names. 
+
+        This methdos quickly checks if count_data matches the all gene names and
+        gives a comprehensive warning.
+
+        Parameters
+        ----------
+        counts: pd.DataFrame
+            Counts data
+        counts_data: str
+            Gene format expected in counts data
+        """
         if ~np.all(counts.index.str.startswith("ENSG0")) and counts_data=="ensembl":
-            app_logger.warn(f"Gene format missmatch. Using '--counts-data {counts_data}' expects gene names to start with ENSG but some genes seem to be in another format. "
+            app_logger.warn(f"Gene format missmatch. Using gene type '{counts_data}' expects gene names to start with 'ENSG' but some genes seem to be in another format. "
             "Try using '--counts-data hgnc_symbol' if all counts are filtered.")

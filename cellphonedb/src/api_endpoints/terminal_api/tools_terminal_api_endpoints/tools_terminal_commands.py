@@ -23,7 +23,7 @@ from cellphonedb.utils import utils
 from cellphonedb.utils.utils import _get_separator, write_to_file
 
 
-@click.command()
+@click.command("generate_genes")
 @click.option('--user-gene', type=click.Path(file_okay=True, exists=True, dir_okay=False))
 @click.option('--fetch-uniprot', is_flag=True)
 @click.option('--fetch-ensembl', is_flag=True)
@@ -110,7 +110,7 @@ def generate_genes(user_gene: Optional[str],
     cpdb_genes[result_columns].to_csv('{}/{}'.format(output_path, 'gene_generated.csv'), index=False)
 
 
-@click.command()
+@click.command("generate_interactions")
 @click.argument('proteins', default='protein.csv', type=click.Path(file_okay=True, exists=True, dir_okay=False))
 @click.argument('genes', default='gene.csv', type=click.Path(file_okay=True, exists=True, dir_okay=False))
 @click.argument('complex', default='complex.csv', type=click.Path(file_okay=True, exists=True, dir_okay=False))
@@ -202,7 +202,7 @@ def generate_interactions(proteins: str,
         '{}/interaction_input.csv'.format(output_path), index=False)
 
 
-@click.command()
+@click.command("generate_proteins")
 @click.option('--user-protein', type=click.Path(file_okay=True, exists=True, dir_okay=False))
 @click.option('--fetch-uniprot', is_flag=True)
 @click.option('--result-path', type=str, default=None)
@@ -289,7 +289,7 @@ def generate_proteins(user_protein: Optional[str],
     result[result_columns].to_csv('{}/{}'.format(output_path, 'protein_generated.csv'), index=False)
 
 
-@click.command()
+@click.command("generate_complex")
 @click.option('--user-complex', type=click.Path(file_okay=True, exists=True, dir_okay=False))
 @click.option('--result-path', type=str, default=None)
 @click.option('--log-file', type=str, default='log.txt')
@@ -311,7 +311,7 @@ def generate_complex(user_complex: Optional[str],
     result.to_csv('{}/{}'.format(output_path, 'complex_generated.csv'), index=False)
 
 
-@click.command()
+@click.command("filter_all")
 @click.option('--input-path', type=str, default=data_dir)
 @click.option('--result-path', type=str, default='filtered')
 @click.option('--project-name', type=str, default=None)

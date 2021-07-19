@@ -13,7 +13,7 @@ from cellphonedb.src.database.manager.DatabaseVersionManager import collect_data
 from cellphonedb.utils.utils import set_paths
 
 
-@click.command()
+@click.command("collect")
 @click.option('--database', default='cellphone_custom_{}.db'.format(datetime.now().strftime("%Y-%m-%d-%H_%M")),
               help='output file name [cellphone_custom_<current date_time>.db]')
 @click.option('--result-path', default='', help='output folder for the collected database')
@@ -23,23 +23,23 @@ def collect(database, result_path):
     DatabaseVersionManager.collect_database(database, output_path)
 
 
-@click.command()
+@click.command("download")
 @click.option('--version', type=str, default='latest')
 def download(version: str):
     DatabaseVersionManager.download_database(version)
 
 
-@click.command()
+@click.command("list_remote")
 def list_remote():
     DatabaseVersionManager.list_remote_database_versions()
 
 
-@click.command()
+@click.command("list_local")
 def list_local():
     DatabaseVersionManager.list_local_database_versions()
 
 
-@click.command()
+@click.command("generate")
 @click.option('--user-protein', type=click.Path(file_okay=True, exists=True, dir_okay=False))
 @click.option('--user-gene', type=click.Path(file_okay=True, exists=True, dir_okay=False))
 @click.option('--user-complex', type=click.Path(file_okay=True, exists=True, dir_okay=False))
@@ -114,7 +114,7 @@ def generate(ctx: Context,
                      data_path=output_path)
 
 
-@click.command()
+@click.command("collect_generated")
 @click.argument('path', type=str)
 @click.option('--result-path', type=str, default=None)
 @click.option('--project-name', type=str, default=None)

@@ -1,8 +1,7 @@
-from functools import partial
-
+from typing import Tuple
 import pandas as pd
 import numpy as np
-
+import pickle
 from cellphonedb.src.core.core_logger import core_logger
 from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
 from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFound
@@ -18,13 +17,15 @@ def call(meta: pd.DataFrame,
          complex_compositions: pd.DataFrame,
          microenvs: pd.DataFrame,
          pvalue: float,
-         separator: str,
+         separator: str = '|',
          iterations: int = 1000,
          threshold: float = 0.1,
          threads: int = 4,
          debug_seed: int = -1,
          result_precision: int = 3,
-         ) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
+         debug: bool = False,
+         output_path: str = '',
+         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     core_logger.info(
         '[Cluster Statistical Analysis] '
         'Threshold:{} Iterations:{} Debug-seed:{} Threads:{} Precision:{}'.format(threshold,
@@ -35,26 +36,16 @@ def call(meta: pd.DataFrame,
     if debug_seed >= 0:
         np.random.seed(debug_seed)
         core_logger.warning('Debug random seed enabled. Setted to {}'.format(debug_seed))
-    cells_names = sorted(counts.columns)
 
-    interactions.set_index('id_interaction', drop=True, inplace=True)
+    # get reduced interactions (drop duplicateds)
     interactions_reduced = interactions[['multidata_1_id', 'multidata_2_id']].drop_duplicates()
-
-    complex_compositions.set_index('id_complex_composition', inplace=True, drop=True)
-    # Add id multidata to counts input
-    counts: pd.DataFrame = counts.merge(genes[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']],
-                                        left_index=True, right_on=counts_data)
-    counts_relations = counts[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']].copy()
-
-    counts.set_index('id_multidata', inplace=True, drop=True)
-    counts = counts[cells_names]
-    if np.any(counts.dtypes.values != np.dtype('float32')):
-        counts = counts.astype(np.float32)
-    counts = counts.groupby(counts.index).mean()
+    
+    # add multidata id and means to counts
+    counts, counts_relations = cpdb_statistical_analysis_helper.add_multidata_and_means_to_counts(
+        counts, genes, counts_data)
 
     if counts.empty:
         raise AllCountsFilteredException(hint='Are you using human data?')
-    # End add id multidata
 
     interactions_filtered, counts_filtered, complex_composition_filtered = \
         cpdb_statistical_analysis_helper.prefilters(interactions_reduced,
@@ -107,6 +98,24 @@ def call(meta: pd.DataFrame,
                                                                            base_result,
                                                                            separator)
 
+    if debug:
+        with open(f"{output_path}/debug_intermediate.pkl", "wb") as fh:
+            pickle.dump({
+                "genes": genes,
+                "interactions": interactions,
+                "interactions_filtered": interactions_filtered,
+                "interactions_reduced": interactions_reduced,
+                "complex_compositions": complex_compositions,
+                "counts": counts,
+                "counts_relations": counts_relations,
+                "clusters_means_percents": clusters,
+                "cluster_interactions": cluster_interactions,
+                "base_result": base_result,
+                "real_mean_analysis": real_mean_analysis,
+                "real_percent_analysis": real_percents_analysis,
+                "statistical_mean_analysis": statistical_mean_analysis,
+                "result_percent": result_percent}, fh)
+
     pvalues_result, means_result, significant_means, deconvoluted_result = build_results(
         interactions_filtered,
         interactions,
@@ -136,7 +145,7 @@ def build_results(interactions: pd.DataFrame,
                   result_precision: int,
                   pvalue: float,
                   counts_data: str
-                  ) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
+                  ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Sets the results data structure from method generated data. Results documents are defined by specs.
     """

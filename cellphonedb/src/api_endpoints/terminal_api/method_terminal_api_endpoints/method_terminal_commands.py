@@ -66,7 +66,7 @@ def common_options(f: Callable) -> Callable:
         click.option('--counts-data', type=click.Choice(['ensembl', 'gene_name', 'hgnc_symbol']), default='ensembl'),
         click.option('--project-name', default='', type=str,
                      help='Name of the project. It creates a subfolder in output folder'),
-        click.option('--microenvs', default="", type=str, help='Path to microenvironments file [None]'),
+        click.option('--microenvs', default='', type=str, help='Path to microenvironments file [None]'),
         click.option('--threshold', default=0.1, type=float, help='% of cells expressing a gene'),
         click.option('--result-precision', default='3', type=int, help='Number of decimal digits in results [3]'),
         click.option('--output-path', default='', type=str,
@@ -79,6 +79,7 @@ def common_options(f: Callable) -> Callable:
                      help='Deconvoluted result namefile [deconvoluted]'),
         click.option('--verbose/--quiet', default=True, help='Print or hide cellphonedb logs [verbose]'),
         click.option('--database', default='latest', callback=choose_database),
+        click.option('--debug', is_flag=True, help='Save intermediate and result data as a pickle files'),
         subsampling_options
     ]
 
@@ -88,7 +89,7 @@ def common_options(f: Callable) -> Callable:
     return f
 
 
-@click.command()
+@click.command("statistical_analysis")
 @common_options
 @click.option('--debug-seed', default='-1', type=int, help='Debug random seed 0 for disable it. >=0 to set it [-1]')
 @click.option('--pvalue', default=0.05, type=float, help='Pvalue threshold [0.05]')
@@ -97,27 +98,28 @@ def common_options(f: Callable) -> Callable:
 @click.option('--threads', default=4, type=int, help='Max of threads to process the data [4]')
 def statistical_analysis(meta_filename: str,
                          counts_filename: str,
-                         counts_data: str,
-                         microenvs: str,
-                         project_name: str,
-                         threshold: float,
-                         result_precision: int,
-                         output_path: str,
-                         output_format: str,
-                         means_result_name: str,
-                         significant_means_result_name: str,
-                         deconvoluted_result_name: str,
-                         verbose: bool,
-                         database: Optional[str],
-                         subsampling: bool,
-                         subsampling_log: bool,
-                         subsampling_num_pc: int,
-                         subsampling_num_cells: Optional[int],
-                         debug_seed: int,
-                         pvalue: float,
-                         pvalues_result_name: str,
-                         iterations: int,
-                         threads: int
+                         counts_data: str = 'ensembl',
+                         microenvs: str = '',
+                         project_name: str = '',
+                         threshold: float = 0.1,
+                         result_precision: int = 3,
+                         output_path: str = '',
+                         output_format: str = 'txt',
+                         means_result_name: str = 'means',
+                         significant_means_result_name: str = 'significant_means',
+                         deconvoluted_result_name: str = 'deconvoluted',
+                         verbose: bool = True,
+                         database: Optional[str] = 'latest',
+                         subsampling: bool = False,
+                         subsampling_log: bool = None,
+                         subsampling_num_pc: int = None,
+                         subsampling_num_cells: Optional[int] = None,
+                         debug_seed: int = -1,
+                         pvalue: float = 0.05,
+                         pvalues_result_name: str = 'pvalues',
+                         iterations: int = 1000,
+                         threads: int = 4,
+                         debug: bool = False,
                          ) -> None:
     try:
 
@@ -145,6 +147,7 @@ def statistical_analysis(meta_filename: str,
                                                             result_precision,
                                                             pvalue,
                                                             subsampler,
+                                                            debug,
                                                             )
     except (ReadFileException, ParseMetaException, ParseCountsException, ThresholdValueException,
             AllCountsFilteredException) as e:
@@ -168,26 +171,27 @@ def statistical_analysis(meta_filename: str,
             traceback.print_exc(file=sys.stdout)
 
 
-@click.command()
+@click.command("analysis")
 @common_options
 def analysis(meta_filename: str,
              counts_filename: str,
-             counts_data: str,
-             microenvs: str,
-             project_name: str,
-             threshold: float,
-             result_precision: int,
-             output_path: str,
-             output_format: str,
-             means_result_name: str,
-             significant_means_result_name: str,
-             deconvoluted_result_name: str,
-             verbose: bool,
-             database: Optional[str],
-             subsampling: bool,
-             subsampling_log: bool,
-             subsampling_num_pc: int,
-             subsampling_num_cells: Optional[int]
+             counts_data: str = 'ensembl',
+             microenvs: str = '',
+             project_name: str = '',
+             threshold: float = 0.1,
+             result_precision: int = 3,
+             output_path: str = '',
+             output_format: str = 'txt',
+             means_result_name: str = 'means',
+             significant_means_result_name: str = 'significant_means',
+             deconvoluted_result_name: str = 'deconvoluted',
+             verbose: bool = True,
+             database: Optional[str] = 'latest',
+             subsampling: bool = False,
+             subsampling_log: bool = None,
+             subsampling_num_pc: int = None,
+             subsampling_num_cells: Optional[int] = None,
+             debug: bool = False,
              ):
     try:
 
@@ -209,6 +213,7 @@ def analysis(meta_filename: str,
                                                                                                deconvoluted_result_name,
                                                                                                result_precision,
                                                                                                subsampler,
+                                                                                               debug,
                                                                                                )
     except (ReadFileException, ParseMetaException, ParseCountsException, ThresholdValueException,
             AllCountsFilteredException) as e:
@@ -232,7 +237,7 @@ def analysis(meta_filename: str,
         if verbose:
             traceback.print_exc(file=sys.stdout)
 
-@click.command()
+@click.command("degs_analysis")
 @common_options
 @click.argument('degs-filename', type=click.Path(exists=True))
 @click.option('--debug-seed', default='-1', type=int, help='Debug random seed 0 for disable it. >=0 to set it [-1]')
@@ -243,27 +248,28 @@ def analysis(meta_filename: str,
 def degs_analysis(meta_filename: str,
                 counts_filename: str,
                 degs_filename:str,
-                counts_data: str,
-                microenvs: str,
-                project_name: str,
-                threshold: float,
-                result_precision: int,
-                output_path: str,
-                output_format: str,
-                means_result_name: str,
-                significant_means_result_name: str,
-                deconvoluted_result_name: str,
-                verbose: bool,
-                database: Optional[str],
-                subsampling: bool,
-                subsampling_log: bool,
-                subsampling_num_pc: int,
-                subsampling_num_cells: Optional[int],
-                debug_seed: int,
-                pvalue: float,
-                relevant_interactions_filename: str,
-                iterations: int,
-                threads: int
+                counts_data: str = 'ensembl',
+                microenvs: str = '',
+                project_name: str = '',
+                threshold: float = 0.1,
+                result_precision: int = 3,
+                output_path: str = '',
+                output_format: str = 'txt',
+                means_result_name: str = 'means',
+                significant_means_result_name: str = 'significant_means',
+                deconvoluted_result_name: str = 'deconvoluted',
+                verbose: bool = True,
+                database: Optional[str] = 'latest',
+                subsampling: bool = False,
+                subsampling_log: bool = None,
+                subsampling_num_pc: int = None,
+                subsampling_num_cells: Optional[int] = None,
+                debug_seed: int = -1,
+                pvalue: float = 0.05,
+                relevant_interactions_filename: str = 'relevant_interactions',
+                iterations: int = 1000,
+                threads: int = 4,
+                debug = False
                 ) -> None:
     try:
 
@@ -291,6 +297,7 @@ def degs_analysis(meta_filename: str,
                                                             threads,
                                                             result_precision,
                                                             subsampler,
+                                                            debug
                                                             )
     except (ReadFileException, ParseMetaException, ParseCountsException, ThresholdValueException,
             AllCountsFilteredException) as e:
