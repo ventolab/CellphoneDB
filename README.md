@@ -43,6 +43,10 @@ curl https://raw.githubusercontent.com/Teichlab/cellphonedb/master/in/example_da
 
 Note: counts file can be a text file or `h5ad` (recoommended), `h5` or a path to a folder containing `mtx/barcode/features`.
 
+####  Example with running the DEG-based method
+```shell
+cellphonedb method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt
+```
 
 ####  Example with running the statistical method
 ```shell
@@ -60,10 +64,14 @@ cellphonedb method analysis test_meta.txt test_counts.txt
 cellphonedb method analysis test_meta.txt test_counts.h5ad
 ```
 
-
 ####  Example running a microenviroments file
 ```shell
 cellphonedb method statistical_analysis test_meta.txt test_counts.txt --microenvs test_microenvs.txt
+```
+
+####  Example running the DEG-based method with microenviroments file
+```shell
+cellphonedb method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt --microenvs test_microenvs.txt
 ```
 
 
