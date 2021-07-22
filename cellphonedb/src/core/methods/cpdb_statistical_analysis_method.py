@@ -1,3 +1,4 @@
+from typing import Tuple
 import pandas as pd
 
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
@@ -17,8 +18,10 @@ def call(meta: pd.DataFrame,
          debug_seed: int,
          result_precision: int,
          pvalue: float,
-         separator: str
-         ) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
+         separator: str = '|',
+         debug: bool = False,
+         output_path: str = '',
+         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     pvalues, means, significant_means, deconvoluted = \
         cpdb_statistical_analysis_complex_method.call(meta.copy(),
@@ -36,6 +39,8 @@ def call(meta: pd.DataFrame,
                                                       threads,
                                                       debug_seed,
                                                       result_precision,
+                                                      debug,
+                                                      output_path
                                                       )
 
 

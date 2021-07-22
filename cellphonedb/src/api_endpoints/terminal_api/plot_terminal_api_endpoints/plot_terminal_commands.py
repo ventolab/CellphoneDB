@@ -14,7 +14,7 @@ except MissingR:
     print('As there is no R environment set up, some functionalities will be disabled, e.g. plot')
 
 
-@click.command()
+@click.command("dot_plot")
 @click.option('--means-path', type=click.Path(exists=True, file_okay=True, dir_okay=False),
               default='./out/means.txt', help='Analysis output means [./out/means.txt]')
 @click.option('--pvalues-path', type=click.Path(exists=True, file_okay=True, dir_okay=False),
@@ -49,7 +49,7 @@ def dot_plot(means_path: str, pvalues_path: str, output_path: str, output_name: 
             app_logger.error('execute with --verbose to see full stack trace')
 
 
-@click.command()
+@click.command("heatmap_plot")
 @click.argument('meta-path', type=click.Path(exists=True, file_okay=True, dir_okay=False))
 @click.option('--pvalues-path', type=click.Path(exists=True, file_okay=True, dir_okay=False),
               default='./out/pvalues.txt', help='Analysis output pvalues [./out/pvalues.txt]')

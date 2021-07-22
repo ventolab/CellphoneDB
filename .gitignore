@@ -105,6 +105,7 @@ ENV/
 
 .idea
 .DS_Store
+.vscode
 proteins_in_curated.py
 
 test/
