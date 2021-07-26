@@ -8,6 +8,13 @@ CellPhoneDB integrates [existing datasets](Docs/ppi-resources.md) that pertain t
 CellPhoneDB can be used to search for a particular ligand/receptor, or interrogate your own single-cell transcriptomics data.
 
 
+## New in CellPhoneDB v3
+
+1. **Incorporate spatial information** CellPhoneDB now allows the incorporation of spatial information of the cells via the `microenvironments` file. This is a two columns file indicating which cell type is in which spatial microenvironment (see [example](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_microenviroments.tsv) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters sharing/coexisting in a microenvironment). You can define microenvironments with prior knowledge, imaging or Visium analysis with [cell2location](https://cell2location.readthedocs.io/en/latest/notebooks/cell2location_short_demo_downstream.html#4.-Identify-groups-of-co-located-cell-types-using-matrix-factorisation).
+2. **New analysis method added**,  using differentially expressed genes (DEGs) instead of random shuffling (`cellphonedb method degs_analysis`). The user can compute DEGs using their preferred tool, and provide the information to CellphoneDB via text (see [example](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_DEGs.tsv) ). We provide [notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) for both Seurat and Scanpy users.
+3. **Database update** WNT pathway has been further curated.
+
+
 ## Starting to use CellPhoneDB 
 
 To start using CellPhoneDB, you can use our interactive web application ([cellphonedb.org](https://www.cellphonedb.org)) and run in the analysis in our private cloud, or just run CellPhoneDB with your own computational resources. (The latter is preferable if you are going to work with big datasets).
