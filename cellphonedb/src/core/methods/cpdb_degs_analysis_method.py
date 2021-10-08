@@ -113,7 +113,18 @@ def call(meta: pd.DataFrame,
     core_logger.info('Running Real Analysis')
     core_logger.debug('Generating cluster combinations')
     cluster_interactions = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'], microenvs)
-
+    
+    #Prepare DEGs matrix from input file
+    degs["deg"]=1
+    degs = pd.pivot_table(degs, values="deg", index="gene", columns="cluster", fill_value=0)
+    degs = degs.merge(genes[['id_multidata','ensembl','gene_name','hgnc_symbol']], left_on="gene", right_on=counts_data)
+    degs.set_index("id_multidata", inplace=True)
+    degs = degs[~degs.index.duplicated(keep='first')]
+    
+    # filter clusters interactions if at least one of them is in DEGs
+    degs_cluster_interactions = cluster_interactions[np.isin(cluster_interactions,degs.columns[:-3]).any(axis=1)]
+    degs_cluster_interactions = np.array(["|".join(cc) for cc in degs_cluster_interactions])
+    
     core_logger.debug('Build empty result matrix')
     base_result = cpdb_statistical_analysis_helper.build_result_matrix(interactions_filtered,
                                                                 cluster_interactions,
@@ -126,7 +137,7 @@ def call(meta: pd.DataFrame,
                                                                  separator)
 
     # filter real_mean_analysis using the threshold value:
-    #   if mean > threshold then value of [gene1|gene2][cluster1|cluster2] = 0; otherwise = 1
+    #   if mean > threshold then value of [gene1|gene2]/[cluster1|cluster2] = 0; otherwise = 1
     # in this case 0 is 'True' and 1 is 'False'
     core_logger.debug('Run Percent Analysis (real percent)')
     real_percents_analysis = cpdb_statistical_analysis_helper.percent_analysis(clusters,
@@ -139,29 +150,22 @@ def call(meta: pd.DataFrame,
     real_percents_analysis = real_percents_analysis.replace(0, 2).replace(1, 0).replace(2, 1)
 
     core_logger.info('Running DEGs-based Analysis')
-    
-    #Prepare DEGs matrix from input file
-    degs["deg"]=1
-    degs = pd.pivot_table(degs, values="deg", index="gene", columns="cluster", fill_value=0)
-    degs = degs.merge(genes[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']], left_on="gene", right_on=counts_data)
-    degs.set_index("id_multidata", inplace=True)
-    degs = degs[~degs.index.duplicated(keep='first')]
-    
-    degs_filtered = degs_analysis(degs, 
-                        interactions_filtered,
-                        cluster_interactions,
-                        separator)
+    degs_filtered = degs_analysis(degs, interactions_filtered,
+                        cluster_interactions, separator)
 
     core_logger.debug('Building relevant interactions (merge percent & DEGs analysis)')
     relevant_interactions = pd.DataFrame(real_percents_analysis.values & degs_filtered.values,
                                          columns=real_percents_analysis.columns,
                                          index=real_percents_analysis.index)
 
+
+    
     # change back 1s to 0s to make plotting work
     # in the final data 0 is relevant and 1 is NOT relevant
     real_percents_analysis = real_percents_analysis.replace(0, 2).replace(1, 0).replace(2, 1)
     relevant_interactions = relevant_interactions.replace(0, 2).replace(1, 0).replace(2, 1)
-
+    
+    
     if debug:
         core_logger.info('Saving intermediate data to file debug_intermediate.pkl')
         with open(f"{output_path}/debug_intermediate.pkl", "wb") as fh:
@@ -194,7 +198,8 @@ def call(meta: pd.DataFrame,
         counts,
         genes,
         result_precision,
-        counts_data
+        counts_data,
+        degs_cluster_interactions
     )
 
     max_rank = significant_means['rank'].max()
@@ -214,13 +219,15 @@ def build_results(interactions: pd.DataFrame,
                   counts: pd.DataFrame,
                   genes: pd.DataFrame,
                   result_precision: int,
-                  counts_data: str
+                  counts_data: str,
+                  degs_cluster_interactions: list
+                  
                   ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Sets the results data structure from method generated data. Results documents are defined by specs.
     """
     core_logger.info('Building results')
-    interactions: pd.DataFrame = interactions_original.loc[interactions.index]
+    interactions = interactions_original.loc[interactions.index]
     interactions['interaction_index'] = interactions.index
     interactions = interactions.merge(counts_relations, how='left', left_on='multidata_1_id', right_on='id_multidata', )
     interactions = interactions.merge(counts_relations, how='left', left_on='multidata_2_id', right_on='id_multidata',
@@ -279,24 +286,30 @@ def build_results(interactions: pd.DataFrame,
     for key, cluster_means in clusters_means.items():
         clusters_means[key] = cluster_means.round(result_precision)
 
-    # Document 1
-    relevant_interactions_result = pd.concat([interactions_data_result, relevant_interactions], axis=1, join='inner',
-                                             sort=False)
+    # Document 1: relevant_intearcitons.txt
+    # first concat interactions data and relevant interactions data
+    relevant_interactions_result = pd.concat(
+        [interactions_data_result, relevant_interactions], axis=1, join='inner', sort=False)
+    # then remove interactions that don't have any interaciton between DEGs the clusters
+    relevant_interactions_result = relevant_interactions_result[
+        (relevant_interactions_result[degs_cluster_interactions]==0).any(axis=1)]
 
-    # Document 2
-    means_result = pd.concat([interactions_data_result, real_mean_analysis], axis=1, join='inner', sort=False)
+    # Document 2: means.txt
+    means_result = pd.concat(
+        [interactions_data_result, real_mean_analysis], axis=1, join='inner', sort=False)
 
-    # Document 3
-    significant_means_result = pd.concat([interactions_data_result, significant_mean_rank, significant_means], axis=1,
-                                         join='inner', sort=False)
+    # Document 3: significant_means.txt
+    significant_means_result = pd.concat(
+        [interactions_data_result, significant_mean_rank, significant_means], axis=1,join='inner', sort=False)
 
-    # Document 5
+    # Document 4: deconvoluted.txt
     deconvoluted_result = cpdb_statistical_analysis_complex_method.deconvoluted_complex_result_build(clusters_means,
                                                             interactions,
                                                             complex_compositions,
                                                             counts,
                                                             genes,
                                                             counts_data)
+    
 
     return relevant_interactions_result, means_result, significant_means_result, deconvoluted_result
 
