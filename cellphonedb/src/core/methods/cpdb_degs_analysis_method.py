@@ -154,16 +154,11 @@ def call(meta: pd.DataFrame,
                         cluster_interactions, separator)
 
     core_logger.debug('Building relevant interactions (merge percent & DEGs analysis)')
+    # in the final relevant interactions file 1 is relevant and 0 is not relevant
     relevant_interactions = pd.DataFrame(real_percents_analysis.values & degs_filtered.values,
                                          columns=real_percents_analysis.columns,
                                          index=real_percents_analysis.index)
 
-
-    
-    # change back 1s to 0s to make plotting work
-    # in the final data 0 is relevant and 1 is NOT relevant
-    real_percents_analysis = real_percents_analysis.replace(0, 2).replace(1, 0).replace(2, 1)
-    relevant_interactions = relevant_interactions.replace(0, 2).replace(1, 0).replace(2, 1)
     
     
     if debug:
@@ -274,8 +269,7 @@ def build_results(interactions: pd.DataFrame,
     # Dedupe rows and filter only desired columns
     interactions_data_result.drop_duplicates(inplace=True)
 
-    means_columns = ['id_cp_interaction', 'interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'secreted',
-                     'receptor_a', 'receptor_b', 'annotation_strategy', 'is_integrin']
+    means_columns = ['id_cp_interaction', 'interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'secreted', 'receptor_a', 'receptor_b', 'annotation_strategy', 'is_integrin']
 
     interactions_data_result = interactions_data_result[means_columns]
 
@@ -292,8 +286,11 @@ def build_results(interactions: pd.DataFrame,
         [interactions_data_result, relevant_interactions], axis=1, join='inner', sort=False)
     # then remove interactions that don't have any interaciton between DEGs the clusters
     relevant_interactions_result = relevant_interactions_result[
-        (relevant_interactions_result[degs_cluster_interactions]==0).any(axis=1)]
-
+        (relevant_interactions_result[degs_cluster_interactions]==1).any(axis=1)]
+    # drop all columns that don't have a relevant interaction
+    relevant_interactions_result =relevant_interactions_result.loc[
+        :,~(relevant_interactions_result==0).all(axis=0)]
+    
     # Document 2: means.txt
     means_result = pd.concat(
         [interactions_data_result, real_mean_analysis], axis=1, join='inner', sort=False)
