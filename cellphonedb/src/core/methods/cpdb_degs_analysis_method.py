@@ -82,6 +82,8 @@ def call(meta: pd.DataFrame,
                                                                                   debug_seed,
                                                                                   threads,
                                                                                   result_precision))
+    core_logger.warning('=====\nDEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!=====\n')
+
     if debug_seed >= 0:
         np.random.seed(debug_seed)
         core_logger.warning('Debug random seed enabled. Set to {}'.format(debug_seed))
@@ -145,9 +147,6 @@ def call(meta: pd.DataFrame,
                                                                                 interactions_filtered,
                                                                                 cluster_interactions,
                                                                                 separator)
-    # change real percent analysis 0s to 1s 
-    # makes it easier to apply the AND filter with DEGs
-    real_percents_analysis = real_percents_analysis.replace(0, 2).replace(1, 0).replace(2, 1)
 
     core_logger.info('Running DEGs-based Analysis')
     degs_filtered = degs_analysis(degs, interactions_filtered,
@@ -155,7 +154,7 @@ def call(meta: pd.DataFrame,
 
     core_logger.debug('Building relevant interactions (merge percent & DEGs analysis)')
     # in the final relevant interactions file 1 is relevant and 0 is not relevant
-    relevant_interactions = pd.DataFrame(real_percents_analysis.values & degs_filtered.values,
+    relevant_interactions = pd.DataFrame(~real_percents_analysis.values & degs_filtered.values,
                                          columns=real_percents_analysis.columns,
                                          index=real_percents_analysis.index)
 
