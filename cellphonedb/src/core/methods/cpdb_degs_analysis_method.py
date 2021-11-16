@@ -82,7 +82,10 @@ def call(meta: pd.DataFrame,
                                                                                   debug_seed,
                                                                                   threads,
                                                                                   result_precision))
-    core_logger.warning('=====\nDEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!=====\n')
+    core_logger.warning("""
+***********************************
+DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
+***********************************""")
 
     if debug_seed >= 0:
         np.random.seed(debug_seed)
@@ -109,8 +112,11 @@ def call(meta: pd.DataFrame,
 
     meta = meta.loc[counts.columns]
 
-    clusters = cpdb_statistical_analysis_helper.build_clusters(meta, counts_filtered, complex_composition_filtered,
-                                                        skip_percent=False)
+    clusters = cpdb_statistical_analysis_helper.build_clusters(
+                                                            meta,
+                                                            counts_filtered,
+                                                            complex_composition_filtered,
+                                                            skip_percent=False)
 
     core_logger.info('Running Real Analysis')
     core_logger.debug('Generating cluster combinations')
@@ -138,9 +144,7 @@ def call(meta: pd.DataFrame,
                                                                  cluster_interactions,
                                                                  separator)
 
-    # filter real_mean_analysis using the threshold value:
-    #   if mean > threshold then value of [gene1|gene2]/[cluster1|cluster2] = 0; otherwise = 1
-    # in this case 0 is 'True' and 1 is 'False'
+    # do percent_analysis using the threshold value:
     core_logger.debug('Run Percent Analysis (real percent)')
     real_percents_analysis = cpdb_statistical_analysis_helper.percent_analysis(clusters,
                                                                                 threshold,
@@ -148,13 +152,14 @@ def call(meta: pd.DataFrame,
                                                                                 cluster_interactions,
                                                                                 separator)
 
+
     core_logger.info('Running DEGs-based Analysis')
     degs_filtered = degs_analysis(degs, interactions_filtered,
                         cluster_interactions, separator)
 
     core_logger.debug('Building relevant interactions (merge percent & DEGs analysis)')
-    # in the final relevant interactions file 1 is relevant and 0 is not relevant
-    relevant_interactions = pd.DataFrame(~real_percents_analysis.values & degs_filtered.values,
+    # get relevant interactions by intersecting percent_analysis and DEGs result
+    relevant_interactions = pd.DataFrame(real_percents_analysis.values & degs_filtered.values,
                                          columns=real_percents_analysis.columns,
                                          index=real_percents_analysis.index)
 
