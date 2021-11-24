@@ -122,16 +122,6 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
     core_logger.debug('Generating cluster combinations')
     cluster_interactions = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'], microenvs)
     
-    #Prepare DEGs matrix from input file
-    degs["deg"]=1
-    degs = pd.pivot_table(degs, values="deg", index="gene", columns="cluster", fill_value=0)
-    degs = degs.merge(genes[['id_multidata','ensembl','gene_name','hgnc_symbol']], left_on="gene", right_on=counts_data)
-    degs.set_index("id_multidata", inplace=True)
-    degs = degs[~degs.index.duplicated(keep='first')]
-    
-    # filter clusters interactions if at least one of them is in DEGs
-    degs_cluster_interactions = cluster_interactions[np.isin(cluster_interactions,degs.columns[:-3]).any(axis=1)]
-    degs_cluster_interactions = np.array(["|".join(cc) for cc in degs_cluster_interactions])
     
     core_logger.debug('Build empty result matrix')
     base_result = cpdb_statistical_analysis_helper.build_result_matrix(interactions_filtered,
@@ -143,7 +133,6 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
                                                                  clusters,
                                                                  cluster_interactions,
                                                                  separator)
-
     # do percent_analysis using the threshold value:
     core_logger.debug('Run Percent Analysis (real percent)')
     real_percents_analysis = cpdb_statistical_analysis_helper.percent_analysis(clusters,
@@ -152,18 +141,29 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
                                                                                 cluster_interactions,
                                                                                 separator)
 
-
     core_logger.info('Running DEGs-based Analysis')
-    degs_filtered = degs_analysis(degs, interactions_filtered,
-                        cluster_interactions, separator)
+
+    # Prepare DEGs matrix from input file
+    degs = build_degs_matrix(degs,
+                             genes,
+                             counts_data,
+                             clusters['percents'].index,
+                             clusters['percents'].columns)
+
+    # filter clusters interactions if at least one of them is in DEGs
+    degs_cluster_interactions = cluster_interactions[np.isin(cluster_interactions,degs.columns[:-3]).any(axis=1)]
+    degs_cluster_interactions = np.array(["|".join(cc) for cc in degs_cluster_interactions])
+
+    real_degs_analysis = degs_analysis(degs,
+                                       interactions_filtered,
+                                       cluster_interactions,
+                                       separator)
 
     core_logger.debug('Building relevant interactions (merge percent & DEGs analysis)')
     # get relevant interactions by intersecting percent_analysis and DEGs result
-    relevant_interactions = pd.DataFrame(real_percents_analysis.values & degs_filtered.values,
-                                         columns=real_percents_analysis.columns,
-                                         index=real_percents_analysis.index)
-
-    
+    relevant_interactions = pd.DataFrame(real_percents_analysis.values & real_degs_analysis.values,
+                                         columns=real_degs_analysis.columns,
+                                         index=real_degs_analysis.index)
     
     if debug:
         core_logger.info('Saving intermediate data to file debug_intermediate.pkl')
@@ -176,13 +176,13 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
                 "complex_compositions": complex_compositions,
                 "counts": counts,
                 "counts_relations": counts_relations,
-                "clusters_means_percents": clusters,
+                "clusters": clusters,
                 "cluster_interactions": cluster_interactions,
                 "base_result": base_result,
                 "real_mean_analysis": real_mean_analysis,
                 "real_percent_analysis": real_percents_analysis,
-                "DEGs": degs,
-                "DEGs_filtered": degs_filtered,
+                "degs": degs,
+                "real_degs_analysis": real_degs_analysis,
                 "relevant_interactions": relevant_interactions}, fh)
 
     core_logger.debug('Building results')
@@ -292,7 +292,7 @@ def build_results(interactions: pd.DataFrame,
     relevant_interactions_result = relevant_interactions_result[
         (relevant_interactions_result[degs_cluster_interactions]==1).any(axis=1)]
     # drop all columns that don't have a relevant interaction
-    relevant_interactions_result =relevant_interactions_result.loc[
+    relevant_interactions_result = relevant_interactions_result.loc[
         :,~(relevant_interactions_result==0).all(axis=0)]
     
     # Document 2: means.txt
@@ -313,6 +313,55 @@ def build_results(interactions: pd.DataFrame,
     
 
     return relevant_interactions_result, means_result, significant_means_result, deconvoluted_result
+
+
+def build_degs_matrix(degs: pd.DataFrame,
+                      genes: pd.DataFrame,
+                      counts_data: str,
+                      index: pd.Index,
+                      columns: pd.Index) -> pd.DataFrame:
+    """
+    Reshape the input DEGs into a matrix with genes (id_metadata) as index
+    and clusters (cell_types) as columns.
+
+    The prepare process integrates id_multidata from genes into the DEGs
+    using the provided gene (2nd column from the input file) and the count_data.
+    Then drops possible duplicated genes and adds missing genes to match
+    the index.
+
+    Parameters
+    ----------
+    degs: pd.DataFrame
+        DEGs data.
+    genes: pd.DataFrame
+        Genes from CellPhoneDB database required for DEGs-CellPhoneDB gene mapping
+    counts_data: str
+        Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
+    index: pd.DataFrame
+        Multidata required for indexing
+    columns: list
+        List of cluster names to be used as column names
+    """
+
+    # create skeleton with all 0s
+    degs_base = pd.DataFrame(0, index=index, columns=columns)
+
+    # mark provided DEGs as active
+    d = degs.copy()
+    d["deg"]=1
+
+    # create matrix from input and add id_multidata
+    d = pd.pivot_table(d, values="deg", index="gene", columns="cluster", fill_value=0)
+    d = d.merge(genes[['id_multidata','ensembl','gene_name','hgnc_symbol']], left_on="gene", right_on=counts_data)
+
+    # make id_multidata index and drop duplicates so they don't
+    # conflict when updating the skeleton with the active DEGs
+    d.set_index("id_multidata", inplace=True)
+    d = d[~d.index.duplicated(keep='first')]
+
+    #update skeleton with active DEGs
+    degs_base.update(d)
+    return degs_base
 
 
 def degs_analysis(degs: pd.DataFrame,
@@ -360,8 +409,8 @@ def degs_analysis(degs: pd.DataFrame,
     gene1_ids = interactions[GENE_ID1].values
     gene2_ids = interactions[GENE_ID2].values
 
-    x = degs.reindex(index=gene1_ids, columns=cluster1_names, fill_value=0).values
-    y = degs.reindex(index=gene2_ids, columns=cluster2_names, fill_value=0).values
+    x = degs.loc[gene1_ids, cluster1_names].values
+    y = degs.loc[gene2_ids, cluster2_names].values
 
     result = pd.DataFrame(
         ((x + y) > 0).astype(int),
