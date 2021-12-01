@@ -140,7 +140,7 @@ In order to plot results from the statistical methods, you need to run it first.
 
 Currently there are two plot types available: `dot_plot` & `heatmap_plot`
 
-Once you have the needed files (`means` & `pvalues`) you can proceed as follows:
+Once you have the needed files (`means` & `pvalues` from method statistical_analysis or `means` & `relevant_interactions` from method degs_analysis) you can proceed as follows:
 ```shell
 cellphonedb plot dot_plot
 ```
