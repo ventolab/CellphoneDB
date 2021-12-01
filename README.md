@@ -50,6 +50,8 @@ curl https://raw.githubusercontent.com/Teichlab/cellphonedb/master/in/example_da
 
 Note: counts file can be a text file or `h5ad` (recoommended), `h5` or a path to a folder containing `mtx/barcode/features`.
 
+For more details on the analysis and outputs, check the [results documentation](Docs/RESULTS-DOCUMENTATION.md).
+
 ####  Example with running the DEG-based method
 ```shell
 cellphonedb method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt
