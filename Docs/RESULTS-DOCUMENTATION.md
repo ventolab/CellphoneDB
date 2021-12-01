@@ -17,11 +17,11 @@ When __reading the outputs__, is IMPORTANT to note that the interactions are not
 
 
 The output files are: 
-- The "means.csv" file contains mean values for each ligand-receptor interaction. 
-- The "pvalues.csv" contains the P values for the likelihood of cell-type specificity of a given receptor–ligand complex, resulting from the `statistical_analysis`. 
-- The "significant_means.csv" contains the mean expression (same as "means.csv") of the significant receptor–ligand complex, only. Is the results of crossing "means.csv" and "pvalues.csv".
-- The "relevant_interactions" contains a binary matrix indicating if the interaction is relevant (1) or not (0). An interaction is relevant if a gene is a DEG in a cluster/cell type (information from the user provided in the DEG.tsv file) and all the participant genes are expressed, the interaction will be classified as relevant. Alternatively, the value is set to 0.
-- The "deconvoluted.csv" file gives additional information for each of the interacting partners. This is important as some of the interacting partners are heteromers. In other words, multiple molecules have to be expressed in the same cluster in order for the interacting partner to be functional. 
+- The "means.txt" file contains mean values for each ligand-receptor interaction. 
+- The "pvalues.txt" contains the P values for the likelihood of cell-type specificity of a given receptor–ligand complex, resulting from the `statistical_analysis`. 
+- The "significant_means.txt" contains the mean expression (same as "means.txt") of the significant receptor–ligand complex, only. This is the result of crossing "means.csv" and "pvalues.txt".
+- The "relevant_interactions.txt" contains a binary matrix indicating if the interaction is relevant (1) or not (0). An interaction is relevant if a gene is a DEG in a cluster/cell type (information from the user provided in the DEG.tsv file) and all the participant genes are expressed, the interaction will be classified as relevant. Alternatively, the value is set to 0. This file is speficic to `degs_analysis`. 
+- The "deconvoluted.txt" file gives additional information for each of the interacting partners. This is important as some of the interacting partners are heteromers. In other words, multiple molecules have to be expressed in the same cluster in order for the interacting partner to be functional. 
 
 
 See below the meaning of each column in the outputs:
