@@ -5,7 +5,8 @@ CellPhoneDB is a publicly available repository of curated receptors, ligands and
 
 CellPhoneDB integrates [existing datasets](Docs/ppi-resources.md) that pertain to cellular communication and new manually reviewed information. Databases from which CellPhoneDB gets information are: UniProt, Ensembl, PDB, the IMEx consortium, IUPHAR.
 
-CellPhoneDB can be used to search for a particular ligand/receptor, or interrogate your own single-cell transcriptomics data.
+CellPhoneDB can be used to search for a particular ligand/receptor, or interrogate your own single-cell transcriptomics data. 
+For more details on the analysis check the [results documentation](Docs/RESULTS-DOCUMENTATION.md) or our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x).
 
 
 ## New in CellPhoneDB v3
@@ -13,12 +14,6 @@ CellPhoneDB can be used to search for a particular ligand/receptor, or interroga
 1. **Incorporate spatial information** CellPhoneDB now allows the incorporation of spatial information of the cells via the `microenvironments` file. This is a two columns file indicating which cell type is in which spatial microenvironment (see [example](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_microenviroments.tsv) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters sharing/coexisting in a microenvironment). You can define microenvironments with prior knowledge, imaging or Visium analysis with [cell2location](https://cell2location.readthedocs.io/en/latest/notebooks/cell2location_short_demo_downstream.html#4.-Identify-groups-of-co-located-cell-types-using-matrix-factorisation).
 2. **New analysis method added**,  using differentially expressed genes (DEGs) instead of random shuffling (`cellphonedb method degs_analysis`). This approach will select interactions where all the genes are expressed by a fraction of cells above a `--threshold` and at least one gene is a DEG. The user can identify DEGs using their preferred tool and provide the information to CellphoneDB via text file. The first column should be the cell type/cluster and the second column the associated gene id. The remaining columns are ignored (see [example](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_DEGs.tsv) ). We provide [notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) for both Seurat and Scanpy users.  
 3. **Database update** WNT pathway has been further curated.
-
-
-## Starting to use CellPhoneDB 
-
-To start using CellPhoneDB, you can use our interactive web application ([cellphonedb.org](https://www.cellphonedb.org)) and run in the analysis in our private cloud, or just run CellPhoneDB with your own computational resources. (The latter is preferable if you are going to work with big datasets).
-
 
 ### Installing CellPhoneDB
 NOTE: Works with Python v3.6 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
@@ -49,8 +44,6 @@ curl https://raw.githubusercontent.com/Teichlab/cellphonedb/master/in/example_da
 ```
 
 Note: counts file can be a text file or `h5ad` (recoommended), `h5` or a path to a folder containing `mtx/barcode/features`.
-
-For more details on the analysis and outputs, check the [results documentation](Docs/RESULTS-DOCUMENTATION.md).
 
 ####  Example with running the DEG-based method
 ```shell
@@ -83,8 +76,8 @@ cellphonedb method statistical_analysis test_meta.txt test_counts.txt --microenv
 cellphonedb method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt --microenvs test_microenvs.txt
 ```
 
+To understand the different analysis and results, please check the [results documentation](Docs/RESULTS-DOCUMENTATION.md).
 
-Please check the [results documentation](Docs/RESULTS-DOCUMENTATION.md) in order to understand the results.
 
 ### Optional Parameters
 
