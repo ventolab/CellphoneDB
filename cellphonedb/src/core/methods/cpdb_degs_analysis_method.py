@@ -144,22 +144,21 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
     core_logger.info('Running DEGs-based Analysis')
 
     # Prepare DEGs matrix from input file
+    raw_degs = degs.copy()
     degs = build_degs_matrix(degs,
                              genes,
-                             counts_data,
-                             clusters['percents'].index,
-                             clusters['percents'].columns)
+                             meta,
+                             counts_filtered,
+                             complex_composition_filtered,
+                             counts_data)
 
-    # filter clusters interactions if at least one of them is in DEGs
-    degs_cluster_interactions = cluster_interactions[np.isin(cluster_interactions,degs.columns[:-3]).any(axis=1)]
-    degs_cluster_interactions = np.array(["|".join(cc) for cc in degs_cluster_interactions])
 
     real_degs_analysis = degs_analysis(degs,
                                        interactions_filtered,
                                        cluster_interactions,
                                        separator)
 
-    core_logger.debug('Building relevant interactions (merge percent & DEGs analysis)')
+    core_logger.debug('Building relevant interactions (intersect percent & DEGs analysis)')
     # get relevant interactions by intersecting percent_analysis and DEGs result
     relevant_interactions = pd.DataFrame(real_percents_analysis.values & real_degs_analysis.values,
                                          columns=real_degs_analysis.columns,
@@ -169,12 +168,15 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
         core_logger.info('Saving intermediate data to file debug_intermediate.pkl')
         with open(f"{output_path}/debug_intermediate.pkl", "wb") as fh:
             pickle.dump({
+                "meta": meta,
                 "genes": genes,
                 "interactions": interactions,
                 "interactions_filtered": interactions_filtered,
                 "interactions_reduced": interactions_reduced,
                 "complex_compositions": complex_compositions,
+                "complex_composition_filtered": complex_composition_filtered,
                 "counts": counts,
+                "counts_filtered": counts_filtered,
                 "counts_relations": counts_relations,
                 "clusters": clusters,
                 "cluster_interactions": cluster_interactions,
@@ -197,8 +199,7 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
         counts,
         genes,
         result_precision,
-        counts_data,
-        degs_cluster_interactions
+        counts_data
     )
 
     max_rank = significant_means['rank'].max()
@@ -218,10 +219,7 @@ def build_results(interactions: pd.DataFrame,
                   counts: pd.DataFrame,
                   genes: pd.DataFrame,
                   result_precision: int,
-                  counts_data: str,
-                  degs_cluster_interactions: list
-                  
-                  ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+                  counts_data: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Sets the results data structure from method generated data. Results documents are defined by specs.
     """
@@ -273,7 +271,8 @@ def build_results(interactions: pd.DataFrame,
     # Dedupe rows and filter only desired columns
     interactions_data_result.drop_duplicates(inplace=True)
 
-    means_columns = ['id_cp_interaction', 'interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'secreted', 'receptor_a', 'receptor_b', 'annotation_strategy', 'is_integrin']
+    means_columns = ['id_cp_interaction', 'interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'secreted',
+                     'receptor_a', 'receptor_b', 'annotation_strategy', 'is_integrin']
 
     interactions_data_result = interactions_data_result[means_columns]
 
@@ -285,16 +284,16 @@ def build_results(interactions: pd.DataFrame,
         clusters_means[key] = cluster_means.round(result_precision)
 
     # Document 1: relevant_intearcitons.txt
-    # first concat interactions data and relevant interactions data
+    # drop irrelevant interactions (all zeros)
+    relevant_interactions = relevant_interactions.loc[
+        (relevant_interactions!=0).any(axis=1)]
+    # drop irrelvant clusters (columns with all zeros)
+    relevant_interactions = relevant_interactions.loc[
+        :,(relevant_interactions!=0).any(axis=0)]
+    # concat interactions data and relevant interactions data
     relevant_interactions_result = pd.concat(
         [interactions_data_result, relevant_interactions], axis=1, join='inner', sort=False)
-    # then remove interactions that don't have any interaciton between DEGs the clusters
-    relevant_interactions_result = relevant_interactions_result[
-        (relevant_interactions_result[degs_cluster_interactions]==1).any(axis=1)]
-    # drop all columns that don't have a relevant interaction
-    relevant_interactions_result = relevant_interactions_result.loc[
-        :,~(relevant_interactions_result==0).all(axis=0)]
-    
+
     # Document 2: means.txt
     means_result = pd.concat(
         [interactions_data_result, real_mean_analysis], axis=1, join='inner', sort=False)
@@ -314,12 +313,12 @@ def build_results(interactions: pd.DataFrame,
 
     return relevant_interactions_result, means_result, significant_means_result, deconvoluted_result
 
-
 def build_degs_matrix(degs: pd.DataFrame,
                       genes: pd.DataFrame,
-                      counts_data: str,
-                      index: pd.Index,
-                      columns: pd.Index) -> pd.DataFrame:
+                      meta: pd.DataFrame,
+                      counts: pd.DataFrame,
+                      complex_composition: pd.DataFrame,
+                      counts_data: str) -> pd.DataFrame:
     """
     Reshape the input DEGs into a matrix with genes (id_metadata) as index
     and clusters (cell_types) as columns.
@@ -327,7 +326,7 @@ def build_degs_matrix(degs: pd.DataFrame,
     The prepare process integrates id_multidata from genes into the DEGs
     using the provided gene (2nd column from the input file) and the count_data.
     Then drops possible duplicated genes and adds missing genes to match
-    the index.
+    the index. Also adds the complexes calculations.
 
     Parameters
     ----------
@@ -335,16 +334,22 @@ def build_degs_matrix(degs: pd.DataFrame,
         DEGs data.
     genes: pd.DataFrame
         Genes from CellPhoneDB database required for DEGs-CellPhoneDB gene mapping
+    meta: pd.DataFrame
+        Meta data.
+    counts: pd.DataFrame
+        Multidata required for indexing
+    complex_composition: list
+        List of cluster names to be used as column names
     counts_data: str
         Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
-    index: pd.DataFrame
-        Multidata required for indexing
-    columns: list
-        List of cluster names to be used as column names
     """
 
-    # create skeleton with all 0s
-    degs_base = pd.DataFrame(0, index=index, columns=columns)
+    CELL_TYPE = 'cell_type'
+    COMPLEX_ID = 'complex_multidata_id'
+    PROTEIN_ID = 'protein_multidata_id'
+
+    meta[CELL_TYPE] = meta[CELL_TYPE].astype('category')
+    cluster_names = meta[CELL_TYPE].cat.categories
 
     # mark provided DEGs as active
     d = degs.copy()
@@ -352,16 +357,27 @@ def build_degs_matrix(degs: pd.DataFrame,
 
     # create matrix from input and add id_multidata
     d = pd.pivot_table(d, values="deg", index="gene", columns="cluster", fill_value=0)
-    d = d.merge(genes[['id_multidata','ensembl','gene_name','hgnc_symbol']], left_on="gene", right_on=counts_data)
+    d = d.merge(genes[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']],left_index=True,right_on=counts_data)
+    d.set_index('id_multidata', inplace=True, drop=True)
+    d = d.groupby(d.index).max()
 
-    # make id_multidata index and drop duplicates so they don't
-    # conflict when updating the skeleton with the active DEGs
-    d.set_index("id_multidata", inplace=True)
-    d = d[~d.index.duplicated(keep='first')]
+    # sort cell names
+    cells_names = sorted(d.columns)
+    d = d[cells_names]
 
-    #update skeleton with active DEGs
-    degs_base.update(d)
-    return degs_base
+    # Simple DEGs cluster count
+    cluster_degs = pd.DataFrame(0, index=counts.index, columns=cluster_names.to_list())
+    cluster_degs.update(d)
+
+    # add complexes and check if they are DEGs (max)
+    complexes = complex_composition.groupby(COMPLEX_ID).apply(lambda x: x[PROTEIN_ID].values).to_dict()
+    complex_degs = pd.DataFrame(
+        {complex_id: cluster_degs.loc[protein_ids].max(axis=0).values
+         for complex_id, protein_ids in complexes.items()},
+        index=cluster_degs.columns
+    ).T
+    cluster_degs = cluster_degs.append(complex_degs)
+    return cluster_degs
 
 
 def degs_analysis(degs: pd.DataFrame,
