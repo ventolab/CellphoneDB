@@ -1,11 +1,10 @@
 # CellPhoneDB
 
 ## What is CellPhoneDB?
-CellPhoneDB is a publicly available repository of curated receptors, ligands and their interactions. Subunit architecture is included for both ligands and receptors, representing heteromeric complexes accurately. This is crucial, as cell-cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies.
+CellPhoneDB is a publicly available repository of curated receptors, ligands and their interactions. Subunit architecture is included for both ligands and receptors, representing heteromeric complexes accurately. This is crucial, as cell-cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB can be used to search for a particular ligand/receptor, or interrogate your own single-cell transcriptomics data. 
 
 CellPhoneDB integrates [existing datasets](Docs/ppi-resources.md) that pertain to cellular communication and new manually reviewed information. Databases from which CellPhoneDB gets information are: UniProt, Ensembl, PDB, the IMEx consortium, IUPHAR.
 
-CellPhoneDB can be used to search for a particular ligand/receptor, or interrogate your own single-cell transcriptomics data. 
 For more details on the analysis check the [results documentation](Docs/RESULTS-DOCUMENTATION.md) or our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x).
 
 
