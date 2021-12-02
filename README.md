@@ -43,7 +43,8 @@ curl https://raw.githubusercontent.com/Teichlab/cellphonedb/master/in/example_da
 curl https://raw.githubusercontent.com/Teichlab/cellphonedb/master/in/example_data/test_meta.txt --output test_meta.txt
 ```
 
-Note: counts file can be a text file or `h5ad` (recoommended), `h5` or a path to a folder containing `mtx/barcode/features`.
+#### Preparing your counts input file
+Counts file can be a text file or a `h5ad` (recommended), `h5` or a path to a folder containing a 10x output with `mtx/barcode/features` files.
 
 ####  Example with running the DEG-based method
 ```shell
