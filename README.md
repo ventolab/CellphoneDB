@@ -5,7 +5,7 @@ CellPhoneDB is a publicly available repository of curated receptors, ligands and
 
 CellPhoneDB integrates [existing datasets](Docs/ppi-resources.md) that pertain to cellular communication and new manually reviewed information. Databases from which CellPhoneDB gets information are: UniProt, Ensembl, PDB, the IMEx consortium, IUPHAR.
 
-For more details on the analysis check the [results documentation](Docs/RESULTS-DOCUMENTATION.md) or our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x).
+For more details on the analysis check the [results documentation](Docs/RESULTS-DOCUMENTATION.md), our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB v3).
 
 
 ## New in CellPhoneDB v3
@@ -13,6 +13,8 @@ For more details on the analysis check the [results documentation](Docs/RESULTS-
 1. **Incorporate spatial information** CellPhoneDB now allows the incorporation of spatial information of the cells via the `microenvironments` file. This is a two columns file indicating which cell type is in which spatial microenvironment (see [example](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_microenviroments.tsv) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters sharing/coexisting in a microenvironment). You can define microenvironments with prior knowledge, imaging or Visium analysis with [cell2location](https://cell2location.readthedocs.io/en/latest/notebooks/cell2location_short_demo_downstream.html#4.-Identify-groups-of-co-located-cell-types-using-matrix-factorisation).
 2. **New analysis method added**,  using differentially expressed genes (DEGs) instead of random shuffling (`cellphonedb method degs_analysis`). This approach will select interactions where all the genes are expressed by a fraction of cells above a `--threshold` and at least one gene is a DEG. The user can identify DEGs using their preferred tool and provide the information to CellphoneDB via text file. The first column should be the cell type/cluster and the second column the associated gene id. The remaining columns are ignored (see [example](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_DEGs.tsv) ). We provide [notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) for both Seurat and Scanpy users.  
 3. **Database update** WNT pathway has been further curated.
+
+Check [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) for an example applying CellphoneDB v3.
 
 ### Installing CellPhoneDB
 NOTE: Works with Python v3.6 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
