@@ -46,9 +46,7 @@ curl https://raw.githubusercontent.com/Teichlab/cellphonedb/master/in/example_da
 ```
 
 #### Preparing your counts input file
-Counts file can be a text file or a `h5ad` (recommended), `h5` or a path to a folder containing a 10x output with `mtx/barcode/features` files.
-
-Your gene/protein **ids must be HUMAN**.
+Counts file can be a text file or a `h5ad` (recommended), `h5` or a path to a folder containing a 10x output with `mtx/barcode/features` files. NOTE: Your gene/protein **ids must be HUMAN**. If you are working with another specie such as mouse, we recommend you to convert the gene ids to their corresponding orthologous. 
 
 ####  Example with running the DEG-based method
 ```shell
