@@ -48,6 +48,8 @@ curl https://raw.githubusercontent.com/Teichlab/cellphonedb/master/in/example_da
 #### Preparing your counts input file
 Counts file can be a text file or a `h5ad` (recommended), `h5` or a path to a folder containing a 10x output with `mtx/barcode/features` files.
 
+Your gene/protein **ids must be HUMAN**.
+
 ####  Example with running the DEG-based method
 ```shell
 cellphonedb method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt
