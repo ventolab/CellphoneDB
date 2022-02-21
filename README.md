@@ -17,7 +17,7 @@ For more details on the analysis check the [documentation here](Docs/RESULTS-DOC
 
 Check [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) for an example applying CellphoneDB v3.
 
-### Installing CellPhoneDB
+## Installing CellPhoneDB
 NOTE: Works with Python v3.6 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
 We highly recommend using an isolated python environment (as described in steps 1 and 2) using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or [virtualenv](https://docs.python.org/3/library/venv.html) but you could of course omit these steps and install via `pip` immediately.
@@ -45,9 +45,17 @@ curl https://raw.githubusercontent.com/Teichlab/cellphonedb/master/in/example_da
 curl https://raw.githubusercontent.com/Teichlab/cellphonedb/master/in/example_data/test_meta.txt --output test_meta.txt
 ```
 
-#### Preparing your counts input file
+### Prepatring INPUTS
+#### Preparing your counts input file (mandatory)
 Counts file can be a text file or a `h5ad` (recommended), `h5` or a path to a folder containing a 10x output with `mtx/barcode/features` files. NOTE: Your gene/protein **ids must be HUMAN**. If you are working with another specie such as mouse, we recommend you to convert the gene ids to their corresponding orthologous. 
 
+#### Preparing your DEGs file (optional, if `method degs_analysis`)
+This is a two columns file indicanting which gene is specific or upregulated in a cell type (see [example](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_DEGs.tsv) ). The first column should be the cell type/cluster name (matching those in `meta.txt`) and the second column the associated gene id. The remaining columns are ignored. We provide [notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) for both Seurat and Scanpy users. It is on you to design a DEG analysis appropiated for your research question. 
+
+#### Preparing your microenviroments file (optional, if `--microenvs`)
+This is a two columns file indicating which cell type is in which spatial microenvironment (see [example](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_microenviroments.tsv) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters co-appearing in a microenvironment). 
+
+### RUN examples
 ####  Example with running the DEG-based method
 ```shell
 cellphonedb method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt
