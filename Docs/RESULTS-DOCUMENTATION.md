@@ -1,29 +1,29 @@
 CELLPHONEDB GUIDE
 ============================================
 
-## Three analysis types in CellPhoneDB
+## Analysis types in CellPhoneDB
 There are three ways of running cellphoneDB, each producing a specific output:
 
 - **statistical_analysis** (>= v1): This is a statistical analysis to retrieve all the interactions that can potentially occur in your dataset between ALL cell type pairs. Here, CellphoneDB uses empirical shuffling to calculate which ligand–receptor pairs display significant cell-type specificity. Specifically, it estimates a null distribution of the mean of the average ligand and receptor expression in the interacting clusters by randomly permuting the cluster labels of all cells. The P value for the likelihood of cell-type specificity of a given receptor–ligand complex is calculated on the basis of the proportion of the means that are as high as or higher than the actual mean. 
-    - Example command: 
-    ```shell
-    cellphonedb method statistical_analysis test_meta.txt test_counts.txt
-    ```
-    -  Output: If the user uses the statistical inference approach (`method statistical_analysis`), additional "pvalues.csv" and "significant_means.csv" file are generated with the values for the significant interactions. Finally, ligand–receptor pairs are ranked on the basis of their total number of significant P values across the cell populations. 
+    - Example command:
+    ```shell
+    cellphonedb method statistical_analysis test_meta.txt test_counts.txt
+    ```
+    -  Output: If the user uses the statistical inference approach (`method statistical_analysis`), additional "pvalues.csv" and "significant_means.csv" file are generated with the values for the significant interactions. Finally, ligand–receptor pairs are ranked on the basis of their total number of significant P values across the cell populations. 
 
-- **degs_analysis** (>= v3): We recently introduced a novel __method to query the database__ alternative to the statistical inference approach. This approach allows the user to design more complex comparisons to define genes specific to a cell type. This is particularly relevant when comparing "one" cell type vs "rest" does not apply to your research question. Examples of alternative contrasts are hierarchical comparisons (comparing cell states within a lineage) or comparing disease vs control.  Here, the user provides an input file (`test_DEGs.txt` in the command below) indicating which genes are relevant for a cell type (for example, marker genes or upregulated genes resulting from a differential expression analysis (DEG)).  The new CellphoneDB method (`method degs_analysis`) will select interactions where: (i) all the genes are expressed by a fraction of cells above a threshold and (ii) at least one gene-cell type pair is in the provided DEG.tsv file. The user can identify marker genes or DEGs using their preferred tool (we provide [notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) for both Seurat and Scanpy users) and provide the information to CellphoneDB via a text file. 
-    - Example command: 
-    ```shell
-    cellphonedb method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt
-    ```
-    -  Output: If the user uses the `degs_analysis` approach, "relevant_interactions.txt" (instead of  "pvalues.csv") and "significant_means.csv" files are generated.  
+- **degs_analysis** (>= v3): We recently introduced a novel __method to query the database__ alternative to the statistical inference approach. This approach allows the user to design more complex comparisons to define genes specific to a cell type. This is particularly relevant when your research question goes beyond comparing "one" cell type vs "rest". Examples of alternative contrasts are hierarchical comparisons (e.g. you are interested in a specific lineage, such epithelial cells, and wish to compare only the cell states within this lineage) or comparing disease vs control (e.g. you wish to identify upregulated genes in disease T cells by comparing them against control T cells).  For this CellphoneDB method (`method degs_analysis`), the user provides an input file (`test_DEGs.txt` in the command below) indicating which genes are relevant for a cell type (for example, marker genes or upregulated genes resulting from a differential expression analysis (DEG)). CellphoneDB will select interactions where: (i) all the genes are expressed by a fraction of cells above a threshold and (ii) at least one gene-cell type pair is in the provided DEG.tsv file. The user can identify marker genes or DEGs using their preferred tool (we provide [notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) for both Seurat and Scanpy users) and input the information to CellphoneDB via a [text file](https://github.com/ventolab/CellphoneDB/blob/master/README.md#preparing-your-degs-file-optional-if-method-degs_analysis). 
+   - Example command: 
+   ```shell
+   cellphonedb method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt
+   ```
+   -  Output: If the user uses the `degs_analysis` approach, "relevant_interactions.txt" (instead of  "pvalues.csv") and "significant_means.csv" files are generated.  
 
-- **analysis** (>= v1): Here, no statistical analysis is performed. CellphoneDB will output all the interactions where all the gene members are expressed in above a fraction of cells (`--threshold`). OUTPUT: Without running statistical inference of receptor-ligand interactions, only "means.csv" and "desconvoluted.csv" are generated. 
-    - Example command: 
-    ```shell
-    cellphonedb method analysis test_meta.txt test_counts.h5ad
-    ```
-    -  Output: If the user uses the statistical inference approach (`method statistical_analysis`), additional "pvalues.csv" and "significant_means.csv" file are generated with the values for the significant interactions. Finally, ligand–receptor pairs are ranked on the basis of their total number of significant P values across the cell populations. 
+- **analysis** (>= v1): Here, no statistical analysis is performed. CellphoneDB will output all the interactions where all the gene members are expressed in above a fraction of cells (`--threshold`).
+   - Example command: 
+   ```shell
+   cellphonedb method analysis test_meta.txt test_counts.h5ad
+   ```
+   -  Output: Without running statistical inference of receptor-ligand interactions, only "means.csv" and "desconvoluted.csv" are generated. 
 
 For large datasets, do not use .txt files for counts `test_counts.txt`. Input counts as h5ad (recommended), h5 or a path to a folder containing a 10x output with mtx/barcode/features files. NOTE that your gene/protein ids must be HUMAN. If you are working with another specie such as mouse, we recommend you to convert the gene ids to their corresponding orthologous.
 
@@ -32,9 +32,21 @@ Please, Check https://www.cellphonedb.org/documentation for more info
 
 ## Interpreting the outputs
 
+
+### How to read and interpret the results?
+
+CellphoneDB output is high-throughput. CellphoneDB provides all cell-cell interactions that may potentially occur in your dataset, given the expression of the cells. The size of the output may be overwhelming, but if you apply some rationale, you will be able to narrow it down to a few candidate interactions. The new method `degs_analysis` will allow you perform more tailored analysis toward specific cell types or conditions, while the option `---microenvs` will allow you to restrict the cell type pairs tested.
+
+The key files are `significant_means.txt` (for statistical_analysis) or `relevant_interactions.txt` (for degs_analysis), see below. When interpreting the results, we recommend you **first define your questions of interest**. Next, focus on specific cell type pairs and manually review the interactions prioritising those with lower p-value and/or higher mean expression. Then, select the cell type pairs and proteins of interest to generate the heatmap plots for a visual representation. See the options `--columns` and `--rows` to tweak the `dotplot` [here](https://github.com/ventolab/CellphoneDB/blob/master/README.md#dot_plot).
+
+It may be that not all of the cell types of your input dataset co-appear in time and space. Cell types that do not co-appear in time and space will not interact. For example, you might have cells coming from different in vitro systems, different developmental stages or disease and control conditions. Use this prior information to restrict and ignore unfeasible cell type combinations from the outputs (i.e., columns) as well as their associated interactions (i.e. rows). You can restrict the analysis to feasible cell type combinations using the option `---microenvs`. Here you can input a two columns file indicating which cell type is in which spatiotemporal microenvironment (see [example](https://github.com/ventolab/CellphoneDB/blob/master/README.md#preparing-your-microenviroments-file-optional-if---microenvs) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters co-existing in a microenvironment) ignoring the rest of combinations. 
+
+
 ### Why values of clusterA-clusterB are different to the values of clusterB-clusterA?
 
-When __reading the outputs__, is IMPORTANT to note that the interactions are not symmetric. Partner A expression is considered for the first cluster/cell type, and partner B expression is considered on the second cluster/cell type. In other words:
+When __reading the outputs__, is IMPORTANT to note that the interactions are not symmetric. Partner A expression is considered for the first cluster/cell type (clusterA), and partner B expression is considered on the second cluster/cell type (clusterB). Thus, `IL12`-`IL12 receptor` for clusterA clusterB (i.e. the receptor is in clusterB) is not the same that `IL12`-`IL12 receptor` for clusterB clusterA (i.e. the receptor is in clusterA), and will have different values.
+
+In other words:
 * clusterA_clusterB = clusterA expressing partner A and clusterB expressing partner B.
 * clusterA_clusterB and clusterB_clusterA  values will be different.
 
@@ -68,9 +80,7 @@ See below the meaning of each column in the outputs:
 * significant_mean: Significant mean calculation for all the interacting partners. If p.value < 0.05, the value will be the mean. Alternatively, the value is set to 0. (Only in significant_means.txt)
 * relevant_interactions: Indicates if the interaction is relevant (1) or not (0). If a gene in the interaction is a DEG (i.e. a gene in the DEG.tsv file), and all the participant genes are expressed, the interaction will be classified as relevant. Alternatively, the value is set to 0. ( Only in relevant_interactions.txt)
 
-Importantly, the interactions are not symmetric. Partner A expression is considered on the first cluster, and partner B expression is considered on the second cluster. In other words:
-* clusterA_clusterB = clusterA expressing partner A and clusterB expressing partner B.
-* clusterA_clusterB and clusterB_clusterA  values will be different.
+Again, remember that the interactions are not symmetric. It is not the same `IL12`-`IL12 receptor` for clusterA clusterB (i.e. receptor is in clusterB) that `IL12`-`IL12 receptor` for clusterB clusterA (i.e. receptor is in clusterA).
 
 
 #### Deconvoluted (deconvoluted.txt)
@@ -84,13 +94,6 @@ Importantly, the interactions are not symmetric. Partner A expression is conside
 * mean: Mean expression of the corresponding gene in each cluster.
 
 
-#### How to read and interpret the results?
-
-CellphoneDB output is high-throughput. CellphoneDB provides all cell-cell interactions that may potentially occur in your dataset, given the expression of the cells in your dataset. The size of the output may be overwhelming, but if you apply some rationale, you will be able to narrow it down to a few candidate interactions. 
-
-When interpreting the results, we recommend you **first define your questions of interest**. Next, focus on specific cell type pairs and manually review the interactions prioritising those with lower p-value and/or higher mean expression. Then, select the cell type pairs and proteins of interest to generate the heatmap plots for a visual representation.
-
-It may be that not all of the cell types of your input dataset co-appear in time and space. Cell types that do not co-appear in time and space in your individuals will not interact. Examples are cells specific to different in vitro systems, different developmental stages or disease vs control comparisons. You might wish to ignore unfeasible cell type combinations from the outputs (i.e., columns) as well as their associated interactions (i.e. rows).
 
 
 
