@@ -14,14 +14,14 @@ Please, Check https://www.cellphonedb.org/documentation for more info
 
 ## Interpreting the outputs
 
-#### Why values of clusterA-clusterB are different to the values of clusterB-clusterA?
+### Why values of clusterA-clusterB are different to the values of clusterB-clusterA?
 
 When __reading the outputs__, is IMPORTANT to note that the interactions are not symmetric. Partner A expression is considered for the first cluster/cell type, and partner B expression is considered on the second cluster/cell type. In other words:
 * clusterA_clusterB = clusterA expressing partner A and clusterB expressing partner B.
 * clusterA_clusterB and clusterB_clusterA  values will be different.
 
 
-#### Output files
+### Output files
 
 All files (except "deconvoluted.txt") follow the same structure: rows depict interacting proteins while columns interacting cell type pairs. 
 
@@ -34,8 +34,8 @@ All files (except "deconvoluted.txt") follow the same structure: rows depict int
 
 See below the meaning of each column in the outputs:
 
-P-value (pvalues.txt), Mean (means.txt), Significant mean (significant_means.txt) and Relevant interactions (relevant_interactions.txt)
----------------------
+#### P-value (pvalues.txt), Mean (means.txt), Significant mean (significant_means.txt) and Relevant interactions (relevant_interactions.txt)
+
 * id_cp_interaction: Unique CellPhoneDB identifier for each interaction stored in the database.
 * interacting_pair: Name of the interacting pairs separated by “|”.
 * partner A or B: Identifier for the first interacting partner (A) or the second (B). It could be: UniProt (prefix `simple:`) or complex (prefix `complex:`)
@@ -55,8 +55,8 @@ Importantly, the interactions are not symmetric. Partner A expression is conside
 * clusterA_clusterB and clusterB_clusterA  values will be different.
 
 
-Deconvoluted (deconvoluted.txt)
--------------------------------
+#### Deconvoluted (deconvoluted.txt)
+
 * gene_name: Gene identifier for one of the subunits that are participating in the interaction defined in “means.csv” file. The identifier will depend on the input of the user list.
 * uniprot: UniProt identifier for one of the subunits that are participating in the interaction defined in “means.csv” file.
 * is_complex: True if the subunit is part of a complex. Single if it is not, complex if it is.
