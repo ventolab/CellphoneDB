@@ -1,6 +1,14 @@
 CELLPHONEDB GUIDE
 ============================================
 
+- [Analysis types in CellPhoneDB](https://github.com/ventolab/CellphoneDB/edit/master/Docs/RESULTS-DOCUMENTATION.md#analysis-types-in-cellphonedb)
+- [Interpreting the outputs](https://github.com/ventolab/CellphoneDB/edit/master/Docs/RESULTS-DOCUMENTATION.md#interpreting-the-outputs)
+   - [How to read and interpret the results?](https://github.com/ventolab/CellphoneDB/edit/master/Docs/RESULTS-DOCUMENTATION.md#how-to-read-and-interpret-the-results)
+   - [Why values of clusterA-clusterB are different to the values of clusterB-clusterA?](https://github.com/ventolab/CellphoneDB/edit/master/Docs/RESULTS-DOCUMENTATION.md#why-values-of-clustera-clusterb-are-different-to-the-values-of-clusterb-clustera)
+   - [Output files](https://github.com/ventolab/CellphoneDB/edit/master/Docs/RESULTS-DOCUMENTATION.md#output-files)
+
+
+
 ## Analysis types in CellPhoneDB
 There are three ways of running cellphoneDB, each producing a specific output:
 
