@@ -49,6 +49,7 @@ def list_local():
 @click.option('--result-path', type=str, default=None)
 @click.option('--log-file', type=str, default='log.txt')
 @click.option('--project-name', type=str, default=None)
+@click.option('--release', is_flag=True)
 @click.pass_context
 def generate(ctx: Context,
              user_protein: Optional[str],
@@ -59,8 +60,22 @@ def generate(ctx: Context,
              fetch: bool,
              result_path: Optional[str],
              log_file: str,
-             project_name: str
+             project_name: str,
+             release: bool
              ):
+
+    print("-------------")
+    print('Generate database input files:')
+    if user_protein:
+        print(f'\t- Proteins: {user_protein}')
+    if user_gene:
+        print(f'\t- Genes: {user_gene}')
+    if user_complex:
+        print(f'\t- Complex: {user_complex}')
+    if user_interactions:
+        print(f'\t- Interactions: {user_interactions}')
+    print("-------------")
+    
     ctx.invoke(generate_proteins,
                user_protein=user_protein,
                fetch_uniprot=fetch,
@@ -99,7 +114,8 @@ def generate(ctx: Context,
                result_path=result_path,
                fetch_imex=fetch,
                fetch_iuphar=fetch,
-               project_name=project_name
+               project_name=project_name,
+               release=release
                )
 
     ctx.invoke(filter_all, input_path=output_path, result_path=result_path)
