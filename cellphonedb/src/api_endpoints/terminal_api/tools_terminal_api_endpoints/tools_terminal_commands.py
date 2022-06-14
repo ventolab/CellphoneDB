@@ -120,6 +120,7 @@ def generate_genes(user_gene: Optional[str],
 @click.option('--fetch-imex', is_flag=True)
 @click.option('--fetch-iuphar', is_flag=True)
 @click.option('--project-name', type=str, default=None)
+@click.option('--release', is_flag=True)
 def generate_interactions(proteins: str,
                           genes: str,
                           complex: str,
@@ -129,8 +130,10 @@ def generate_interactions(proteins: str,
                           fetch_imex: bool,
                           fetch_iuphar: bool,
                           project_name: str,
+                          release: bool
                           ) -> None:
     if user_interactions_only and not user_interactions:
+        print("'--user-interactions-only' option detected but no user intearctions file was provided with '--user-interactions'")
         raise Exception('You need to set --user-interactions parameter')
 
     output_path = utils.set_paths(result_path, project_name)
@@ -152,8 +155,16 @@ def generate_interactions(proteins: str,
         user_interactions = pd.read_csv(user_interactions, sep=separator)
         user_interactions['partner_a'] = user_interactions['partner_a'].apply(lambda x: str(x).strip())
         user_interactions['partner_b'] = user_interactions['partner_b'].apply(lambda x: str(x).strip())
-        user_interactions['annotation_strategy'] = 'user_curated'
 
+        # if --release mark all user interactions as 'curated otherwise keep
+        # the ones from CellPhoneDB as 'curated' and the new ones by the user 
+        # as 'user_curated'
+        if release:
+            user_interactions['annotation_strategy'] = 'curated'
+        else:
+            user_interactions['annotation_strategy'] = 'user_curated'
+
+        # add missing proteing name columns
         if not 'protein_name_a' in user_interactions.columns:
             user_interactions['protein_name_a'] = ''
 
@@ -187,12 +198,20 @@ def generate_interactions(proteins: str,
         print('Removing selected interactions')
         clean_interactions = remove_interactions_in_file(no_complex_interactions, interactions_to_remove)
 
-        print('Adding curated interaction')
-        interactions_with_curated = add_curated(clean_interactions, interaction_curated)
+        if not release:
+            # if not --release we'll add the curated interactions that come with CellPhoneDB
+            print('Adding curated interaction')
+            interactions_with_curated = add_curated(clean_interactions, interaction_curated)
 
-        result = tools_helper.normalize_interactions(
-            interactions_with_curated.append(user_interactions, ignore_index=True, sort=False), 'partner_a',
-            'partner_b').drop_duplicates(['partner_a', 'partner_b'], keep='last')
+            result = tools_helper.normalize_interactions(
+                interactions_with_curated.append(user_interactions, ignore_index=True, sort=False), 'partner_a',
+                'partner_b').drop_duplicates(['partner_a', 'partner_b'], keep='last')
+        else:
+            # if --release we'll drop previously curated interactions and will keep only 
+            # the ones provided by the user and the ones from third party sources
+            user_interactions = add_curated(clean_interactions, user_interactions)
+            result = tools_helper.normalize_interactions(user_interactions,'partner_a',
+                'partner_b').drop_duplicates(['partner_a', 'partner_b'], keep='last')            
 
     else:
         result = tools_helper.normalize_interactions(user_interactions, 'partner_a', 'partner_b') \
