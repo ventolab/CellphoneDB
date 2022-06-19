@@ -1,6 +1,6 @@
 {
   "interaction_curated.csv": {
-    "date": "20190527"
+    "date": "20211201"
   },
   "protein_curated.csv": {
     "date": "20190829"
@@ -12,7 +12,7 @@
     "date": "20190527"
   },
   "complex_curated.csv": {
-    "date": "20190527"
+    "date": "20211201"
   },
   "hla_curated.csv": {
     "date": "20190604"
@@ -51,5 +51,5 @@
     "date": "20190618"
   },
 
-  "database_version": "v2.0.0"
+  "database_version": "v3.0.0"
 }

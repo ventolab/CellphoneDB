@@ -142,11 +142,14 @@ def download_database(version):
 def list_local_versions() -> list:
     try:
         releases_folder = os.path.expanduser(cpdb_releases)
-        core = _get_core_version()
+        compatible_versions = [ rf for rf in os.listdir(releases_folder) if os.path.isdir(os.path.join(releases_folder,rf)) ]
 
-        local_versions = os.listdir(releases_folder)
-
-        compatible_versions = [version for version in local_versions if _matching_major(core, version)]
+        # Commenting out older behaviour for multi-versions upport
+        # asumes that all versions al compatible and that all folders
+        # in ~/.cpdb/releases/ are valid releases
+        #core = _get_core_version()
+        #local_versions = os.listdir(releases_folder)
+        #compatible_versions = [version for version in local_versions if _matching_major(core, version)]
 
         return sorted(compatible_versions, key=LooseVersion, reverse=True)
     except FileNotFoundError:
@@ -243,4 +246,6 @@ def _format_release(item: dict, core: LooseVersion) -> dict:
 
 
 def _matching_major(core, candidate):
-    return _major(LooseVersion(candidate)) == _major(core)
+    return True
+    # make different versions compatible
+    #return _major(LooseVersion(candidate)) == _major(core)
