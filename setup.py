@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+from cellphonedb import version
 
 with open("README.md", "rt", encoding="utf-8") as fh:
     long_description_readme_md = fh.read()
@@ -10,7 +11,7 @@ setup(
     name='CellPhoneDB',
     author='TeichLab/VentoLab',
     author_email='contact@cellphonedb.org',
-    version='3.0.2',
+    version=version,
     description='Inferring cell-cell communication',
     long_description=long_description_readme_md,
     long_description_content_type='text/markdown',
