@@ -19,7 +19,7 @@ This release involves a major **Database Update**. We have invested quite some t
 
 Check [Garcia-Alonso & Lorenzi et al](https://www.nature.com/articles/s41586-022-04918-4) for an example applying CellphoneDB v4.
 
-To use this last version, make sure install the last version of cellphonedb & download the database:
+To use the lastest version, re-install cellphonedb & download the database:
 
 ```
 pip install -U cellphonedb
