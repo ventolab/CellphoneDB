@@ -8,6 +8,25 @@ CellPhoneDB can be used to search for a particular ligand/receptor, or interroga
 
 For more details on the analysis check the [documentation here](Docs/RESULTS-DOCUMENTATION.md), our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB v3).
 
+## New in CellPhoneDB v4
+
+
+This release involves a major **Database Update**. We have invested quite some time curating more cell-cell communication interactions validated experimentally. Specifically, we have:
+
+ 1. Manually curated more protein-protein interactions involved in cell-cell communication, with special focus on protein acting as heteromeric complexes. The new database includes almost 2,000 *high-confidence interactions*! We believe modelling complexes is key to minimise false positive predictions.
+ 2. Annotated non-peptidic molecules (i.e., not encoded by a gene) acting as ligands. Examples of these include steroid hormones (e.g., estrogen). To do so, we have reconstructed the biosynthetic pathways and use the last representative enzyme as a proxy of ligand abundance. We retrieve this information by manually reviewing and curating relevant literature and peer-reviewed pathway resources such as REACTOME. We include more than 200 interactions involving these type of ligands!
+
+
+Check [Garcia-Alonso & Lorenzi et al](https://www.nature.com/articles/s41586-022-04918-4) for an example applying CellphoneDB v4.
+
+To use this last version, make sure install the last version of cellphonedb & download the database:
+
+```
+pip install -U cellphonedb
+cellphonedb database download
+```
+
+
 
 ## New in CellPhoneDB v3
 
