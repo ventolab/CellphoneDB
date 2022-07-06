@@ -5,7 +5,7 @@ import sys
 app_logger = logging.getLogger(__name__)
 
 
-def setLevel(level: str = 'WARNING'):
+def setLevel(level: str = 'INFO'):
     app_logger.setLevel(getattr(logging, level))
 
 
