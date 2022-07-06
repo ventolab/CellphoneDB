@@ -1,5 +1,5 @@
 import io
-import json
+#import json
 import os
 import zipfile
 from distutils.dir_util import copy_tree
@@ -8,9 +8,7 @@ from distutils.version import LooseVersion
 from typing import Union
 
 import requests
-
 from cellphonedb.src.app.app_logger import app_logger
-from cellphonedb.src.app.cellphonedb_app import core_dir
 from cellphonedb.src.app.cpdb_app import create_app
 from cellphonedb.src.exceptions.NoReleasesException import NoReleasesException
 from cellphonedb.src.local_launchers.local_collector_launcher import LocalCollectorLauncher
@@ -25,59 +23,57 @@ def _major(version: LooseVersion) -> int:
             return component
 
 
-def _get_core_version() -> LooseVersion:
-    with open(os.path.join(core_dir, 'metadata.json')) as metadata_file:
-        metadata = json.load(metadata_file)
-        core_version = metadata.get('database_version', 'core')
+# def _get_core_version() -> LooseVersion:
+#     #with open(os.path.join(core_dir, 'metadata.json')) as metadata_file:
+#     #    metadata = json.load(metadata_file)
+#     #    core_version = metadata.get('database_version', 'core')
+    
+#         return LooseVersion(core_version)
 
-        return LooseVersion(core_version)
 
+# def _ensure_core_version_in_user_dbs():
+#     core_version = _get_core_version()
 
-def _ensure_core_version_in_user_dbs():
-    core_version = _get_core_version()
+#     user_databases_prefix = os.path.expanduser(cpdb_releases)
+#     dest_folder = os.path.join(user_databases_prefix, str(core_version))
+#     database_file_location = os.path.join(dest_folder, database_file)
 
-    user_databases_prefix = os.path.expanduser(cpdb_releases)
-    dest_folder = os.path.join(user_databases_prefix, str(core_version))
-    database_file_location = os.path.join(dest_folder, database_file)
+#     if os.path.isfile(database_file_location):
+#         return
 
-    if os.path.isfile(database_file_location):
-        return
+#     os.makedirs(dest_folder, exist_ok=True)
 
-    os.makedirs(dest_folder, exist_ok=True)
-
-    copy_file(os.path.join(core_dir, database_file), dest_folder)
-    copy_tree(os.path.join(core_dir, 'data'), dest_folder)
+#     copy_file(os.path.join(core_dir, database_file), dest_folder)
+#     copy_tree(os.path.join(core_dir, 'data'), dest_folder)
 
 
 def find_database_for(value: str) -> str:
     file_candidate = os.path.expanduser(value)
 
     if os.path.exists(file_candidate):
-        # todo: warning is perhaps not appropriate, logger doesn't allow info at this point
-        app_logger.warning('User selected database `{}` is available, using it'.format(file_candidate))
+        app_logger.info('User selected database `{}` is available, using it'.format(file_candidate))
         return file_candidate
 
-    _ensure_core_version_in_user_dbs()
+    #_ensure_core_version_in_user_dbs()
     user_databases_prefix = os.path.expanduser(cpdb_releases)
 
     if not os.path.isdir(user_databases_prefix):
-        app_logger.error('No downloaded databases found, run the `database download` command from the cli first')
-        exit(1)
+        app_logger.warning(f"No local databases found. Will download latest database from remote to {os.path.expanduser(cpdb_releases)}.")
+        download_database("latest")
 
     if value == 'latest' or not value:
         available = list_local_versions()
         latest_available = available[0]
-        app_logger.warning('Latest local available version is `{}`, using it'.format(latest_available))
+        #app_logger.info('Latest local available version is `{}`, using it'.format(latest_available))
         value = latest_available
 
     downloaded_candidate = os.path.join(user_databases_prefix, value, database_file)
     valid_database = os.path.exists(downloaded_candidate)
 
-    if valid_database:
-        # todo: warning is perhaps not appropriate, logger doesn't allow info at this point
-        app_logger.warning('User selected downloaded database `{}` is available, using it'.format(value))
-    else:
-        app_logger.warning('User selected database `{}` not available, trying to download it'.format(value))
+    if not valid_database:
+        #app_logger.info(f"Using database '{value}' ({downloaded_candidate})")
+    #else:
+        app_logger.warning("Database '{value}' is not available. Trying to download it.")
         download_database(value)
         return find_database_for(value)
 
@@ -98,25 +94,24 @@ def download_database(version):
     try:
         if not version or version == 'latest':
             latest_release = _latest_release()
-
             version = latest_release['tag']
             zip_to_download = latest_release['url']
         else:
             releases = _list_releases()
-
             if version not in releases:
-                app_logger.error('Unavailable version selected')
-                app_logger.error('Available versions are: {}'.format(', '.join(releases.keys())))
+                app_logger.error(f"Unavailable version selected. Available versions are: { ', '.join(releases.keys()) }")
                 exit(1)
 
             zip_to_download = releases[version]['url']
 
-        print('Downloading `{}` release of CellPhoneDB database'.format(version))
+        app_logger.info(f"Downloading release {version} of CellPhoneDB database")
 
         output_folder = os.path.expanduser('{}/{}'.format(cpdb_releases, version))
         os.makedirs(output_folder, exist_ok=True)
 
         zip_response = requests.get(zip_to_download)
+        app_logger.info(f"Download completed!")
+        app_logger.info(f"Copying database to {output_folder}")
         with zipfile.ZipFile(io.BytesIO(zip_response.content)) as thezip:
             root_folder = thezip.namelist()[0]
             for name in thezip.namelist():
@@ -229,19 +224,19 @@ def _github_query(kind) -> Union[dict, list]:
 
 
 def _format_releases(*releases) -> dict:
-    core_version = _get_core_version()
+    #core_version = _get_core_version()
 
-    return {item['tag_name']: _format_release(item, core_version) for item in releases}
+    return {item['tag_name']: _format_release(item) for item in releases}
 
 
-def _format_release(item: dict, core: LooseVersion) -> dict:
+def _format_release(item: dict) -> dict:
     tag_name = item['tag_name']
 
     return {'url': item['zipball_url'],
             'tag': tag_name,
             'date': item['published_at'],
             'link': item['html_url'],
-            'compatible': _matching_major(core, tag_name)
+            'compatible': True
             }
 
 
