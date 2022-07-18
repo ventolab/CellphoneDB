@@ -13,7 +13,7 @@ from cellphonedb.src.app.cpdb_app import create_app
 from cellphonedb.src.exceptions.NoReleasesException import NoReleasesException
 from cellphonedb.src.local_launchers.local_collector_launcher import LocalCollectorLauncher
 
-cpdb_releases = '~/.cpdb/releases'
+cpdb_releases = os.environ.get('CELLPHONEDB_RELEASE_PATH', '~/.cpdb/releases')
 database_file = 'cellphone.db'
 
 
@@ -54,25 +54,25 @@ def find_database_for(value: str) -> str:
         app_logger.info('User selected database `{}` is available, using it'.format(file_candidate))
         return file_candidate
 
-    #_ensure_core_version_in_user_dbs()
+    # _ensure_core_version_in_user_dbs()
     user_databases_prefix = os.path.expanduser(cpdb_releases)
 
     if not os.path.isdir(user_databases_prefix):
-        app_logger.warning(f"No local databases found. Will download latest database from remote to {os.path.expanduser(cpdb_releases)}.")
+        app_logger.warning(f"No local databases found. Will download latest database from remote to {user_databases_prefix}.")
         download_database("latest")
 
     if value == 'latest' or not value:
         available = list_local_versions()
         latest_available = available[0]
-        #app_logger.info('Latest local available version is `{}`, using it'.format(latest_available))
+        app_logger.info('Latest local available version is `{}`, using it'.format(latest_available))
         value = latest_available
 
     downloaded_candidate = os.path.join(user_databases_prefix, value, database_file)
     valid_database = os.path.exists(downloaded_candidate)
 
     if not valid_database:
-        #app_logger.info(f"Using database '{value}' ({downloaded_candidate})")
-    #else:
+        # app_logger.info(f"Using database '{value}' ({downloaded_candidate})")
+    # else:
         app_logger.warning("Database '{value}' is not available. Trying to download it.")
         download_database(value)
         return find_database_for(value)
@@ -142,9 +142,9 @@ def list_local_versions() -> list:
         # Commenting out older behaviour for multi-versions upport
         # asumes that all versions al compatible and that all folders
         # in ~/.cpdb/releases/ are valid releases
-        #core = _get_core_version()
-        #local_versions = os.listdir(releases_folder)
-        #compatible_versions = [version for version in local_versions if _matching_major(core, version)]
+        # core = _get_core_version()
+        # local_versions = os.listdir(releases_folder)
+        # compatible_versions = [version for version in local_versions if _matching_major(core, version)]
 
         return sorted(compatible_versions, key=LooseVersion, reverse=True)
     except FileNotFoundError:
