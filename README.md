@@ -1,4 +1,7 @@
-# CellPhoneDB
+# CellPhoneDB 
+
+[![Database](https://img.shields.io/github/v/release/ventolab/cellphonedb-data.svg?color=blue&label=database)](https://github.com/ventolab/CellphoneDB-data)
+[![Python package](https://img.shields.io/pypi/v/cellphonedb.svg?color=brightgreen&label=python-package)](https://pypi.org/project/cellphonedb)
 
 ## What is CellPhoneDB?
 
