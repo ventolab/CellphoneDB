@@ -222,6 +222,12 @@ Available output formats are those supported by `R's pheatmap` package, among ot
 
 This format will be inferred from the `--count-name` & `--log-name` arguments.
 
+### other plotting
+
+For further plotting customisations of the results, you can check out the following repositories maintained by [@zktuong](https://github.com/zktuong):
+- [ktplots](https://www.github.com/zktuong/ktplots/) (R)
+- [ktplotspy](https://www.github.com/zktuong/ktplotspy/) (python)
+
 
 ## Using different database versions
 CellPhoneDB databases can be updated from the remote repository through our tool. Furthermore, available versions can be listed and downloaded for use. 
