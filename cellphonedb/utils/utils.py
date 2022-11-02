@@ -44,6 +44,34 @@ def read_data_table_from_file(file: str, index_column_first: bool = False, separ
         with f:
             return _read_data(f, separator, index_column_first, dtype, na_values, compression)
 
+def write_to_file(df: pd.DataFrame, filename: str, output_path: str, output_format: Optional[str] = None):
+    _, file_extension = os.path.splitext(filename)
+
+    if output_format is None:
+        if not file_extension:
+            default_format = 'txt'
+            default_extension = '.{}'.format(default_format)
+
+            separator = _get_separator(default_extension)
+            filename = '{}{}'.format(filename, default_extension)
+        else:
+            separator = _get_separator(file_extension)
+    else:
+        selected_extension = '.{}'.format(output_format)
+
+        if file_extension != selected_extension:
+            separator = _get_separator(selected_extension)
+            filename = '{}{}'.format(filename, selected_extension)
+
+            if file_extension:
+                app_logger.warning(
+                    'Selected extension missmatches output filename ({}, {}): It will be added => {}'.format(
+                        selected_extension, file_extension, filename))
+        else:
+            separator = _get_separator(selected_extension)
+
+    df.to_csv('{}/{}'.format(output_path, filename), sep=separator, index=False)
+
 def _read_mtx(path: str) -> pd.DataFrame:
 
     mtx_path = os.path.join(path,'matrix.mtx')
@@ -75,6 +103,20 @@ def _read_data(file_stream: TextIO, separator: str, index_column_first: bool, dt
     return pd.read_csv(file_stream, sep=separator, index_col=0 if index_column_first else None, dtype=dtype,
                        na_values=na_values, compression=compression)
 
+def set_paths(output_path, project_name):
+    if project_name:
+        output_path = os.path.realpath(os.path.expanduser('{}/{}'.format(output_path, project_name)))
+
+    os.makedirs(output_path, exist_ok=True)
+
+    if _path_is_not_empty(output_path):
+        print(
+            'WARNING: Output directory ({}) exist and is not empty. Result can overwrite old results'.format(output_path))
+
+    return output_path
+
+def _path_is_not_empty(path):
+    return bool([f for f in os.listdir(path) if not f.startswith('.')])
 
 def _get_separator(mime_type_or_extension: str) -> str:
     extensions = {

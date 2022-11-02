@@ -1,4 +1,3 @@
-#!/Users/rp23/opt/miniconda3/envs/cpdb3.8/bin/python3
 import sys
 import pandas as pd
 import numpy as np
@@ -9,10 +8,10 @@ import io
 import zipfile
 import time
 import itertools
-from utils import utils, unique_id_generator
+from utils import utils, unique_id_generator, generate_input_files
 import urllib.request, urllib.error, urllib.parse
 import pathlib
-
+import json
 
 from src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
 from src.core.preprocessors import method_preprocessors
@@ -286,6 +285,21 @@ def testrun_analyses(user_dir_root, db_version):
     # dbg("relevant_interactions:", relevant_interactions.index, relevant_interactions.columns, relevant_interactions.info)
 
 
+def download_source_files(user_dir_root, db_version):
+    sources_path = os.path.join(get_db_path(user_dir_root, db_version), "sources")
+    print("Downloading cellphonedb-data/data/sources files into {}:".format(sources_path))
+    pathlib.Path(sources_path).mkdir(parents=True, exist_ok=True)
+    r = urllib.request.urlopen("https://api.github.com/repos/ventolab/cellphonedb-data/git/trees/master?recursive=1")
+    files_data = json.load(r)['tree']
+    for rec in files_data:
+        if rec['path'].startswith('data/sources/'):
+            fname = rec['path'].split('/')[-1]
+            url = 'https://raw.githubusercontent.com/ventolab/cellphonedb-data/master/{}'.format(rec['path'])
+            print("Downloading: " + fname)
+            r = urllib.request.urlopen(url)
+            with open(os.path.join(sources_path, fname), 'wb') as f:
+                f.write(r.read())
+
 def create_db(user_dir_root, db_version, use_local_files):
     db_files_path = get_db_path(user_dir_root, db_version)
     pathlib.Path(db_files_path).mkdir(parents=True, exist_ok=True)
@@ -434,6 +448,48 @@ if __name__ == '__main__':
         create_db(CPDB_ROOT, RELEASED_VERSION)
     elif arg == 'c':
         convert_to_h5ad(CPDB_ROOT)
+    elif arg == 'g':
+        download_source_files(CPDB_ROOT, RELEASED_VERSION)
+        data_dir = get_db_path(CPDB_ROOT, RELEASED_VERSION)
+        generated_path = os.path.join(data_dir, "generated")
+        print("Generating gene_generated.csv file into {}".format(generated_path))
+        pathlib.Path(generated_path).mkdir(parents=True, exist_ok=True)
+        generate_input_files.generate_genes(data_dir,
+                       user_gene=None,
+                       fetch_uniprot=False,
+                       fetch_ensembl=False,
+                       result_path=generated_path,
+                       project_name=None,
+                       )
+        print("Generating proteins_generated.csv file into {}".format(generated_path))
+        generate_input_files.generate_proteins(data_dir,
+                          user_protein=None,
+                          fetch_uniprot=False,
+                          result_path=generated_path,
+                          log_file="log.txt",
+                          project_name=None)
+        print("Generating complex_generated.csv file into {}".format(generated_path))
+        generate_input_files.generate_complex(data_dir,
+                     user_complex=None,
+                     result_path=generated_path,
+                     log_file='log.txt',
+                     project_name=None)
+        print("Generating interactions_input.csv file into {}".format(generated_path))
+        generate_input_files.generate_interactions(data_dir,
+                              proteins=os.path.join(generated_path, 'protein_generated.csv'),
+                              genes=os.path.join(generated_path, 'gene_generated.csv'),
+                              complex=os.path.join(generated_path, 'complex_generated.csv'),
+                              user_interactions=None,
+                              user_interactions_only=False,
+                              result_path=generated_path,
+                              fetch_imex=False,
+                              fetch_iuphar=False,
+                              project_name=None,
+                              release=False)
+        print("Generating gene, protein and complex input files file into {}".format(generated_path))
+        generate_input_files.filter_all(input_path=generated_path,
+               result_path=generated_path,
+               project_name=None)
     else:
         print("Arguments can be a (perform analysis) or db (create database)")
 
