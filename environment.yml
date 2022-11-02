@@ -1,9 +1,0 @@
-name: cpdb
-dependencies:
-  - python=3.8
-  - r-base
-  - r-ggplot2
-  - r-pheatmap
-  - pip
-  - pip:
-    - cellphonedb

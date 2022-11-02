@@ -1,5 +1,0 @@
-FROM postgres:9.6
-
-ENV POSTGRES_PASSWORD  root
-ENV POSTGRES_USER root
-ENV POSTGRES_DB cellphonedb

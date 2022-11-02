@@ -1,9 +1,0 @@
-test_enabled_interactions,id_interaction,multidata_1_id,multidata_2_id
-True,1,1,2
-True,2,1,1
-False,3,3,3
-False,4,3,4
-False,4,4,3
-True,5,1,3
-True,6,4,2
-True,6,2,4

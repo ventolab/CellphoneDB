@@ -5,7 +5,7 @@ import warnings
 warnings.simplefilter("ignore", FutureWarning)
 from geosketch import gs
 
-from cellphonedb.src.core.core_logger import core_logger
+from src.core.core_logger import core_logger
 
 
 class Subsampler(object):

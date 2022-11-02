@@ -1,9 +1,0 @@
-id_multidata,gene,cluster_1,cluster_2,cluster_3
-1,ensembl_1,0.5,0.5,0.5
-2,ensembl_2,0.5,0.5,0.5
-3,ensembl_3,0.3,0,0
-4,ensembl_4,0.1,0,0
-5,ensembl_5,0.5,0,0
-6,ensembl_6,0.8,1,0
-7,ensembl_7,0,0.8,1
-8,ensembl_8,0,0,0.9

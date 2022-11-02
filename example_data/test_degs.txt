@@ -1,0 +1,4 @@
+gene	cluster	deg
+ENSG00000279457	NKcells_1	1
+ENSG00000230368	NKcells_0	1
+ENSG00000188976	Tcells	1

@@ -8,8 +8,8 @@ from multiprocessing.pool import Pool
 import pandas as pd
 import numpy as np
 import numpy_groupies as npg
-from cellphonedb.src.core.core_logger import core_logger
-from cellphonedb.src.core.models.complex import complex_helper
+from src.core.core_logger import core_logger
+from src.core.models.complex import complex_helper
 
 
 def get_significant_means(real_mean_analysis: pd.DataFrame,

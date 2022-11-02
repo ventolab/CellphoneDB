@@ -1,5 +1,0 @@
-database: 
-  db_core: true
-app:
-  debug: false
-  verbose: true

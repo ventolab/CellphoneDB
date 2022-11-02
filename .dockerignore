@@ -1,7 +1,0 @@
-./in/
-./out/
-.dockerignore
-.git
-./venv
-./dist
-./cpdb-venv/

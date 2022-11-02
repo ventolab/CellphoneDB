@@ -3,10 +3,10 @@ from typing import Tuple
 import pandas as pd
 import numpy as np
 
-from cellphonedb.src.core.core_logger import core_logger
-from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
-from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFound
-from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper, cpdb_statistical_analysis_complex_method
+from src.core.core_logger import core_logger
+from src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
+from src.core.exceptions.NoInteractionsFound import NoInteractionsFound
+from src.core.methods import cpdb_statistical_analysis_helper, cpdb_statistical_analysis_complex_method
 
 def call(meta: pd.DataFrame,
          counts: pd.DataFrame,

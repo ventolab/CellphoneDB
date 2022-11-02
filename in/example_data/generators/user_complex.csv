@@ -1,3 +1,0 @@
-complex_name,uniprot_1,uniprot_2,uniprot_3,uniprot_4,receptor_desc,integrin,other,other_desc,pdb_id,pdb_structure,stoichiometry,comments_complex
-RET receptor 4,P07949,Q9GZZ7,,,,False,False,,,False,,
-complex_example,uniprot_1_example,uniprot2_example,,,,False,True,,,False,,
