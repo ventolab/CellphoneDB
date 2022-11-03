@@ -27,7 +27,7 @@ DEBUG=False
 RELEASED_VERSION="v5.0.0"
 CPDB_ROOT = os.path.join(os.path.expanduser('~'),".cpdb")
 
-def get_db_path(user_dir_root, db_version):
+def get_db_data_path(user_dir_root, db_version):
     return os.path.join(user_dir_root, "releases", db_version, "data")
 
 def download_input_files(db_files_path):
@@ -67,7 +67,7 @@ def extract_dataframes_from_db(db_files_path):
         dbg("Retrieving from zip file: " + file_name)
         dfs[file_name.replace('.csv','')] = pd.read_csv(file_handle)
     duration = time.time() - start
-    dbg("Retrieved from DB zip file CSV files as DataFrames in: " + str(round(duration,2)) + "s")
+    print("Loaded DB into memory in " + str(round(duration,2)) + "s")
     return dfs
 
 def dbg(*argv):
@@ -76,9 +76,9 @@ def dbg(*argv):
             print(arg)
 
 def get_interactions_genes_complex(user_dir_root, db_version) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    db_files_path = get_db_path(user_dir_root, db_version)
+    db_path = os.path.join(user_dir_root, "releases", db_version)
     # Extract csv files from db_files_path/cellphonedb.zip into dbTableDFs
-    dbTableDFs = extract_dataframes_from_db(db_files_path)
+    dbTableDFs = extract_dataframes_from_db(db_path)
     # Convert dbTableDFs into interactions, genes, complex_composition, complex_expanded data frames
     mtTable = dbTableDFs['multidata_table']
     dbg(mtTable.dtypes)
@@ -286,7 +286,7 @@ def testrun_analyses(user_dir_root, db_version):
 
 
 def download_source_files(user_dir_root, db_version):
-    sources_path = os.path.join(get_db_path(user_dir_root, db_version), "sources")
+    sources_path = os.path.join(get_db_data_path(user_dir_root, db_version), "sources")
     print("Downloading cellphonedb-data/data/sources files into {}:".format(sources_path))
     pathlib.Path(sources_path).mkdir(parents=True, exist_ok=True)
     r = urllib.request.urlopen("https://api.github.com/repos/ventolab/cellphonedb-data/git/trees/master?recursive=1")
@@ -301,12 +301,13 @@ def download_source_files(user_dir_root, db_version):
                 f.write(r.read())
 
 def create_db(user_dir_root, db_version, use_local_files):
-    db_files_path = get_db_path(user_dir_root, db_version)
-    pathlib.Path(db_files_path).mkdir(parents=True, exist_ok=True)
+    db_data_path = get_db_data_path(user_dir_root, db_version)
+    db_path = os.path.join(user_dir_root, "releases", db_version)
+    pathlib.Path(db_path).mkdir(parents=True, exist_ok=True)
     # Get input files
     if use_local_files == False:
-        download_input_files(db_files_path)
-    dataDFs = getDFs(db_files_path, INPUT_FILE_NAMES, "csv")
+        download_input_files(db_data_path)
+    dataDFs = getDFs(db_data_path, INPUT_FILE_NAMES, "csv")
 
     # Collect protein data
     protein_db_df = dataDFs['protein_input'][['protein_name','tags','tags_reason','tags_description']]
@@ -416,10 +417,10 @@ def create_db(user_dir_root, db_version, use_local_files):
         zip_file.writestr('complex_composition_table.csv', complex_composition_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('multidata_table.csv', multidata_db_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('interaction_table.csv', interactions_df.to_csv(index=False, sep=',').encode('utf-8'))
-    with open(os.path.join(db_files_path,'cellphonedb.zip'), 'wb') as f:
+    with open(os.path.join(db_path,'cellphonedb.zip'), 'wb') as f:
         f.write(zip_buffer.getvalue())
     print("Created CellphoneDB {} in {} successfully" \
-          .format(db_version, os.path.join(db_files_path,'cellphonedb.zip')))
+          .format(db_version, os.path.join(db_path,'cellphonedb.zip')))
 
 def convert_to_h5ad(user_dir_root):
     counts, raw_meta, meta, microenvs, degs = get_user_files(user_dir_root, \
@@ -453,7 +454,7 @@ if __name__ == '__main__':
         convert_to_h5ad(CPDB_ROOT)
     elif arg == 'g':
         download_source_files(CPDB_ROOT, RELEASED_VERSION)
-        data_dir = get_db_path(CPDB_ROOT, RELEASED_VERSION)
+        data_dir = get_db_data_path(CPDB_ROOT, RELEASED_VERSION)
         generated_path = os.path.join(data_dir, "generated")
         print("Generating gene_generated.csv file into {}".format(generated_path))
         pathlib.Path(generated_path).mkdir(parents=True, exist_ok=True)
