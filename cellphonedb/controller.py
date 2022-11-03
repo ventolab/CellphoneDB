@@ -8,7 +8,7 @@ import io
 import zipfile
 import time
 import itertools
-from utils import utils, unique_id_generator, generate_input_files
+from utils import utils, unique_id_generator, generate_input_files, database_version_manager
 import urllib.request, urllib.error, urllib.parse
 import pathlib
 import json
@@ -446,6 +446,9 @@ if __name__ == '__main__':
         testrun_analyses(CPDB_ROOT, RELEASED_VERSION)
     elif arg == 'db':
         create_db(CPDB_ROOT, RELEASED_VERSION)
+    elif arg == "dbd":
+        # database_version_manager.download_database("latest")
+        database_version_manager.download_database("v4.0.0")
     elif arg == 'c':
         convert_to_h5ad(CPDB_ROOT)
     elif arg == 'g':
