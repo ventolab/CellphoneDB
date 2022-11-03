@@ -376,7 +376,7 @@ def build_degs_matrix(degs: pd.DataFrame,
          for complex_id, protein_ids in complexes.items()},
         index=cluster_degs.columns
     ).T
-    cluster_degs = cluster_degs.append(complex_degs)
+    cluster_degs = pd.concat([cluster_degs, complex_degs])
     return cluster_degs
 
 

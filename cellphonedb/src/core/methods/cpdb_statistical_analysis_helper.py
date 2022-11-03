@@ -159,14 +159,14 @@ def build_clusters(meta: pd.DataFrame,
              for complex_id, protein_ids in complexes.items()},
             index=cluster_means.columns
         ).T
-        cluster_means = cluster_means.append(complex_cluster_means)
+        cluster_means = pd.concat([cluster_means,complex_cluster_means])
         if not skip_percent:
             complex_cluster_pcts = pd.DataFrame(
                 {complex_id: cluster_pcts.loc[protein_ids].min(axis=0).values
              for complex_id, protein_ids in complexes.items()},
                 index=cluster_pcts.columns
             ).T
-            cluster_pcts = cluster_pcts.append(complex_cluster_pcts)
+            cluster_pcts = pd.concat([cluster_pcts,complex_cluster_pcts])
 
     return {'names': cluster_names, 'means': cluster_means, 'percents': cluster_pcts}
 
@@ -176,8 +176,8 @@ def filter_counts_by_interactions(counts: pd.DataFrame,
     """
     Removes counts if is not defined in interactions components
     """
-    multidata_genes_ids = interactions['multidata_1_id'].append(
-        interactions['multidata_2_id']).drop_duplicates().tolist()
+    multidata_genes_ids = pd.concat([interactions['multidata_1_id'],
+        interactions['multidata_2_id']]).drop_duplicates().tolist()
 
     counts_filtered = counts.filter(multidata_genes_ids, axis=0)
 
@@ -681,7 +681,7 @@ def prefilters(interactions: pd.DataFrame,
 
     counts_simple = filter_counts_by_interactions(counts_filtered, interactions_filtered)
 
-    counts_filtered = counts_simple.append(counts_complex, sort=False)
+    counts_filtered = pd.concat([counts_simple, counts_complex], sort=False)
     counts_filtered = counts_filtered[~counts_filtered.index.duplicated()]
 
     return interactions_filtered, counts_filtered, complex_composition_filtered

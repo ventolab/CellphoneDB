@@ -266,8 +266,7 @@ def deconvoluted_complex_result_build(clusters_means: dict, interactions: pd.Dat
                                                                               interactions, '_2', counts_data)
     deconvoluted_simple_result_2 = deconvolute_interaction_component(interactions, '_2', counts_data)
 
-    deconvoluted_result = deconvoluted_complex_result_1.append(
-        [deconvoluted_simple_result_1, deconvoluted_complex_result_2, deconvoluted_simple_result_2], sort=False)
+    deconvoluted_result = pd.concat([deconvoluted_complex_result_1, deconvoluted_simple_result_1, deconvoluted_complex_result_2, deconvoluted_simple_result_2], sort=False)
 
     deconvoluted_result.set_index('gene', inplace=True)
 

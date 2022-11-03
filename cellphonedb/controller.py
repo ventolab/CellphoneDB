@@ -102,7 +102,7 @@ def get_interactions_genes_complex(user_dir_root, db_version) -> Tuple[pd.DataFr
     if multidata_complex.empty:
         multidata_expanded = multidata_simple
     else:
-        multidata_expanded = multidata_simple.append(multidata_complex, ignore_index=True, sort=True)
+        multidata_expanded = pd.concat([multidata_simple, multidata_complex], ignore_index=True, sort=True)
     # C.f. old CellphoneDB: InteractionRepository.get_all_expanded()
     multidata_expanded = multidata_expanded.astype({'id_multidata': 'int64'})
     dbg(multidata_expanded.columns)
@@ -360,7 +360,7 @@ def create_db(user_dir_root, db_version, use_local_files):
     complex_aux_df.insert(len(complex_aux_df.columns), 'is_complex', list(itertools.repeat(True, complex_aux_df.shape[0])), True)
     dbg(complex_aux_df.shape, complex_aux_df.index, complex_aux_df.columns)
     # Append complex_aux_df to multidata_db_df
-    multidata_db_df = multidata_db_df.append(complex_aux_df, ignore_index=True, verify_integrity=True)
+    multidata_db_df = pd.concat([multidata_db_df, complex_aux_df], ignore_index=True, verify_integrity=True)
     dbg(multidata_db_df.shape, multidata_db_df.index, multidata_db_df.columns)
 
     # First collect total_protein counts for each complex in complex_db_df
