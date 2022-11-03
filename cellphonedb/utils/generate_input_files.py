@@ -7,14 +7,7 @@ import pandas as pd
 from src.core.generators.complex_generator import complex_generator
 from src.core.generators.gene_generator import gene_generator
 from src.core.generators.protein_generator import protein_generator
-from utils.generate_data.filters.non_complex_interactions import only_noncomplex_interactions
-from utils.generate_data.filters.remove_interactions import remove_interactions_in_file
-from utils.generate_data.getters import get_iuphar, get_imex
-from utils.generate_data.mergers.add_curated import add_curated
-from utils.generate_data.mergers.merge_interactions import merge_iuphar_imex_interactions
-from utils.generate_data.parsers import parse_iuphar_guidetopharmacology
-from utils.generate_data.parsers.parse_interactions_imex import parse_interactions_imex
-from utils import utils, generate_data_helper
+from utils import utils, generate_input_files_helper
 from utils.utils import _get_separator, write_to_file
 
 def generate_genes(data_dir,
@@ -97,14 +90,9 @@ def generate_genes(data_dir,
     cpdb_genes[result_columns].to_csv('{}/{}'.format(output_path, 'gene_generated.csv'), index=False)
 
 def generate_interactions(data_dir,
-                          proteins="protein_generated.csv",
-                          genes="gene_generated.csv",
-                          complex="complex_generated.csv",
                           user_interactions=None,
-                          user_interactions_only=True,
+                          user_interactions_only=False,
                           result_path=None,
-                          fetch_imex=True,
-                          fetch_iuphar=True,
                           project_name=None,
                           release=True
                           ) -> None:
@@ -113,17 +101,8 @@ def generate_interactions(data_dir,
         raise Exception('You need to set user-interactions parameter')
 
     output_path = utils.set_paths(result_path, project_name)
-    downloads_path = utils.set_paths(utils.set_paths(result_path, project_name), 'downloads')
-
-    proteins = utils.read_data_table_from_file(proteins)
-    genes = utils.read_data_table_from_file(genes)
-    complexes = utils.read_data_table_from_file(complex)
 
     if not user_interactions_only:
-        raw_imex = get_imex.call(data_dir, genes, downloads_path, fetch_imex)
-
-        interactions_to_remove = utils.read_data_table_from_file(
-            os.path.join(data_dir, 'sources/excluded_interaction.csv'))
         interaction_curated = utils.read_data_table_from_file(os.path.join(data_dir, 'sources/interaction_curated.csv'))
 
     if user_interactions:
@@ -156,41 +135,18 @@ def generate_interactions(data_dir,
         'source'
     ]
     if not user_interactions_only:
-        print('Parsing IMEX file')
-        imex_interactions = parse_interactions_imex(raw_imex, proteins, genes)
-
-        print('Getting iuphar data')
-        raw_iuphar = get_iuphar.call(data_dir, downloads_path, fetch_iuphar)
-
-        print('Generating iuphar interactions')
-        iuphar_interactions = parse_iuphar_guidetopharmacology.call(raw_iuphar, genes, proteins)
-
-        print('Merging iuphar/imex')
-        merged_interactions = merge_iuphar_imex_interactions(iuphar_interactions, imex_interactions)
-
-        print('Removing complex interactions')
-        no_complex_interactions = only_noncomplex_interactions(merged_interactions, complexes)
-
-        print('Removing selected interactions')
-        clean_interactions = remove_interactions_in_file(no_complex_interactions, interactions_to_remove)
-
         if not release:
-            # if release == False, we'll add the curated interactions that come with CellPhoneDB
-            print('Adding curated interaction')
-            interactions_with_curated = add_curated(clean_interactions, interaction_curated)
-
-            result = generate_data_helper.normalize_interactions(
-                interactions_with_curated.append(user_interactions, ignore_index=True, sort=False), 'partner_a',
+            # if release == False, user the curated interactions that come with CellPhoneDB
+            result = generate_input_files_helper.normalize_interactions(
+                interaction_curated.append(user_interactions, ignore_index=True, sort=False), 'partner_a',
                 'partner_b').drop_duplicates(['partner_a', 'partner_b'], keep='last')
         else:
-            # if --release we'll drop previously curated interactions and will keep only 
-            # the ones provided by the user and the ones from third party sources
-            user_interactions = add_curated(clean_interactions, user_interactions)
-            result = generate_data_helper.normalize_interactions(user_interactions,'partner_a',
+            # if release == True keep only the ones provided by the user
+            result = generate_input_files_helper.normalize_interactions(user_interactions,'partner_a',
                 'partner_b').drop_duplicates(['partner_a', 'partner_b'], keep='last')            
 
     else:
-        result = generate_data_helper.normalize_interactions(user_interactions, 'partner_a', 'partner_b') \
+        result = generate_input_files_helper.normalize_interactions(user_interactions, 'partner_a', 'partner_b') \
             .drop_duplicates(['partner_a', 'partner_b'], keep='last')
 
     result[result_columns].sort_values(['partner_a', 'partner_b']).to_csv(
