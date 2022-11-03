@@ -30,7 +30,7 @@ Check [Garcia-Alonso & Lorenzi et al](https://www.nature.com/articles/s41586-022
 Check [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) for an example applying CellphoneDB v3.
 
 ## Installing CellPhoneDB
-NOTE: Works with Python v3.6 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
+NOTE: Works with Python v3.9 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
 We highly recommend using an isolated python environment (as described in steps below) using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or [virtualenv](https://docs.python.org/3/library/venv.html) but you could of course omit these steps and install via `pip` immediately.
 
@@ -39,7 +39,7 @@ Note that the instructions below refer to running CellphoneDB in development env
 - `git clone git@github.com:ventolab/CellphoneDB.git`
 - `cd CellphoneDB`
 - `git checkout bare-essentials`
-- `conda create -n cpdb python=3.8`
+- `conda create -n cpdb python=3.9`
 - `source activate cpdb`
 - `pip install -r requirements.txt`
 
