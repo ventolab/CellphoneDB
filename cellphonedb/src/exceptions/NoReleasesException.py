@@ -1,0 +1,2 @@
+class NoReleasesException(Exception):
+    pass
