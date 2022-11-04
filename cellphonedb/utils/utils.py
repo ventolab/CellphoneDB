@@ -11,6 +11,8 @@ from src.exceptions.NotADataFrameException import NotADataFrameException
 from src.exceptions.ReadFileException import ReadFileException
 from src.exceptions.ReadFromPickleException import ReadFromPickleException
 
+DEBUG=False
+
 def read_data_table_from_file(file: str, index_column_first: bool = False, separator: str = '',
                               dtype=None, na_values=None, compression=None) -> pd.DataFrame:
     if os.path.isdir(file):
@@ -167,3 +169,8 @@ def can_be_ligand(multidata: pd.Series, suffix: str = '') -> bool:
     if multidata['secreted_highlight{}'.format(suffix)]:
         return True
     return False
+
+def dbg(*argv):
+    if DEBUG:
+        for arg in argv:
+            print(arg)
