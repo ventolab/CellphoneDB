@@ -177,6 +177,9 @@ def build_results(interactions: pd.DataFrame,
     interactions: pd.DataFrame = interactions_original.loc[interactions.index]
     interactions['interaction_index'] = interactions.index
     interactions = interactions.merge(counts_relations, how='left', left_on='multidata_1_id', right_on='id_multidata', )
+    # The column drop below prevents: 'FutureWarning: Passing 'suffixes' which cause duplicate columns {'id_multidata_1'}
+    # in the result is deprecated and will raise a MergeError in a future version.'
+    interactions = interactions.drop('id_multidata', axis=1)
     interactions = interactions.merge(counts_relations, how='left', left_on='multidata_2_id', right_on='id_multidata',
                                       suffixes=('_1', '_2'))
     interactions.set_index('interaction_index', inplace=True, drop=True)

@@ -10,7 +10,6 @@ from utils.utils import dbg
 import urllib.request, urllib.error, urllib.parse
 import pathlib
 import json
-from ktplotspy.plot import plot_cpdb
 
 from src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
 from src.core.preprocessors import method_preprocessors
@@ -116,7 +115,7 @@ def testrun_analyses(user_dir_root, db_version):
                                                                         counts_fn=KEY2USER_TEST_FILE['counts'],
                                                                         meta_fn=KEY2USER_TEST_FILE['meta'], \
                                                                         microenvs_fn=KEY2USER_TEST_FILE['microenvs'],
-                                                                        degs_fn=None)
+                                                                        degs_fn=KEY2USER_TEST_FILE['degs'])
     # ************ Call analysis method
     means, significant_means, deconvoluted = cpdb_analysis_method.call(
         meta,

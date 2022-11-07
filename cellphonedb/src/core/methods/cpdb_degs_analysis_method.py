@@ -128,7 +128,7 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
                                                                 cluster_interactions,
                                                                 separator)
 
-    core_logger.debug('Run Mean Analyisis (real mean)')
+    core_logger.debug('Run Mean Analysis (real mean)')
     real_mean_analysis = cpdb_statistical_analysis_helper.mean_analysis(interactions_filtered,
                                                                  clusters,
                                                                  cluster_interactions,
@@ -227,6 +227,9 @@ def build_results(interactions: pd.DataFrame,
     interactions = interactions_original.loc[interactions.index]
     interactions['interaction_index'] = interactions.index
     interactions = interactions.merge(counts_relations, how='left', left_on='multidata_1_id', right_on='id_multidata', )
+    # The column drop below prevents: 'FutureWarning: Passing 'suffixes' which cause duplicate columns {'id_multidata_1'}
+    # in the result is deprecated and will raise a MergeError in a future version.'
+    interactions = interactions.drop('id_multidata', axis=1)
     interactions = interactions.merge(counts_relations, how='left', left_on='multidata_2_id', right_on='id_multidata',
                                       suffixes=('_1', '_2'))
     interactions.set_index('interaction_index', inplace=True, drop=True)
