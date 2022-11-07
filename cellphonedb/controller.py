@@ -10,6 +10,7 @@ from utils.utils import dbg
 import urllib.request, urllib.error, urllib.parse
 import pathlib
 import json
+from ktplotspy.plot import plot_cpdb
 
 from src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
 from src.core.preprocessors import method_preprocessors
@@ -55,7 +56,8 @@ def get_user_files(user_dir_root, \
 
 def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
         -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    adata = utils.read_h5ad(os.path.join(user_dir_root,'user_files',h5ad_fn),)
+    adata = utils.read_h5ad(os.path.join(user_dir_root,'user_files',h5ad_fn))
+
     counts = adata.to_df().T
     counts.columns = adata.obs['sample']
 
@@ -64,6 +66,8 @@ def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
         raw_meta = utils._read_data(io.StringIO(meta_str), separator='\t', index_column_first=False, dtype=None,
                                     na_values=None, compression=None)
         meta = method_preprocessors.meta_preprocessor(raw_meta)
+        # adata and the merge below are needed for plotting results via ktplotspy
+        adata.obs = pd.merge(adata.obs, meta, left_on="sample", right_on="cell")
         dbg(meta.info)
 
     microenvs_str = adata.uns['microenvs']
@@ -83,7 +87,7 @@ def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
         degs = pd.DataFrame()
 
     print("User file {} was loaded successfully".format(h5ad_fn))
-    return counts, raw_meta, meta, microenvs, degs
+    return adata, counts, raw_meta, meta, microenvs, degs
 
 def _counts_validations(counts: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFrame:
     if not len(counts.columns):
