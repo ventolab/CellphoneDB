@@ -1,0 +1,5 @@
+partner_a,partner_b,protein_name_a,protein_name_b,annotation_strategy,source
+12oxoLeukotrieneB4_byPTGR1,Q96RI1,,LT4R1_HUMAN,curated,HMRbase;uniprot;reactome
+test_complex,Q9NPC1,,LT4R2_HUMAN,curated,HMRbase;uniprot;reactome
+test_complex,UNKNOWN_PROTEIN,,UNKNOWN_HUMAN,curated,HMRbase;uniprot
+unknown_complex,Q96RI1,,NR1H4_HUMAN,curated,HMRbase;uniprot

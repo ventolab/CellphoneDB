@@ -88,18 +88,15 @@ def unzip(zip_file_path):
                 with thezip.open(zipinfo) as thefile:
                     yield zipinfo.filename, thefile
 
-def get_db_data_path(user_dir_root, db_version):
-    return os.path.join(user_dir_root, "releases", db_version, "data")
+def get_db_path(user_dir_root, db_version):
+    return os.path.join(user_dir_root, "releases", db_version)
 
-
-def create_db(user_dir_root, db_version, use_local_files):
-    db_data_path = get_db_data_path(user_dir_root, db_version)
+def create_db(user_dir_root, db_version, \
+              gene_input=None, protein_input=None, complex_input=None, interaction_input=None):
     db_path = os.path.join(user_dir_root, "releases", db_version)
     pathlib.Path(db_path).mkdir(parents=True, exist_ok=True)
-    # Get input files
-    if use_local_files == False:
-        download_input_files(db_data_path)
-    dataDFs = getDFs(db_data_path, INPUT_FILE_NAMES, "csv")
+    dataDFs = getDFs(gene_input=gene_input, protein_input=protein_input, complex_input=complex_input,
+                     interaction_input=interaction_input)
 
     # Collect protein data
     protein_db_df = dataDFs['protein_input'][['protein_name', 'tags', 'tags_reason', 'tags_description', 'uniprot']]
@@ -214,16 +211,21 @@ def create_db(user_dir_root, db_version, use_local_files):
     print("Created CellphoneDB {} in {} successfully" \
           .format(db_version, os.path.join(db_path,'cellphonedb.zip')))
 
-def download_input_files(db_files_path):
+def download_input_files(user_dir_root, db_version):
+    db_path = get_db_path(user_dir_root, db_version)
+    db_data_path = os.path.join(db_path, "data")
+    pathlib.Path(db_path).mkdir(parents=True, exist_ok=True)
     for fname in INPUT_FILE_NAMES:
         fname = fname+".csv"
         print("Downloading: " + fname)
         r = urllib.request.urlopen('https://raw.githubusercontent.com/ventolab/cellphonedb-data/master/data/' + fname)
-        with open(os.path.join(db_files_path,fname), 'wb') as f:
+        with open(os.path.join(db_data_path, fname), 'wb') as f:
             f.write(r.read())
 
-def getDFs(path, files_list, file_extension):
+def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_input=None):
     dfs = {}
-    for fname in files_list:
-        dfs[fname] = utils.read_data_table_from_file(os.path.join(path,'{}.{}'.format(fname, file_extension)))
+    dfs['gene_input'] = utils.read_data_table_from_file(gene_input)
+    dfs['protein_input'] = utils.read_data_table_from_file(protein_input)
+    dfs['complex_input'] = utils.read_data_table_from_file(complex_input)
+    dfs['interaction_input'] = utils.read_data_table_from_file(interaction_input)
     return dfs

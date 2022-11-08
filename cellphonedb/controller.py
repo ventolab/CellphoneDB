@@ -8,8 +8,6 @@ import io
 from utils import utils, generate_input_files, database_version_manager, search_utils, db_utils
 from utils.utils import dbg
 import urllib.request, urllib.error, urllib.parse
-import pathlib
-import json
 
 from src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
 from src.core.preprocessors import method_preprocessors
@@ -230,8 +228,16 @@ if __name__ == '__main__':
     if arg == 'a':
         testrun_analyses(CPDB_ROOT, RELEASED_VERSION)
     elif arg == 'db':
-        use_local_files = False
-        db_utils.create_db(CPDB_ROOT, RELEASED_VERSION, use_local_files)
+        db_utils.download_input_files(CPDB_ROOT, RELEASED_VERSION)
+        db_dir = db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION)
+        data_dir = os.path.join(db_dir, "data")
+        gene_input_path = os.path.join(data_dir, "gene_input.csv")
+        protein_input_path = os.path.join(data_dir, "protein_input.csv")
+        complex_input_path = os.path.join(data_dir, "complex_input.csv")
+        interaction_input_path = os.path.join(data_dir, "interaction_input.csv")
+        db_utils.create_db(CPDB_ROOT, RELEASED_VERSION, \
+                           gene_input=gene_input_path, protein_input=protein_input_path, complex_input=complex_input_path,
+                           interaction_input=interaction_input_path)
     elif arg == "dbd":
         # database_version_manager.download_database("latest")
         database_version_manager.download_database("v4.0.0")
@@ -240,42 +246,9 @@ if __name__ == '__main__':
     elif arg == 's':
         search_utils.search('ENSG00000134780,integrin_a10b1_complex', CPDB_ROOT, RELEASED_VERSION)
     elif arg == 'g':
-        download_source_files(CPDB_ROOT, RELEASED_VERSION)
-        data_dir = db_utils.get_db_data_path(CPDB_ROOT, RELEASED_VERSION)
-        generated_path = os.path.join(data_dir, "generated")
-        print("Generating gene_generated.csv file into {}".format(generated_path))
-        pathlib.Path(generated_path).mkdir(parents=True, exist_ok=True)
-        generate_input_files.generate_genes(data_dir,
-                       user_gene=None,
-                       fetch_uniprot=False,
-                       fetch_ensembl=False,
-                       result_path=generated_path,
-                       project_name=None,
-                       )
-        print("Generating proteins_generated.csv file into {}".format(generated_path))
-        generate_input_files.generate_proteins(data_dir,
-                          user_protein=None,
-                          fetch_uniprot=False,
-                          result_path=generated_path,
-                          log_file="log.txt",
-                          project_name=None)
-        print("Generating complex_generated.csv file into {}".format(generated_path))
-        generate_input_files.generate_complex(data_dir,
-                     user_complex=None,
-                     result_path=generated_path,
-                     log_file='log.txt',
-                     project_name=None)
-        print("Generating interactions_input.csv file into {}".format(generated_path))
-        generate_input_files.generate_interactions(data_dir,
-                              user_interactions=None,
-                              user_interactions_only=False,
-                              result_path=generated_path,
-                              project_name=None,
-                              release=False)
-        print("Generating gene, protein and complex input files file into {}".format(generated_path))
-        generate_input_files.filter_all(input_path=generated_path,
-               result_path=generated_path,
-               project_name=None)
+        generate_input_files.generate_all(CPDB_ROOT, RELEASED_VERSION, \
+                                          user_complex=None, user_interactions=None, user_interactions_only=False)
+
     else:
         print("Arguments can be a (perform analysis) or db (create database)")
 

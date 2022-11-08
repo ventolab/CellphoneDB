@@ -3,11 +3,13 @@ import urllib.parse
 
 import numpy as np
 import pandas as pd
+import pathlib
+import json
 
 from src.core.generators.complex_generator import complex_generator
 from src.core.generators.gene_generator import gene_generator
 from src.core.generators.protein_generator import protein_generator
-from utils import utils, generate_input_files_helper
+from utils import utils, generate_input_files_helper, db_utils
 from utils.utils import _get_separator, write_to_file
 
 def generate_genes(data_dir,
@@ -17,8 +19,7 @@ def generate_genes(data_dir,
                    result_path=None,
                    project_name=None,
                    ) -> None:
-    output_path = _set_paths(result_path, project_name)
-    print ("here")
+    output_path = utils.set_paths(result_path, project_name)
     if fetch_ensembl:
         print('Fetching remote Ensembl data ... ', end='')
         source_url = 'http://www.ensembl.org/biomart/martservice?query={}'
@@ -37,7 +38,7 @@ def generate_genes(data_dir,
         ensembl_db = pd.read_csv(url)
         print('Done')
     else:
-        ensembl_db = utils.read_data_table_from_file(os.path.join(data_dir, 'sources/ensembl.txt'))
+        ensembl_db = utils.read_data_table_from_file(os.path.join(data_dir, 'sources','ensembl.txt'))
         print('Read local Ensembl file')
 
     # additional data comes from given file or uniprot remote url
@@ -56,7 +57,7 @@ def generate_genes(data_dir,
             uniprot_db = pd.read_csv(os.path.join(data_dir, 'sources/uniprot.tab'), sep='\t')
             print('Read local UniProt file')
     else:
-        uniprot_db = utils.read_data_table_from_file(os.path.join(data_dir, 'sources/uniprot.tab'))
+        uniprot_db = utils.read_data_table_from_file(os.path.join(data_dir, 'sources','uniprot.tab'))
         print('Read local UniProt file')
 
     ensembl_columns = {
@@ -80,7 +81,7 @@ def generate_genes(data_dir,
 
     ensembl_db = ensembl_db[list(ensembl_columns.keys())].rename(columns=ensembl_columns)
     uniprot_db = uniprot_db[list(uniprot_columns.keys())].rename(columns=uniprot_columns)
-    hla_genes = utils.read_data_table_from_file(os.path.join(data_dir, 'sources/hla_curated.csv'))
+    hla_genes = utils.read_data_table_from_file(os.path.join(data_dir, 'sources','hla_curated.csv'))
     if user_gene:
         separator = _get_separator(os.path.splitext(user_gene)[-1])
         user_gene = pd.read_csv(user_gene, sep=separator)
@@ -103,7 +104,7 @@ def generate_interactions(data_dir,
     output_path = utils.set_paths(result_path, project_name)
 
     if not user_interactions_only:
-        interaction_curated = utils.read_data_table_from_file(os.path.join(data_dir, 'sources/interaction_curated.csv'))
+        interaction_curated = utils.read_data_table_from_file(os.path.join(data_dir, 'sources','interaction_curated.csv'))
 
     if user_interactions:
         separator = _get_separator(os.path.splitext(user_interactions)[-1])
@@ -111,7 +112,7 @@ def generate_interactions(data_dir,
         user_interactions['partner_a'] = user_interactions['partner_a'].apply(lambda x: str(x).strip())
         user_interactions['partner_b'] = user_interactions['partner_b'].apply(lambda x: str(x).strip())
 
-        # if --release mark all user interactions as 'curated otherwise keep
+        # if release == True mark all user interactions as 'curated'; otherwise keep
         # the ones from CellPhoneDB as 'curated' and the new ones by the user 
         # as 'user_curated'
         if release:
@@ -119,7 +120,7 @@ def generate_interactions(data_dir,
         else:
             user_interactions['annotation_strategy'] = 'user_curated'
 
-        # add missing proteing name columns
+        # add missing protein_name columns
         if not 'protein_name_a' in user_interactions.columns:
             user_interactions['protein_name_a'] = ''
 
@@ -136,16 +137,17 @@ def generate_interactions(data_dir,
     ]
     if not user_interactions_only:
         if not release:
-            # if release == False, user the curated interactions that come with CellPhoneDB
+            # if release == False, append user_interactions to interaction_curated
             result = generate_input_files_helper.normalize_interactions(
-                interaction_curated.append(user_interactions, ignore_index=True, sort=False), 'partner_a',
+                pd.concat([interaction_curated, user_interactions], ignore_index=True, sort=False), 'partner_a',
                 'partner_b').drop_duplicates(['partner_a', 'partner_b'], keep='last')
         else:
-            # if release == True keep only the ones provided by the user
+            # if release == True keep user_interactions only
             result = generate_input_files_helper.normalize_interactions(user_interactions,'partner_a',
                 'partner_b').drop_duplicates(['partner_a', 'partner_b'], keep='last')            
 
     else:
+        # user_interactions_only == True -> keep user_interactions only
         result = generate_input_files_helper.normalize_interactions(user_interactions, 'partner_a', 'partner_b') \
             .drop_duplicates(['partner_a', 'partner_b'], keep='last')
 
@@ -176,10 +178,10 @@ def generate_proteins(data_dir,
             print('Downloaded remote UniProt file')
         except Exception as e:
             print('Error fetching remote UniProt data, fetching local data')
-            uniprot_db = pd.read_csv(os.path.join(data_dir, 'sources/uniprot.tab'), sep='\t')
+            uniprot_db = pd.read_csv(os.path.join(data_dir, 'sources','uniprot.tab'), sep='\t')
             print('Read local UniProt file')
     else:
-        uniprot_db = pd.read_csv(os.path.join(data_dir, 'sources/uniprot.tab'), sep='\t')
+        uniprot_db = pd.read_csv(os.path.join(data_dir, 'sources','uniprot.tab'), sep='\t')
         print('Read local UniProt file')
 
     default_values = {
@@ -220,10 +222,10 @@ def generate_proteins(data_dir,
 
     result_columns = list(default_types.keys())
 
-    output_path = _set_paths(result_path, project_name)
+    output_path = utils.set_paths(result_path, project_name)
     log_path = '{}/{}'.format(output_path, log_file)
     uniprot_db = uniprot_db[list(uniprot_columns.keys())].rename(columns=uniprot_columns)
-    curated_proteins = pd.read_csv(os.path.join(data_dir, 'sources/protein_curated.csv'))
+    curated_proteins = pd.read_csv(os.path.join(data_dir, 'sources','protein_curated.csv'))
     if user_protein:
         separator = _get_separator(os.path.splitext(user_protein)[-1])
         user_protein = pd.read_csv(user_protein, sep=separator)
@@ -238,10 +240,10 @@ def generate_complex(data_dir,
                      result_path=None,
                      log_file='log.txt',
                      project_name=None):
-    output_path = _set_paths(result_path, project_name)
+    output_path = utils.set_paths(result_path, project_name)
     log_path = '{}/{}'.format(output_path, log_file)
 
-    curated_complex = pd.read_csv(os.path.join(data_dir, 'sources/complex_curated.csv'))
+    curated_complex = pd.read_csv(os.path.join(data_dir, 'sources','complex_curated.csv'))
     if user_complex:
         separator = _get_separator(os.path.splitext(user_complex)[-1])
         user_complex = pd.read_csv(user_complex, sep=separator)
@@ -250,14 +252,17 @@ def generate_complex(data_dir,
 
     result.to_csv('{}/{}'.format(output_path, 'complex_generated.csv'), index=False)
 
-def filter_all(input_path,
+def filter_all(data_dir,
+               input_path,
+               user_complex=None,
+               user_interaction=None,
                result_path='filtered',
                project_name=None):
     interactions = pd.read_csv(os.path.join(input_path, 'interaction_input.csv'))
     complexes = pd.read_csv(os.path.join(input_path, 'complex_generated.csv'))
     proteins = pd.read_csv(os.path.join(input_path, 'protein_generated.csv'))
     genes = pd.read_csv(os.path.join(input_path, 'gene_generated.csv'))
-    output_path = _set_paths(result_path, project_name)
+    output_path = utils.set_paths(result_path, project_name)
 
     interacting_partners = pd.concat([interactions['partner_a'], interactions['partner_b']]).drop_duplicates()
 
@@ -270,13 +275,14 @@ def filter_all(input_path,
     filtered_genes = _filter_genes(genes, filtered_proteins['uniprot'])
     write_to_file(filtered_genes.sort_values('gene_name'), 'gene_input.csv', output_path=output_path)
 
-    rejected_members = interacting_partners[~(interacting_partners.isin(filtered_complexes['complex_name']) |
+    unknown_interactors = interacting_partners[~(interacting_partners.isin(filtered_complexes['complex_name']) |
                                               interacting_partners.isin(filtered_proteins['uniprot']))]
 
-    if len(rejected_members):
-        print('WARNING: There are some proteins or complexes not interacting properly: `{}`'.format(
-            ', '.join(rejected_members)))
 
+    if len(unknown_interactors):
+        print('WARNING: Some interactions in {} were excluded due to unknown complexes or proteins. Please include any missing complexes in {}, and use proteins present in {} only:\n`{}`'
+              .format(user_interaction, user_complex,
+                      os.path.join(data_dir, 'sources', 'uniprot.tab'), ', '.join(unknown_interactors)))
 
 def _filter_genes(genes: pd.DataFrame, interacting_proteins: pd.Series) -> pd.DataFrame:
     filtered_genes = genes[genes['uniprot'].isin(interacting_proteins)]
@@ -301,19 +307,60 @@ def _filter_complexes(complexes: pd.DataFrame, interacting_partners: pd.DataFram
 
     return filtered_complexes
 
+def download_source_files(user_dir_root, db_version):
+    data_dir = os.path.join(db_utils.get_db_path(user_dir_root, db_version), "data")
+    sources_path = os.path.join(data_dir, "sources")
+    print("Downloading cellphonedb-data/data/sources files into {}:".format(sources_path))
+    pathlib.Path(sources_path).mkdir(parents=True, exist_ok=True)
+    r = urllib.request.urlopen("https://api.github.com/repos/ventolab/cellphonedb-data/git/trees/master?recursive=1")
+    files_data = json.load(r)['tree']
+    for rec in files_data:
+        if rec['path'].startswith('data/sources/'):
+            fname = rec['path'].split('/')[-1]
+            url = 'https://raw.githubusercontent.com/ventolab/cellphonedb-data/master/{}'.format(rec['path'])
+            print("Downloading: " + fname)
+            r = urllib.request.urlopen(url)
+            with open(os.path.join(sources_path, fname), 'wb') as f:
+                f.write(r.read())
 
-def _set_paths(output_path, subfolder):
-    if subfolder:
-        output_path = os.path.realpath(os.path.expanduser('{}/{}'.format(output_path, subfolder)))
-
-    os.makedirs(output_path, exist_ok=True)
-
-    if _path_is_not_empty(output_path):
-       print(
-            'WARNING: Output directory ({}) exist and is not empty. Result can overwrite old results'.format(output_path))
-
-    return output_path
-
-
-def _path_is_not_empty(path):
-    return bool([f for f in os.listdir(path) if not f.startswith('.')])
+def generate_all(user_dir_root, db_version, user_complex=None, user_interactions=None, user_interactions_only=False ):
+    download_source_files(user_dir_root, db_version)
+    db_dir = db_utils.get_db_path(user_dir_root, db_version)
+    data_dir = os.path.join(db_dir,"data")
+    generated_path = os.path.join(data_dir, "generated")
+    print("Generating gene_generated.csv file into {}".format(generated_path))
+    pathlib.Path(generated_path).mkdir(parents=True, exist_ok=True)
+    generate_genes(data_dir,
+                   user_gene=None,
+                   fetch_uniprot=False,
+                   fetch_ensembl=False,
+                   result_path=generated_path,
+                   project_name=None,
+                   )
+    print("Generating proteins_generated.csv file into {}".format(generated_path))
+    generate_proteins(data_dir,
+                      user_protein=None,
+                      fetch_uniprot=False,
+                      result_path=generated_path,
+                      log_file="log.txt",
+                      project_name=None)
+    print("Generating complex_generated.csv file into {}".format(generated_path))
+    generate_complex(data_dir,
+                     user_complex=user_complex,
+                     result_path=generated_path,
+                     log_file='log.txt',
+                     project_name=None)
+    print("Generating interactions_input.csv file into {}".format(generated_path))
+    generate_interactions(data_dir,
+                          user_interactions=user_interactions,
+                          user_interactions_only=user_interactions_only,
+                          result_path=generated_path,
+                          project_name=None,
+                          release=False)
+    print("Generating gene, protein and complex input files file into {}".format(generated_path))
+    filter_all(data_dir,
+               input_path=generated_path,
+               user_complex=user_complex,
+               user_interaction=user_interactions,
+               result_path=generated_path,
+               project_name=None)

@@ -45,7 +45,7 @@ def _merge_proteins(base_protein: pd.DataFrame,
 
     join_key = 'uniprot'
 
-    merged_protein = base_protein.append(additional, ignore_index=True, sort=False).drop_duplicates()
+    merged_protein = pd.concat([base_protein, additional], ignore_index=True, sort=False).drop_duplicates()
 
     if not quiet and merged_protein.duplicated(join_key).any():
         core_logger.warning('There are differences between merged files: logged to {}'.format(log_file))
@@ -53,5 +53,6 @@ def _merge_proteins(base_protein: pd.DataFrame,
         log = merged_protein[merged_protein.duplicated(join_key, keep=False)].sort_values(join_key)
         log.to_csv(log_file, index=False, sep='\t')
 
+    # keep='last' -> keep the additional (=curated) duplicate in preference to the one from base_protein (=uniprot)
     merged_protein.drop_duplicates(join_key, keep='last', inplace=True)
     return merged_protein

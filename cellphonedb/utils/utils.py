@@ -111,9 +111,9 @@ def set_paths(output_path, project_name):
 
     os.makedirs(output_path, exist_ok=True)
 
-    if _path_is_not_empty(output_path):
-        print(
-            'WARNING: Output directory ({}) exist and is not empty. Result can overwrite old results'.format(output_path))
+    # if _path_is_not_empty(output_path):
+    #     print(
+    #         'WARNING: Output directory ({}) exist and is not empty. Result can overwrite old results'.format(output_path))
 
     return output_path
 

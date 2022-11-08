@@ -81,7 +81,7 @@ def _merge_complex(base_complex: pd.DataFrame, additional: pd.DataFrame, log_fil
 
     join_key = 'complex_name'
 
-    merged_complex = base_complex.append(additional, ignore_index=True, sort=False).drop_duplicates()
+    merged_complex = pd.concat([base_complex, additional], ignore_index=True, sort=False).drop_duplicates()
 
     if merged_complex.duplicated(join_key).any():
         core_logger.warning('There are differences between merged files: logged to {}'.format(log_file))
