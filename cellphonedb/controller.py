@@ -248,7 +248,122 @@ if __name__ == '__main__':
     elif arg == 'g':
         generate_input_files.generate_all(CPDB_ROOT, RELEASED_VERSION, \
                                           user_complex=None, user_interactions=None, user_interactions_only=False)
-
+    elif arg == 'te':
+        # Run statistical and deg analyses for endometrium example - for the purpose of comparing results to old CellphoneDB
+        root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'examples')
+        dbversion = "v4.0.0"
+        interactions, genes, complex_composition, complex_expanded = \
+            db_utils.get_interactions_genes_complex(CPDB_ROOT, RELEASED_VERSION)
+        adata = utils.read_h5ad(os.path.join(root_dir, 'endometrium_example_counts.h5ad'))
+        counts = adata.to_df().T
+        raw_meta = utils.read_data_table_from_file(
+            os.path.join(root_dir, 'endometrium_example_meta.tsv'))
+        meta = method_preprocessors.meta_preprocessor(raw_meta)
+        microenvs = utils.read_data_table_from_file(
+            os.path.join(root_dir, 'endometrium_example_microenviroments.tsv'))
+        deconvoluted, means, pvalues, significant_means = \
+        cpdb_statistical_analysis_method.call(meta,
+                                              counts,
+                                              'hgnc_symbol',
+                                              interactions,
+                                              genes,
+                                              complex_expanded,
+                                              complex_composition,
+                                              microenvs=microenvs,
+                                              iterations=1000,
+                                              threshold=0.1,
+                                              threads=4,
+                                              debug_seed=-1,
+                                              result_precision=3,
+                                              pvalue=1,
+                                              separator='|',
+                                              debug=False)
+        output_path=os.path.join(root_dir, 'stat_new')
+        utils.write_to_file(means, 'means.txt', output_path)
+        utils.write_to_file(pvalues, 'pvalues.txt', output_path)
+        utils.write_to_file(significant_means, 'significant_means.txt', output_path)
+        utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
+        degs = utils.read_data_table_from_file(os.path.join(root_dir, 'endometrium_example_DEGs.tsv'))
+        output_path = os.path.join(root_dir, 'deg_new')
+        deconvoluted, means, relevant_interactions, significant_means = \
+            cpdb_degs_analysis_method.call(meta,
+                                           counts,
+                                           degs,
+                                           'hgnc_symbol',
+                                           interactions,
+                                           genes,
+                                           complex_expanded,
+                                           complex_composition,
+                                           microenvs=microenvs,
+                                           iterations=1000,
+                                           threshold=0.1,
+                                           threads=4,
+                                           debug_seed=-1,
+                                           result_precision=3,
+                                           separator='|',
+                                           debug=False,
+                                           output_path='')
+        utils.write_to_file(means, 'means.txt', output_path)
+        utils.write_to_file(relevant_interactions, 'relevant_interactions.txt', output_path)
+        utils.write_to_file(significant_means, 'significant_means.txt', output_path)
+        utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
+    elif arg == 'to':
+        # Run statistical and deg analyses for ovarian example - for the purpose of comparing results to old CellphoneDB
+        root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'bug_2_ovary')
+        dbversion = "v4.0.0"
+        interactions, genes, complex_composition, complex_expanded = \
+            db_utils.get_interactions_genes_complex(CPDB_ROOT, RELEASED_VERSION)
+        adata = utils.read_h5ad(os.path.join(root_dir, 'granulosa_normloqTransformed.h5ad'))
+        counts = adata.to_df().T
+        raw_meta = utils.read_data_table_from_file(os.path.join(root_dir, 'ovarian_meta.tsv'))
+        meta = method_preprocessors.meta_preprocessor(raw_meta)
+        microenvs = utils.read_data_table_from_file(os.path.join(root_dir, 'ovarian_microenviroment.tsv'))
+        deconvoluted, means, pvalues, significant_means = \
+            cpdb_statistical_analysis_method.call(meta,
+                                                  counts,
+                                                  'gene_name',
+                                                  interactions,
+                                                  genes,
+                                                  complex_expanded,
+                                                  complex_composition,
+                                                  microenvs=microenvs,
+                                                  iterations=1000,
+                                                  threshold=0.1,
+                                                  threads=4,
+                                                  debug_seed=-1,
+                                                  result_precision=3,
+                                                  pvalue=1,
+                                                  separator='|',
+                                                  debug=False)
+        output_path = os.path.join(root_dir, 'stat_new')
+        utils.write_to_file(means, 'means.txt', output_path)
+        utils.write_to_file(pvalues, 'pvalues.txt', output_path)
+        utils.write_to_file(significant_means, 'significant_means.txt', output_path)
+        utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
+        degs = utils.read_data_table_from_file(root_dir, 'DEGs.tsv')
+        output_path = os.path.join(root_dir, 'deg_new')
+        deconvoluted, means, relevant_interactions, significant_means = \
+            cpdb_degs_analysis_method.call(meta,
+                                           counts,
+                                           degs,
+                                           'gene_name',
+                                           interactions,
+                                           genes,
+                                           complex_expanded,
+                                           complex_composition,
+                                           microenvs=microenvs,
+                                           iterations=1000,
+                                           threshold=0.1,
+                                           threads=4,
+                                           debug_seed=-1,
+                                           result_precision=3,
+                                           separator='|',
+                                           debug=False,
+                                           output_path='')
+        utils.write_to_file(means, 'means.txt', output_path)
+        utils.write_to_file(relevant_interactions, 'relevant_interactions.txt', output_path)
+        utils.write_to_file(significant_means, 'significant_means.txt', output_path)
+        utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
     else:
         print("Arguments can be a (perform analysis) or db (create database)")
 
