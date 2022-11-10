@@ -306,11 +306,14 @@ def deconvolute_complex_interaction_component(complex_compositions,
     deconvoluted_result = pd.DataFrame()
     component = pd.DataFrame()
     component[counts_data] = interactions['{}{}'.format(counts_data, suffix)]
-    component[[counts_data, 'protein_name', 'gene_name', 'name', 'is_complex', 'id_cp_interaction', 'id_multidata',
-               'receptor']] = \
-        interactions[['{}{}'.format(counts_data, suffix), 'protein_name{}'.format(suffix), 'gene_name{}'.format(suffix),
+
+    # The two operations below remove duplicates - this prevents the latest version of Pandas throwing
+    # 'ValueError: Columns must be same length as key' when counts_data == 'gene_name'
+    component_columns = list(dict.fromkeys([counts_data, 'protein_name', 'gene_name', 'name', 'is_complex', 'id_cp_interaction', 'id_multidata', 'receptor']) )
+    interactions_columns = list(dict.fromkeys(['{}{}'.format(counts_data, suffix), 'protein_name{}'.format(suffix), 'gene_name{}'.format(suffix),
                       'name{}'.format(suffix), 'is_complex{}'.format(suffix), 'id_cp_interaction',
-                      'multidata{}_id'.format(suffix), 'receptor{}'.format(suffix)]]
+                      'multidata{}_id'.format(suffix), 'receptor{}'.format(suffix)]))
+    component[component_columns] = interactions[interactions_columns]
 
     deconvolution_complex = pd.merge(complex_compositions,
                                      component,
