@@ -5,14 +5,14 @@
 
 ## What is CellPhoneDB?
 
-CellPhoneDB is a publicly available repository of curated receptors, ligands and their interactions in **HUMAN**. Subunit architecture is included for both ligands and receptors, representing heteromeric complexes accurately. This is crucial, as cell-cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB integrates [existing datasets](Docs/ppi-resources.md) that pertain to cellular communication and new manually reviewed information. Databases from which CellPhoneDB gets information are: UniProt, Ensembl, PDB, the IMEx consortium, IUPHAR.
+CellPhoneDB is a publicly available repository of curated receptors, ligands and their interactions in **HUMAN**. Subunit architecture is included for both ligands and receptors, representing heteromeric complexes accurately. This is crucial, as cell-cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB includes manually curated & reviewd molecular interactions with evidenced role in cellular communication, which combines with [existing datasets](Docs/ppi-resources.md) that pertain to cellular communication. Databases from which CellPhoneDB gets information are: UniProt, Ensembl, PDB, the IMEx consortium, IUPHAR.
 
 CellPhoneDB can be used to search for a particular ligand/receptor, or interrogate your own single-cell transcriptomics data (or even bulk transcriptomics data if your samples represent pure populations!). 
 
 For more details on the analysis check the [documentation here](Docs/RESULTS-DOCUMENTATION.md), our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB v3).
 
-## New in CellPhoneDB v4
 
+## New in CellPhoneDB v4
 
 This release involves a major [CellphoneDB database](https://github.com/ventolab/CellphoneDB-data) update. We have invested quite some time curating more cell-cell communication interactions validated experimentally. Specifically, we have:
 
