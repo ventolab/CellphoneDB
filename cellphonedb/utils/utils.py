@@ -46,7 +46,7 @@ def read_data_table_from_file(file: str, index_column_first: bool = False, separ
         with f:
             return _read_data(f, separator, index_column_first, dtype, na_values, compression)
 
-def write_to_file(df: pd.DataFrame, filename: str, output_path: str, output_format: Optional[str] = None):
+def write_to_file(df: pd.DataFrame, filename: str, output_path: str, output_format: Optional[str] = None, index_label = None, index = False):
     _, file_extension = os.path.splitext(filename)
 
     if output_format is None:
@@ -72,7 +72,7 @@ def write_to_file(df: pd.DataFrame, filename: str, output_path: str, output_form
         else:
             separator = _get_separator(selected_extension)
 
-    df.to_csv('{}/{}'.format(output_path, filename), sep=separator, index=False)
+    df.to_csv('{}/{}'.format(output_path, filename), sep=separator, index=index, index_label=index_label)
 
 def _read_mtx(path: str) -> pd.DataFrame:
 
