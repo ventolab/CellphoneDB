@@ -3,6 +3,7 @@ import re
 import time
 from utils.utils import dbg
 from IPython.display import HTML, display
+import pandas as pd
 
 SIMPLE_PFX="simple:"
 COMPLEX_PFX = 'complex:'
@@ -119,3 +120,24 @@ def display_table(data, complex_name2proteins_text):
         first_row = False
     html += "</table>"
     display(HTML(html))
+
+def autocomplete_query(genes: pd.DataFrame, interactions: pd.DataFrame, partial_element: str) -> pd.DataFrame:
+    values = _partial_filter(genes, 'ensembl', partial_element)
+    by_protein_name = _partial_filter(genes, 'protein_name', partial_element)
+    by_gene_name = _partial_filter(genes, 'gene_name', partial_element)
+    with_hgnc_symbol = genes.dropna(subset=['hgnc_symbol'])
+    by_hgnc_symbol = _partial_filter(with_hgnc_symbol, 'hgnc_symbol', partial_element)
+    by_name_1 = _partial_filter(interactions, 'name_1', partial_element)
+    by_name_2 = _partial_filter(interactions, 'name_2', partial_element)
+
+    values = values.append(by_protein_name, ignore_index=True)
+    values = values.append(by_gene_name, ignore_index=True)
+    values = values.append(by_hgnc_symbol, ignore_index=True)
+    values = values.append(by_name_1, ignore_index=True)
+    values = values.append(by_name_2, ignore_index=True)
+    result = pd.DataFrame(data=values, columns=['value']).drop_duplicates()
+    return result
+
+def _partial_filter(input_data, name, partial_element):
+    matching = input_data[input_data[name].str.contains(partial_element, flags=re.IGNORECASE)][name]
+    return matching
