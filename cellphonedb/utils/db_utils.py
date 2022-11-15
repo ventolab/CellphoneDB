@@ -10,6 +10,7 @@ import pathlib
 from utils.utils import dbg
 from utils import utils, unique_id_generator
 import urllib.request, urllib.error, urllib.parse
+import sys
 
 DBFILE_NAME = "cellphonedb"
 MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
@@ -29,6 +30,9 @@ def get_interactions_genes_complex(user_dir_root, db_version) -> Tuple[pd.DataFr
     # Read genes 'table' - c.f. old CellphoneDB: GeneRepository.get_all_expanded()
     # Drop 'protein_name' column from dbTableDFs['gene_table'] as dbTableDFs['protein_table'] already has it
     dbTableDFs['gene_table'] = dbTableDFs['gene_table'].drop('protein_name', axis=1)
+    # First filter out entries where gene_name = X with no hgnc_symbol, e.g. in the case of IGF2, filter out ENSG00000284779
+    dbTableDFs['gene_table'] = dbTableDFs['gene_table'][~dbTableDFs['gene_table']['hgnc_symbol'].isnull()]
+    # Now merge gene_table with protein_table and multidata_table
     genes = pd.merge(dbTableDFs['gene_table'], dbTableDFs['protein_table'], left_on='protein_id', right_on='id_protein')
     genes = pd.merge(genes, mtTable, left_on='protein_multidata_id', right_on='id_multidata')
     dbg("genes columns: ", genes.columns)
