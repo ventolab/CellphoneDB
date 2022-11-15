@@ -262,6 +262,7 @@ if __name__ == '__main__':
         meta = method_preprocessors.meta_preprocessor(raw_meta)
         microenvs = utils.read_data_table_from_file(
             os.path.join(root_dir, 'endometrium_example_microenviroments.tsv'))
+        """
         deconvoluted, means, pvalues, significant_means = \
         cpdb_statistical_analysis_method.call(meta,
                                               counts,
@@ -309,7 +310,6 @@ if __name__ == '__main__':
         utils.write_to_file(relevant_interactions, 'relevant_interactions.txt', output_path)
         utils.write_to_file(significant_means, 'significant_means.txt', output_path)
         utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
-        """
     elif arg == 'to':
         # Run statistical and deg analyses for ovarian example - for the purpose of comparing results to old CellphoneDB
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'bug_2_ovary')
@@ -382,6 +382,7 @@ if __name__ == '__main__':
             transmitter_params={"categories": "ligand"},
             receiver_params={"categories": "receptor"},
             interactions_params={'resources': 'CellPhoneDB'},
+            complex_policy="min"
         )
         print(res["means"].index)
         print(res["means"].columns)
