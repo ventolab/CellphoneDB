@@ -1,8 +1,7 @@
 from utils import db_utils
 import re
 import time
-from utils.utils import dbg
-from IPython.display import HTML, display
+from utils.utils import dbg, write_to_file
 import pandas as pd
 
 SIMPLE_PFX="simple:"
@@ -20,6 +19,7 @@ def search(query_str, user_dir_root, cellophonedb_version):
     # that itself does not take part in interactions, but is part of a complex that does.
     complex_name2proteins_text = {}
     for token in re.split(',\s*| ', query_str):
+        complex_multidata_ids = []
         # Attempt to find token in genes (N.B. genes contains protein information also)
         gene_protein_data_list = genes['protein_multidata_id'] \
             [genes[['ensembl','gene_name','name','protein_name']].apply(lambda row: row.astype(str).eq(token).any(), axis=1)].to_list()
@@ -44,7 +44,7 @@ def search(query_str, user_dir_root, cellophonedb_version):
     duration = time.time() - start
     dbg("Output for query '{}':".format(query_str))
     # Output header
-    results.append(['id_cp_interaction', 'partner_a', 'partner_b', 'gene_name_a', 'gene_name_b', 'ensembl_a', 'ensembl_b', 'annotation_strategy'])
+    results.append(['CellphoneDB interaction ', 'Partner A', 'Partner B', 'Gene name A', 'Gene name B', ' Ensembl ID A', 'Ensembl ID B', 'Annotation strategy'])
     for multidata_id in multidata_ids:
          interactions_data_list = interactions[[ \
              'id_cp_interaction','multidata_1_id', 'multidata_2_id', \
@@ -96,8 +96,10 @@ def populate_complex_constinuents(complex_multidata_ids, complex_name2proteins_t
                 constituents_text += " " + genes['name'][genes['protein_multidata_id'] == protein_multidata_id].to_list()[0]
             complex_name2proteins_text[complex_name] = constituents_text
 
-def display_table(data, complex_name2proteins_text):
-    html = "<table>"
+
+
+def get_html_table(data, complex_name2proteins_text):
+    html = "<table class=\"striped\">"
     first_row = True
     for row in data:
         html += "<tr>"
@@ -109,17 +111,17 @@ def display_table(data, complex_name2proteins_text):
                 if field.startswith(COMPLEX_PFX):
                     name = field.split(":")[1]
                     complex_mouseover = complex_name2proteins_text[name]
-                    html += "<td style=\"color: #75975e\" style=\"text-align:left\"><span title=\"{}\">{}</span></td>".format(complex_mouseover, name)
+                    html += "<td style=\"text-align:left\"><span title=\"{}\">{}</span></td>".format(complex_mouseover, name)
                 elif field.startswith(SIMPLE_PFX):
                     name = field.split(":")[1]
-                    html += "<td style=\"text-align:left\"><a href=\"https://www.uniprot.org/uniprotkb/{}/entry\">{}</a></td>" \
+                    html += "<td style=\"text-align:left\"><a class=\"teal-text\" href=\"https://www.uniprot.org/uniprotkb/{}/entry\">{}</a></td>" \
                         .format(name, name)
                 else:
                     html += "<td style=\"text-align:left\">{}</td>".format(field)
         html += "</tr>"
         first_row = False
     html += "</table>"
-    display(HTML(html))
+    return html
 
 def autocomplete_query(genes: pd.DataFrame, interactions: pd.DataFrame, partial_element: str) -> pd.DataFrame:
     values = _partial_filter(genes, 'ensembl', partial_element)
@@ -141,3 +143,12 @@ def autocomplete_query(genes: pd.DataFrame, interactions: pd.DataFrame, partial_
 def _partial_filter(input_data, name, partial_element):
     matching = input_data[input_data[name].str.contains(partial_element, flags=re.IGNORECASE)][name]
     return matching
+
+def return_all_identifiers(genes: pd.DataFrame, interactions: pd.DataFrame) -> pd.DataFrame:
+    values = genes['ensembl']
+    for col in ['gene_name','protein_name','hgnc_symbol']:
+        values = pd.concat([values, genes[col]], ignore_index=True)
+    for col in ['name_1', 'name_2']:
+        values = pd.concat([values, interactions[col]], ignore_index=True)
+    result = pd.DataFrame(data=values, columns=['value']).drop_duplicates()
+    return result
