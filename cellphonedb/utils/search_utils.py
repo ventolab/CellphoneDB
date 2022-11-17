@@ -7,17 +7,25 @@ import pandas as pd
 SIMPLE_PFX="simple:"
 COMPLEX_PFX = 'complex:'
 
+def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, complex_expanded, complex_composition):
+    constituent_proteins = []
+    if complex_name not in complex_name2proteins:
+        complex_multidata_id = complex_expanded['complex_multidata_id'] \
+            [complex_expanded[['name']].apply(lambda row: row.astype(str).eq(complex_name).any(), axis=1)].to_list()[0]
+        for protein_multidata_id in complex_composition['protein_multidata_id'] \
+                [complex_composition['complex_multidata_id'] == complex_multidata_id].to_list():
+            constituent_proteins.append(genes['name'][genes['protein_multidata_id'] == protein_multidata_id].to_list()[0])
+        complex_name2proteins[complex_name] = constituent_proteins
+
 def search(query_str, user_dir_root, cellophonedb_version):
     start = time.time()
     results = []
     interactions, genes, complex_composition, complex_expanded = \
         db_utils.get_interactions_genes_complex(user_dir_root, cellophonedb_version)
+
+    complex_name2proteins = {}
     # Assemble a list of multidata_ids to search interactions DF with
     multidata_ids = []
-    # This maps complex_multidata_id to a textual summary of its protein components - this is what the user will see when
-    # they mouse-over a complex in the search results table. This will be helpful to them as they may have searched for a protein
-    # that itself does not take part in interactions, but is part of a complex that does.
-    complex_name2proteins_text = {}
     for token in re.split(',\s*| ', query_str):
         complex_multidata_ids = []
         # Attempt to find token in genes (N.B. genes contains protein information also)
@@ -29,16 +37,12 @@ def search(query_str, user_dir_root, cellophonedb_version):
                 complex_multidata_ids = \
                     complex_composition['complex_multidata_id'] \
                         [complex_composition['protein_multidata_id'] == protein_multidata_id].to_list()
-                populate_complex_constinuents(complex_multidata_ids, complex_name2proteins_text, genes,
-                                              complex_composition, complex_expanded)
                 multidata_ids += complex_multidata_ids
 
         else:
             # No match in genes - attempt to find token in complex_expanded
             complex_multidata_ids += complex_expanded['complex_multidata_id'] \
                 [complex_expanded[['name']].apply(lambda row: row.astype(str).eq(token).any(), axis=1)].to_list()
-            populate_complex_constinuents(complex_multidata_ids, complex_name2proteins_text, genes,
-                                          complex_composition, complex_expanded)
             multidata_ids += complex_multidata_ids
     # Now search for all multidata_ids in interactions
     duration = time.time() - start
@@ -59,12 +63,16 @@ def search(query_str, user_dir_root, cellophonedb_version):
              else:
                  data_1 = ['','']
                  prefix_1 = COMPLEX_PFX
+                 populate_proteins_for_complex(interaction[3], complex_name2proteins,
+                                               genes, complex_expanded, complex_composition)
              if interaction[6] == False:
                  data_2 = generate_output(interaction[2], genes)
                  prefix_2 = SIMPLE_PFX
              else:
                  data_2 = ['', '']
                  prefix_2 = COMPLEX_PFX
+                 populate_proteins_for_complex(interaction[4], complex_name2proteins,
+                                               genes, complex_expanded, complex_composition)
              output_row += [
                  prefix_1+interaction[3],
                  prefix_2+interaction[4],
@@ -76,7 +84,7 @@ def search(query_str, user_dir_root, cellophonedb_version):
              ]
              results.append(output_row)
     dbg("Total search time: " + str(round(duration, 2)) + "s")
-    return results, complex_name2proteins_text
+    return results, complex_name2proteins
 
 
 def generate_output(multidata_id, genes):
@@ -86,19 +94,7 @@ def generate_output(multidata_id, genes):
     # Expect only a single result
     return protein_data_list[0]
 
-def populate_complex_constinuents(complex_multidata_ids, complex_name2proteins_text, genes, complex_composition, complex_expanded):
-    for complex_multidata_id in complex_multidata_ids:
-        complex_name = complex_expanded['name'][complex_expanded['complex_multidata_id'] == complex_multidata_id].to_list()[0]
-        if complex_name not in complex_name2proteins_text:
-            constituents_text = "Contains proteins:"
-            for protein_multidata_id in complex_composition['protein_multidata_id'] \
-                [complex_composition['complex_multidata_id'] == complex_multidata_id].to_list():
-                constituents_text += " " + genes['name'][genes['protein_multidata_id'] == protein_multidata_id].to_list()[0]
-            complex_name2proteins_text[complex_name] = constituents_text
-
-
-
-def get_html_table(data, complex_name2proteins_text):
+def get_html_table(data, complex_name2proteins):
     html = "<table class=\"striped\">"
     first_row = True
     for row in data:
@@ -110,7 +106,7 @@ def get_html_table(data, complex_name2proteins_text):
             else:
                 if field.startswith(COMPLEX_PFX):
                     name = field.split(":")[1]
-                    complex_mouseover = complex_name2proteins_text[name]
+                    complex_mouseover = "Contains proteins: " + ', '.join(complex_name2proteins[name])
                     html += "<td style=\"text-align:left\"><span title=\"{}\">{}</span></td>".format(complex_mouseover, name)
                 elif field.startswith(SIMPLE_PFX):
                     name = field.split(":")[1]
