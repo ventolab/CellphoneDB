@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI
 from utils import db_utils, search_utils, db_releases_utils
 from fastapi.middleware.cors import CORSMiddleware
+import csv, io
 
 RELEASED_VERSION="v5.0.0"
 CPDB_ROOT = os.path.join(os.path.expanduser('~'),".cpdb")
@@ -29,7 +30,11 @@ def read_root():
 @app.get("/search/{tokens}")
 def find_interactions(tokens: str):
     results, complex_name2proteins_text = search_utils.search(tokens, CPDB_ROOT, RELEASED_VERSION)
-    return {"results_html_table" : search_utils.get_html_table(results, complex_name2proteins_text) }
+    results_csv = io.StringIO()
+    writer = csv.writer(results_csv)
+    writer.writerows(results)
+    return {"results_html_table" : search_utils.get_html_table(results, complex_name2proteins_text),
+            "results_csv" : results_csv.getvalue()}
 
 # Autocomplete {partial_element} using data in genes table or complex names in interactions table
 @app.get("/autocomplete/{partial_element}")

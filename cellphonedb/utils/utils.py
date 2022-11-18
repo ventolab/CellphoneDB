@@ -174,3 +174,9 @@ def dbg(*argv):
     if DEBUG:
         for arg in argv:
             print(arg)
+
+def write_to_csv(rows, file_path, delimiter=','):
+    with open(file_path, 'w') as f:
+        writer = csv.writer(f, delimiter=delimiter, quoting=csv.QUOTE_NONE, escapechar='\\')
+        for row in rows:
+            writer.writerow(row)

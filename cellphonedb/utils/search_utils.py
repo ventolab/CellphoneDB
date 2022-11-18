@@ -95,13 +95,16 @@ def generate_output(multidata_id, genes):
     return protein_data_list[0]
 
 def get_html_table(data, complex_name2proteins):
-    html = "<table class=\"striped\">"
+    html = "<table id=\"cpdb_search_results\" class=\"display compact\">"
     first_row = True
     for row in data:
+        if first_row:
+            html += "<thead>"
         html += "<tr>"
         for field in row:
             # NB. the two last elements of row contain the mouseover text containing the complex's constituent proteins
             if first_row:
+
                 html += "<th style=\"text-align:left\">{}</th>".format(field)
             else:
                 if field.startswith(COMPLEX_PFX):
@@ -114,9 +117,11 @@ def get_html_table(data, complex_name2proteins):
                         .format(name, name)
                 else:
                     html += "<td style=\"text-align:left\">{}</td>".format(field)
+        if first_row:
+            html += "</thead><tbody>"
         html += "</tr>"
         first_row = False
-    html += "</table>"
+    html += "</tbody></table>"
     return html
 
 def autocomplete_query(genes: pd.DataFrame, interactions: pd.DataFrame, partial_element: str) -> pd.DataFrame:
