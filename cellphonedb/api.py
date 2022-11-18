@@ -1,6 +1,6 @@
 import os
 from fastapi import FastAPI
-from utils import db_utils, search_utils
+from utils import db_utils, search_utils, db_releases_utils
 from fastapi.middleware.cors import CORSMiddleware
 
 RELEASED_VERSION="v5.0.0"
@@ -42,3 +42,8 @@ def autocomplete(partial_element: str):
 def get_all_ids():
     all_ids = search_utils.return_all_identifiers(genes, interactions)["value"].tolist()
     return { "all_ids" : all_ids }
+
+@app.get("/db_releases")
+def get_db_data_releases():
+    db_releases = db_releases_utils.get_remote_database_versions_html()
+    return { "db_releases_html_table" : db_releases }

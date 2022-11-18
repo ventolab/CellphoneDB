@@ -6,7 +6,7 @@ import squidpy as sq
 import os
 from typing import Tuple
 import io
-from utils import utils, generate_input_files, database_version_manager, search_utils, db_utils
+from utils import utils, generate_input_files, database_version_manager, search_utils, db_utils, db_releases_utils
 from utils.utils import dbg
 import urllib.request, urllib.error, urllib.parse
 
@@ -249,6 +249,8 @@ if __name__ == '__main__':
     elif arg == 'g':
         generate_input_files.generate_all(CPDB_ROOT, RELEASED_VERSION, \
                                           user_complex=None, user_interactions=None, user_interactions_only=False)
+    elif arg == 'rel':
+        db_releases_utils.get_remote_database_versions_html()
     elif arg == 'te':
         # Run statistical and deg analyses for endometrium example - for the purpose of comparing results to old CellphoneDB
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'examples')
