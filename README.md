@@ -39,7 +39,7 @@ Note that the instructions below refer to running CellphoneDB in development env
 - `git clone git@github.com:ventolab/CellphoneDB.git`
 - `cd CellphoneDB`
 - `git checkout bare-essentials`
-- `conda create -n cpdb python=3.9`
+- `conda create -n cpdb python=3.8`
 - `source activate cpdb`
 - `pip install -r requirements.txt`
 
