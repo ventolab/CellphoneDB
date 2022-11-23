@@ -14,13 +14,13 @@ def get_remote_database_versions_html(include_file_browsing=False):
                 if first_row:
                     for header in ['Version','Release date']:
                         html += "<th {}>{}</th>".format(css_style, header)
-                    if get_remote_database_versions_html:
+                    if include_file_browsing:
                         html += "<th {}>{}</th>".format(css_style, 'Select file to browse')
                     html += "</tr>"
                 html += "<td {}><a class=\"teal-text\" href=\"{}\">{}</a></td>".format(css_style, rel['html_url'], rel['tag_name'])
                 html += "<td {}>{}</td>".format(css_style, rel['published_at'].split("T")[0])
                 html += "<td {}><a class='dropdown-trigger grey lighten-1' href='#' data-target='{}_dropdown'><i class=\"material-icons teal-text\">pageview</i></a>".format(css_style, rel['tag_name'])
-                if get_remote_database_versions_html:
+                if include_file_browsing:
                     html += "<ul id='{}_dropdown' class='dropdown-content'>".format(rel['tag_name'])
                     for file_name in ["gene_input", "protein_input", "complex_input", "interaction_input"]:
                         html += "<li><a href=\"javascript:get_input_file_as_html_table(\'{}\',\'{}\');\">{}</a></li>".format(rel['tag_name'], file_name, file_name)
