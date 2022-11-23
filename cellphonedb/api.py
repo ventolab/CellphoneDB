@@ -14,7 +14,7 @@ app = FastAPI()
 
 # See: https://fastapi.tiangolo.com/tutorial/cors/
 origins = [
-    "http://localhost:8001"
+    "http://localhost:8000"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -50,5 +50,5 @@ def get_all_ids():
 
 @app.get("/db_releases")
 def get_db_data_releases():
-    db_releases = db_releases_utils.get_remote_database_versions_html()
+    db_releases = db_releases_utils.get_remote_database_versions_html(True)
     return { "db_releases_html_table" : db_releases }
