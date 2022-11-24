@@ -1,5 +1,5 @@
-#pandas>=1.5.0,<=1.5.1
-#numpy>=1.21.6,<=1.22.0
+pandas>=1.5.0,<=1.5.1
+numpy>=1.21.6,<=1.22.0
 numpy-groupies
 requests>=2.25,<3.0
 geosketch==0.3
