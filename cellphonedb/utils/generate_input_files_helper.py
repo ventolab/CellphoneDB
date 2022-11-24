@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime
 from json import JSONDecodeError
-from utils import utils
+from cellphonedb.utils import utils
 
 import pandas as pd
 
