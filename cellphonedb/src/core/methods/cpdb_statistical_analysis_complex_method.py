@@ -2,10 +2,10 @@ from typing import Tuple
 import pandas as pd
 import numpy as np
 import pickle
-from src.core.core_logger import core_logger
-from src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
-from src.core.exceptions.NoInteractionsFound import NoInteractionsFound
-from src.core.methods import cpdb_statistical_analysis_helper
+from cellphonedb.src.core.core_logger import core_logger
+from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
+from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFound
+from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper
 
 
 def call(meta: pd.DataFrame,

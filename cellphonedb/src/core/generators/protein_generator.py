@@ -1,7 +1,7 @@
 import pandas as pd
 
-from src.core import core_logger
-from src.core.generators import generator_helper
+from cellphonedb.src.core import core_logger
+from cellphonedb.src.core.generators import generator_helper
 
 
 def protein_generator(uniprot_db: pd.DataFrame,

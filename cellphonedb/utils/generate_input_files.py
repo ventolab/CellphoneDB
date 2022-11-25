@@ -6,11 +6,11 @@ import pandas as pd
 import pathlib
 import json
 
-from src.core.generators.complex_generator import complex_generator
-from src.core.generators.gene_generator import gene_generator
-from src.core.generators.protein_generator import protein_generator
-from utils import utils, generate_input_files_helper, db_utils
-from utils.utils import _get_separator, write_to_file
+from cellphonedb.src.core.generators.complex_generator import complex_generator
+from cellphonedb.src.core.generators.gene_generator import gene_generator
+from cellphonedb.src.core.generators.protein_generator import protein_generator
+from cellphonedb.utils import utils, generate_input_files_helper, db_utils
+from cellphonedb.utils.utils import _get_separator, write_to_file
 
 def generate_genes(data_dir,
                    user_gene=None,

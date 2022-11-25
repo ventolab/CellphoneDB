@@ -1,7 +1,7 @@
 from typing import Tuple
 import pandas as pd
 
-from src.core.methods import cpdb_statistical_analysis_complex_method
+from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
 
 
 def call(meta: pd.DataFrame,

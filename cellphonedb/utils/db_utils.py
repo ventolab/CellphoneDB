@@ -7,10 +7,9 @@ import time
 import zipfile
 import itertools
 import pathlib
-from utils.utils import dbg
-from utils import utils, unique_id_generator
+from cellphonedb.utils.utils import dbg
+from cellphonedb.utils import utils, unique_id_generator
 import urllib.request, urllib.error, urllib.parse
-import sys
 
 DBFILE_NAME = "cellphonedb"
 MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\

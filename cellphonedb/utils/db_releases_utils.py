@@ -1,4 +1,4 @@
-from src.exceptions.NoReleasesException import NoReleasesException
+from cellphonedb.src.exceptions.NoReleasesException import NoReleasesException
 from typing import Union
 import requests
 

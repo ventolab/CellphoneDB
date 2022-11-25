@@ -6,13 +6,12 @@ import squidpy as sq
 import os
 from typing import Tuple
 import io
-from utils import utils, generate_input_files, database_version_manager, search_utils, db_utils, db_releases_utils
-from utils.utils import dbg
 import urllib.request, urllib.error, urllib.parse
-
-from src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
-from src.core.preprocessors import method_preprocessors
-from src.exceptions.ParseCountsException import ParseCountsException
+from cellphonedb.utils import utils, generate_input_files, database_version_manager, search_utils, db_utils, db_releases_utils
+from cellphonedb.utils.utils import dbg
+from cellphonedb.src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
+from cellphonedb.src.core.preprocessors import method_preprocessors
+from cellphonedb.src.exceptions.ParseCountsException import ParseCountsException
 
 KEY2USER_TEST_FILE = {'counts' : 'test_counts.txt', 'meta': 'test_meta.txt', \
                          'microenvs' : 'test_microenviroments.txt', 'degs' : 'test_degs.txt'}

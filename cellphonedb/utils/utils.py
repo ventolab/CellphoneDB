@@ -7,9 +7,9 @@ import scipy.io
 from anndata import read_h5ad
 import pandas as pd
 
-from src.exceptions.NotADataFrameException import NotADataFrameException
-from src.exceptions.ReadFileException import ReadFileException
-from src.exceptions.ReadFromPickleException import ReadFromPickleException
+from cellphonedb.src.exceptions.NotADataFrameException import NotADataFrameException
+from cellphonedb.src.exceptions.ReadFileException import ReadFileException
+from cellphonedb.src.exceptions.ReadFromPickleException import ReadFromPickleException
 
 DEBUG=False
 
