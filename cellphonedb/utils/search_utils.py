@@ -1,7 +1,7 @@
-from utils import db_utils
 import re
 import time
-from cellphonedb.utils.utils import dbg, write_to_file
+from cellphonedb.utils import db_utils
+from cellphonedb.utils.utils import dbg
 import pandas as pd
 
 SIMPLE_PFX="simple:"
