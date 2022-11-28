@@ -1,0 +1,51 @@
+[tool.isort]
+include_trailing_comma = true
+multi_line_output = 3
+profile = "black"
+
+[tool.poetry]
+authors = ["The CellPhoneDB development team <contact@cellphonedb.org>"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "Natural Language :: English",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+description = "Inferring cell-cell communication."
+documentation = "https://github.com/ventolab/cellphonedb"
+homepage = "https://github.com/ventolab/cellphonedb"
+license = "MIT License"
+name = "cellphonedb"
+packages = [
+  {include = "cellphonedb"},
+]
+readme = "README.md"
+version = "4.0.0"
+exclude = ["example_data*"] 
+
+[tool.poetry.dependencies]
+black = {version = ">=22.3", optional = true}
+isort = {version = ">=5.7", optional = true}
+pandas = ">=1.5.0"
+numpy = ">=1.21.6"
+numpy-groupies = ">=0.9.15"
+requests = ">=2.25.0"
+geosketch = "0.3"
+anndata = ">=0.8"
+ktplotspy = ">=0.1.2"
+squidpy = ">=1.2.3"
+
+[tool.poetry.extras]
+dev = ["black", "isort"]
+
+[build-system]
+requires = [
+  "poetry-core>=1.0.0",
+]
+build-backend = "poetry.core.masonry.api"
