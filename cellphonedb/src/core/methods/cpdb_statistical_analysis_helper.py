@@ -18,10 +18,10 @@ def get_significant_means(real_mean_analysis: pd.DataFrame,
     """
     Get the significant means for gene1_gene2|cluster1_cluster2.
     
-    For statistical_analysis `min_signigicant_mean` needs to be provided
+    For statistical_analysis `min_significant_mean` needs to be provided
     and if `result_percent > min_significant_mean` then sets the value to
     NaN otherwise uses the mean.
-    For analysis and degs analysis `min_signigicant_mean` is NOT provided
+    For analysis and degs analysis `min_significant_mean` is NOT provided
     and uses `result_percent == 0` to set NaN, otherwise uses the mean.
 
     Parameters
@@ -65,7 +65,7 @@ def get_significant_means(real_mean_analysis: pd.DataFrame,
     pd.DataFrame
         Significant means data frame. Columns are cluster interactions (cluster1|cluster2)
         and rows are NaN if there is no significant interaction or the mean value of the 
-        interaction if it is a relevant interaction.
+        interaction if it is a significant interaction.
     """
     significant_means = real_mean_analysis.values.copy()
     if min_significant_mean:
@@ -118,7 +118,7 @@ def build_clusters(meta: pd.DataFrame,
     complex_composition: pd.DataFrame
         Complex data.
     skip_percent: bool
-        Agregate means by cell types: 
+        Aggregate means by cell types:
             - True for statistical analysis
             - False for non-statistical and DEGs analysis
     Returns
@@ -214,7 +214,7 @@ def get_cluster_combinations(cluster_names: np.array, microenvs: pd.DataFrame = 
     """
     Calculates and sorts combinations of clusters.
 
-    Generates all posible combinations between the `cluster_names` provided.
+    Generates all possible combinations between the `cluster_names` provided.
     Combinations include each cluster with itself. 
     If `microenvs` is provided then the combinations are limited to the 
     clusters within each microenvironment as specified.
@@ -292,10 +292,10 @@ def mean_analysis(interactions: pd.DataFrame,
     Calculates the mean for the list of interactions and for each cluster
     
     Based on the interactions from CellPhoneDB database (gene1|gene2) and each
-    cluster means (gene|cluser) this method calculates the mean of an interaction
+    cluster means (gene|cluster) this method calculates the mean of an interaction
     (gene1|gene2) and a cluster combination (cluster1|cluster2). When any of the
-    values is 0, the result is set to 0, otherwise the mean is used. The followig
-    expresion is used to get the result `(x > 0) * (y > 0) * (x + y) / 2` where
+    values is 0, the result is set to 0, otherwise the mean is used. The following
+    expression is used to get the result `(x > 0) * (y > 0) * (x + y) / 2` where
     `x = mean(gene1|cluster1)` and `y = mean(gene2|cluster2)` and the output is
     expected to be mean(gene1|gene2, cluster1|cluster2).
     
@@ -372,7 +372,7 @@ def percent_analysis(clusters: dict,
     Calculates the percents for cluster interactions and for each gene 
     interaction.
 
-    This methopds builds an gene1|gene2,cluster1|cluster2 table of percent values.
+    This method builds a gene1|gene2,cluster1|cluster2 table of percent values.
     As the first step, calculates the percents for each gene|cluster. The cluster
     percent is 0 if the number of positive cluster cells divided by total of 
     cluster cells is greater than threshold and 1 if not. If one of both is NOT 0
@@ -382,19 +382,19 @@ def percent_analysis(clusters: dict,
     Parameters
     ----------
     clusters: dict
-        Clusters information. 'percents' key will be used to get the precent of a 
+        Clusters information. 'percents' key will be used to get the percent of a
         gene/cell combination.
-    threashold: float
-        Cutoff value for percentages (number of positive cluster cells divided
+    threshold: float
+        Cutoff value for percentages (number of positive clusters cells divided
         by total of cluster cells). All values above this one will be set to 0
-        and all below will be set to 1. The following expresion is used to
+        and all below will be set to 1. The following expression is used to
         apply this rule: `((x > threshold) * (y > threshold)).astype(int)`
     interactions: pd.DataFrame
         Interactions from CellPhoneDB database. Gene names will be taken from
         here and interpret as 'multidata_1_id' for gene1 and 'multidata_2_id'
         for gene2.
     cluster_interactions: list
-        List of cluster interactions obtained from the combination of the cluster
+        A list of cluster interactions obtained from the combination of the cluster
         names and possibly filtered using microenvironments.
     separator: str
         Character to use as a separator when joining cluster as column names.
@@ -410,7 +410,7 @@ def percent_analysis(clusters: dict,
 
                      cell1       cell2      cell3
         ensembl1     0.0         0.6         0.3
-        ensembl2     0.1         0.05         0.06
+        ensembl2     0.1         0.05        0.06
         ensembl3     0.0         0.0         0.9
 
         interactions:
@@ -498,7 +498,7 @@ def _statistical_analysis(base_result,
                           real_mean_analysis: pd.DataFrame,
                           iteration_number) -> pd.DataFrame:
     """
-    Shuffles meta dataset and calculates calculates the means
+    Shuffles meta dataset and calculates the means
     """
     shuffled_meta = shuffle_meta(meta)
     shuffled_clusters = build_clusters(shuffled_meta,
@@ -536,11 +536,11 @@ def build_percent_result(real_mean_analysis: pd.DataFrame, real_percents_analysi
     Parameters
     ----------
     real_mean_analysis: pd.DataFrame
-        Means cluster analyisis
+        Means cluster analysis
     real_percents_analysis: pd.DataFrame
-        Percents cluster analyisis
+        Percents cluster analysis
     statistical_mean_analysis: list
-        Statitstical means analyisis
+        Statistical means analysis
     base_result: pd.DataFrame
         Contains the index and columns that will be used by the returned object
 
@@ -603,7 +603,7 @@ def build_percent_result(real_mean_analysis: pd.DataFrame, real_percents_analysi
 
 def interacting_pair_build(interactions: pd.DataFrame) -> pd.Series:
     """
-    Returns the interaction result formated with prefixes
+    Returns the interaction result formatted with prefixes
     """
 
     def get_interactor_name(interaction: pd.Series, suffix: str) -> str:
@@ -625,7 +625,7 @@ def build_significant_means(real_mean_analysis: pd.DataFrame,
                             result_percent: pd.DataFrame,
                             min_significant_mean: float = None) -> Tuple[pd.Series, pd.DataFrame]:
     """
-    Calculates the significant means and adds rank (number of non empty entries divided by total entries)
+    Calculates the significant means and adds rank (number of non-empty entries divided by total entries)
 
     
     """
@@ -734,12 +734,12 @@ def add_multidata_and_means_to_counts(counts: pd.DataFrame, genes: pd.DataFrame,
     This method merges multidata ids into counts data using counts_data
     as column name for the genes. Then sorts the counts columns based on
     the cell names, makes sure count data is of type float32 and finally
-    calculates the means goruped by id_multidata.
+    calculates the means grouped by id_multidata.
 
     Parameters
     ----------
     counts: pd.DataFrame
-        Raw counts data from providede the input file.
+        Raw counts data from provide the input file.
     genes: pd.DataFrame
         Curated gene data from the CellPhoneDB database.
     counts_data: str
@@ -748,7 +748,7 @@ def add_multidata_and_means_to_counts(counts: pd.DataFrame, genes: pd.DataFrame,
     Returns
     -------
     Tuple: A tuple containing:
-        - counts: counts data merged with mutidata and indexsed by id_multidata
+        - counts: counts data merged with multidata and indexed by id_multidata
         - counts_relations: a subset of counts with only id_multidata and all gene identifiers
     """
     # sort cell names
