@@ -5,7 +5,7 @@ from distutils.version import LooseVersion
 from typing import Union
 
 import requests
-from cellophonedb.src.exceptions.NoReleasesException import NoReleasesException
+from cellphonedb.src.exceptions.NoReleasesException import NoReleasesException
 
 cpdb_releases = os.environ.get('CELLPHONEDB_RELEASE_PATH', '~/.cpdb/releases')
 database_file = 'cellphone.db'
