@@ -12,26 +12,35 @@ CELLPHONEDB GUIDE
 ## Analysis types in CellPhoneDB
 There are three ways of running cellphoneDB, each producing a specific output:
 
-- **statistical_analysis** (>= v1): This is a statistical analysis to retrieve all the interactions that can potentially occur in your dataset between ALL cell type pairs. Here, CellphoneDB uses empirical shuffling to calculate which ligand–receptor pairs display significant cell-type specificity. Specifically, it estimates a null distribution of the mean of the average ligand and receptor expression in the interacting clusters by randomly permuting the cluster labels of all cells. The P value for the likelihood of cell-type specificity of a given receptor–ligand complex is calculated on the basis of the proportion of the means that are as high as or higher than the actual mean. 
+
+![cellphoneDB methods](https://github.com/ventolab/CellphoneDB/blob/master/Docs/cellphoneDB_overview.png)
+
+
+- METHOD 1 simple **analysis** (>= v1): Here, no statistical analysis is performed. CellphoneDB will output the mean for all the interactions for each cell type pari combination. Note that CellphoneDB will report the means only if all the gene members of the interactions are expressed by at least a fraction of cells in a celltype (`--threshold`). If the condition `--threshold` is not meet, the interaction will be ignores in the corresponding celltype pairs.
+- 
+   - Example command: 
+   ```shell
+   cellphonedb method analysis test_meta.txt test_counts.h5ad
+   ```
+   -  Output: Without running statistical inference of receptor-ligand interactions, only "means.csv" and "desconvoluted.csv" are generated. 
+
+- METHOD 2 **statistical_analysis** (>= v1): This is a statistical analysis that evaluates for significance all the interactions that can potentially occur in your dataset: i.e. between ALL the potential celltype pairs. Here, CellphoneDB uses empirical shuffling to calculate which ligand–receptor pairs display significant cell-type specificity. Specifically, it estimates a null distribution of the mean of the average ligand and receptor expression in the interacting clusters by randomly permuting the cluster labels of all cells. The P value for the likelihood of cell-type specificity of a given receptor–ligand complex is calculated on the basis of the proportion of the means that are as high as or higher than the actual mean. 
     - Example command:
     ```shell
     cellphonedb method statistical_analysis test_meta.txt test_counts.txt
     ```
     -  Output: If the user uses the statistical inference approach (`method statistical_analysis`), additional "pvalues.csv" and "significant_means.csv" file are generated with the values for the significant interactions. Finally, ligand–receptor pairs are ranked on the basis of their total number of significant P values across the cell populations. 
 
-- **degs_analysis** (>= v3): We recently introduced a novel __method to query the database__ alternative to the statistical inference approach. This approach allows the user to design more complex comparisons to define genes specific to a cell type. This is particularly relevant when your research question goes beyond comparing "one" cell type vs "rest". Examples of alternative contrasts are hierarchical comparisons (e.g. you are interested in a specific lineage, such epithelial cells, and wish to identify the genes changing their expression within this lineage) or comparing disease vs control (e.g. you wish to identify upregulated genes in disease T cells by comparing them against control T cells).  For this CellphoneDB method (`method degs_analysis`), the user provides an input file (`test_DEGs.txt` in the command below) indicating which genes are relevant for a cell type (for example, marker genes or upregulated genes resulting from a differential expression analysis (DEG)). CellphoneDB will select interactions where: (i) all the genes are expressed in more than 10% of cells (`--threshold 0.1`) and (ii) at least one gene-cell type pair is in the provided DEG.tsv file. The user can identify marker genes or DEGs using their preferred tool (we provide [notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) for both Seurat and Scanpy users) and input the information to CellphoneDB via a [text file](https://github.com/ventolab/CellphoneDB/blob/master/README.md#preparing-your-degs-file-optional-if-method-degs_analysis). 
+- METHOD 3 **degs_analysis** (>= v3): We recently introduced a novel __method to query the database__ alternative to the statistical inference approach. This approach allows the user to design more complex comparisons to define genes specific to a cell type. This is particularly relevant when your research question goes beyond comparing "one" cell type vs "rest". Examples of alternative contrasts are hierarchical comparisons (e.g. you are interested in a specific lineage, such epithelial cells, and wish to identify the genes changing their expression within this lineage) or comparing disease vs control (e.g. you wish to identify upregulated genes in disease T cells by comparing them against control T cells).  For this CellphoneDB method (`method degs_analysis`), the user provides an input file (`test_DEGs.txt` in the command below) indicating which genes are relevant for a cell type (for example, marker genes or significantly upregulated genes resulting from a differential expression analysis (DEG)). CellphoneDB will select interactions where: 
+   - (i) all the genes in the interaction are expressed in the corresponding celltype by more than 10% of cells (`--threshold 0.1`) and 
+   - (ii) at least one gene-cell type pair is in the provided DEG.tsv file. 
+
+   The user can identify marker genes or DEGs using their preferred tool (we provide [notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) for both Seurat and Scanpy users) and input the information to CellphoneDB via a [text file](https://github.com/ventolab/CellphoneDB/blob/master/README.md#preparing-your-degs-file-optional-if-method-degs_analysis). 
    - Example command: 
    ```shell
    cellphonedb method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt --threshold 0.1
    ```
    -  Output: If the user uses the `degs_analysis` approach, "relevant_interactions.txt" (instead of  "pvalues.csv") and "significant_means.csv" files are generated.  
-
-- **analysis** (>= v1): Here, no statistical analysis is performed. CellphoneDB will output all the interactions where all the gene members are expressed in above a fraction of cells (`--threshold`).
-   - Example command: 
-   ```shell
-   cellphonedb method analysis test_meta.txt test_counts.h5ad
-   ```
-   -  Output: Without running statistical inference of receptor-ligand interactions, only "means.csv" and "desconvoluted.csv" are generated. 
 
 For large datasets, do not use .txt files for counts `test_counts.txt`. Input counts as h5ad (recommended), h5 or a path to a folder containing a 10x output with mtx/barcode/features files. NOTE that your gene/protein ids must be HUMAN. If you are working with another specie such as mouse, we recommend you to convert the gene ids to their corresponding orthologous.
 
