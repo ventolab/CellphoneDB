@@ -7,6 +7,7 @@ from cellphonedb.src.core.core_logger import core_logger
 from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
 from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFound
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper, cpdb_statistical_analysis_complex_method
+from cellphonedb.src.core.models.complex import complex_helper
 
 def call(meta: pd.DataFrame,
          counts: pd.DataFrame,
@@ -112,10 +113,11 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
 
     meta = meta.loc[counts.columns]
 
+    complex_to_protein_row_ids = complex_helper.map_complex_to_protein_row_ids(complex_composition_filtered, counts_filtered)
     clusters = cpdb_statistical_analysis_helper.build_clusters(
                                                             meta,
                                                             counts_filtered,
-                                                            complex_composition_filtered,
+                                                            complex_to_protein_row_ids,
                                                             skip_percent=False)
 
     core_logger.info('Running Real Analysis')

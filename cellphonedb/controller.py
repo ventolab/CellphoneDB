@@ -12,6 +12,7 @@ from cellphonedb.utils.utils import dbg
 from cellphonedb.src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
 from cellphonedb.src.core.preprocessors import method_preprocessors
 from cellphonedb.src.exceptions.ParseCountsException import ParseCountsException
+import time
 
 KEY2USER_TEST_FILE = {'counts' : 'test_counts.txt', 'meta': 'test_meta.txt', \
                          'microenvs' : 'test_microenviroments.txt', 'degs' : 'test_degs.txt'}
@@ -251,7 +252,8 @@ if __name__ == '__main__':
     elif arg == 'rel':
         db_releases_utils.get_remote_database_versions_html()
     elif arg == 'te':
-        # Run statistical and deg analyses for endometrium example - for the purpose of comparing results to old CellphoneDB
+        # Run statistical and deg analyses for endometrium example - for the purpose of comparing
+        # results to old CellphoneDB or ones after the new code optiisations
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'examples')
         dbversion = "v4.0.0"
         interactions, genes, complex_composition, complex_expanded = \
@@ -263,7 +265,7 @@ if __name__ == '__main__':
         meta = method_preprocessors.meta_preprocessor(raw_meta)
         microenvs = utils.read_data_table_from_file(
             os.path.join(root_dir, 'endometrium_example_microenviroments.tsv'))
-        """
+        t0 = time.time()
         deconvoluted, means, pvalues, significant_means = \
         cpdb_statistical_analysis_method.call(meta,
                                               counts,
@@ -281,6 +283,7 @@ if __name__ == '__main__':
                                               pvalue=1,
                                               separator='|',
                                               debug=False)
+        print("Statistical method took: ", time.time() - t0, "seconds to complete")
         output_path=os.path.join(root_dir, 'stat_new')
         utils.write_to_file(means, 'means.txt', output_path)
         utils.write_to_file(pvalues, 'pvalues.txt', output_path)
@@ -311,6 +314,7 @@ if __name__ == '__main__':
         utils.write_to_file(relevant_interactions, 'relevant_interactions.txt', output_path)
         utils.write_to_file(significant_means, 'significant_means.txt', output_path)
         utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
+        """
     elif arg == 'to':
         # Run statistical and deg analyses for ovarian example - for the purpose of comparing results to old CellphoneDB
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'bug_2_ovary')
