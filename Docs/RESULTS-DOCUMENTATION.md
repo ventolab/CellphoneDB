@@ -9,7 +9,7 @@ CELLPHONEDB GUIDE
 
 
 
-## Analysis types in CellPhoneDB
+# Analysis types in CellPhoneDB
 There are three ways of running cellphoneDB, each producing a specific output:
 
 
@@ -47,10 +47,10 @@ For large datasets, do not use .txt files for counts `test_counts.txt`. Input co
 Please, Check https://www.cellphonedb.org/documentation for more info
 
 
-## Interpreting the outputs
+# Interpreting the outputs
 
 
-### How to read and interpret the results?
+## How to read and interpret the results?
 
 The key files are `significant_means.txt` (for statistical_analysis) or `relevant_interactions.txt` (for degs_analysis), see below. When interpreting the results, we recommend you **first define your questions of interest**. Next, focus on specific cell type pairs and manually review the interactions prioritising those with lower p-value and/or higher mean expression. Then, select the cell type pairs and proteins of interest to generate the dotplots for a visual representation. See the options `--columns` and `--rows` to tweak the `dotplot` [here](https://github.com/ventolab/CellphoneDB/blob/master/README.md#dot_plot).
 
@@ -61,7 +61,7 @@ CellphoneDB output is high-throughput. CellphoneDB provides all cell-cell intera
 It may be that not all of the cell-types of your input dataset co-appear in time and space. Cell types that do not co-appear in time and space will not interact. For example, you might have cells coming from different in vitro systems, different developmental stages or disease and control conditions. Use this prior information to restrict and ignore unfeasible cell-type combinations from the outputs (i.e., columns) as well as their associated interactions (i.e. rows). You can restrict the analysis to feasible cell-type combinations using the option `---microenvs`. Here you can input a two columns file indicating which cell type is in which spatiotemporal microenvironment (see [example](https://github.com/ventolab/CellphoneDB/blob/master/README.md#preparing-your-microenviroments-file-optional-if---microenvs) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters co-existing in a microenvironment) ignoring the rest of combinations. 
 
 
-### Why values of clusterA-clusterB are different to the values of clusterB-clusterA?
+## Why values of clusterA-clusterB are different to the values of clusterB-clusterA?
 
 When __reading the outputs__, is IMPORTANT to note that the interactions are not symmetric. Partner A expression is considered for the first cluster/cell type (clusterA), and partner B expression is considered on the second cluster/cell type (clusterB). Thus, `IL12`-`IL12 receptor` for clusterA-clusterB (i.e. the receptor is in clusterB) is not the same that `IL12`-`IL12 receptor` for clusterB-clusterA (i.e. the receptor is in clusterA), and will have different values.
 
@@ -70,7 +70,11 @@ In other words:
 * clusterA_clusterB and clusterB_clusterA  values will be different.
 
 
-### Output files
+
+![cellphoneDB methods](https://github.com/ventolab/CellphoneDB/blob/master/Docs/interpreting_results.png)
+
+
+# Output files
 
 All files (except "deconvoluted.txt") follow the same structure: rows depict interacting proteins while columns represent interacting cell type pairs. 
 
@@ -83,7 +87,7 @@ All files (except "deconvoluted.txt") follow the same structure: rows depict int
 
 See below the meaning of each column in the outputs:
 
-#### P-value (pvalues.txt), Mean (means.txt), Significant mean (significant_means.txt) and Relevant interactions (relevant_interactions.txt)
+### P-value (pvalues.txt), Mean (means.txt), Significant mean (significant_means.txt) and Relevant interactions (relevant_interactions.txt)
 
 * id_cp_interaction: Unique CellPhoneDB identifier for each interaction stored in the database.
 * interacting_pair: Name of the interacting pairs separated by “|”.
@@ -102,7 +106,7 @@ See below the meaning of each column in the outputs:
 Again, remember that the interactions are not symmetric. It is not the same `IL12`-`IL12 receptor` for clusterA clusterB (i.e. receptor is in clusterB) that `IL12`-`IL12 receptor` for clusterB clusterA (i.e. receptor is in clusterA).
 
 
-#### Deconvoluted (deconvoluted.txt)
+### Deconvoluted (deconvoluted.txt)
 
 * gene_name: Gene identifier for one of the subunits that are participating in the interaction defined in the “means.csv” file. The identifier will depend on the input of the user list.
 * uniprot: UniProt identifier for one of the subunits that are participating in the interaction defined in the “means.csv” file.
