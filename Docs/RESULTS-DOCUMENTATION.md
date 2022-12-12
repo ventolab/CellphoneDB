@@ -9,7 +9,7 @@ CellPhoneDB tool provides different methods to assess cellular crosstalk between
    - [How to read and interpret the results?](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#how-to-read-and-interpret-the-results)
    - [Why values of clusterA-clusterB are different to the values of clusterB-clusterA?](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#why-values-of-clustera-clusterb-are-different-to-the-values-of-clusterb-clustera)
 - [Output files](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#output-files)
-- [Generating a database](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#Database-design-and-generation)
+- [Database design and generation](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#Database-design-and-generation)
 
 
 
