@@ -60,22 +60,20 @@ def call(meta: pd.DataFrame,
 
     clusters = cpdb_statistical_analysis_helper.build_clusters(meta, counts_filtered, complex_composition_filtered, skip_percent=False)
     core_logger.info('Running Real Analysis')
-
-    cluster_interactions = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'], microenvs)
-
+    cluster_combinations = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'], microenvs)
     base_result = cpdb_statistical_analysis_helper.build_result_matrix(interactions_filtered,
-                                                                       cluster_interactions,
+                                                                       cluster_combinations,
                                                                        separator)
 
     real_mean_analysis = cpdb_statistical_analysis_helper.mean_analysis(interactions_filtered,
                                                                         clusters,
-                                                                        cluster_interactions,
+                                                                        cluster_combinations,
                                                                         separator)
 
     real_percents_analysis = cpdb_statistical_analysis_helper.percent_analysis(clusters,
                                                                                threshold,
                                                                                interactions_filtered,
-                                                                               cluster_interactions,
+                                                                               cluster_combinations,
                                                                                separator)
 
     core_logger.info('Running Statistical Analysis')
@@ -83,7 +81,7 @@ def call(meta: pd.DataFrame,
                                                                                    meta,
                                                                                    counts_filtered,
                                                                                    interactions_filtered,
-                                                                                   cluster_interactions,
+                                                                                   cluster_combinations,
                                                                                    complex_composition_filtered,
                                                                                    real_mean_analysis,
                                                                                    base_result,
@@ -94,7 +92,7 @@ def call(meta: pd.DataFrame,
                                                                            real_percents_analysis,
                                                                            statistical_mean_analysis,
                                                                            interactions_filtered,
-                                                                           cluster_interactions,
+                                                                           cluster_combinations,
                                                                            base_result,
                                                                            separator)
 
@@ -109,7 +107,7 @@ def call(meta: pd.DataFrame,
                 "counts": counts,
                 "counts_relations": counts_relations,
                 "clusters_means_percents": clusters,
-                "cluster_interactions": cluster_interactions,
+                "cluster_combinations": cluster_combinations,
                 "base_result": base_result,
                 "real_mean_analysis": real_mean_analysis,
                 "real_percent_analysis": real_percents_analysis,
