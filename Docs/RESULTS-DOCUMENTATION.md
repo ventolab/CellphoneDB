@@ -53,8 +53,11 @@ There are three ways of running cellphoneDB, each producing a specific output:
 ## METHOD 1. Retrieval of receptor-ligand expression means.
 
 With this simple `analysis` method, no analysis of significance is performed. This option will output the mean of each interaction in each celltype pair. The mean expression of a **simple interaction** is computing by averaging the expression of all the gene participants in the corresponding producing cells. To compute the mean of an interaction involving **multi-subunit heteromeric complexes** we use the member of the complex with the minimum expression.
-  
-Only interactions involving receptors and ligands expressed by more than a percentage of the cells (`-threshold` default is 0.1) in the specific cluster are included. We generally do not consider that an interaction is feasible if one of their gene participants is expressed by less than 10% of cells (users can modify this `-threshold`).
+
+![means](https://github.com/ventolab/CellphoneDB/blob/master/Docs/cellphoneDB_computing_means.png)
+
+Only interactions involving receptors and ligands expressed by more than a fraction of the cells (`-threshold` default is 0.1, which is 10%) in the specific cluster are included. We generally do not consider that an interaction is feasible if one of their gene participants is expressed by less than 10% of cells (users can modify this fraction `-threshold`).
+
 
 
 ## METHOD 2. Statistical inference of receptor-ligand specificity
