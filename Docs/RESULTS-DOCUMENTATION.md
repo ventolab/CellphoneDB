@@ -94,6 +94,8 @@ This method gives the user the freedom to design their gene expression compariso
  
 The user should perform their differential expression analysis using their preffered tool and strategy. We provide [example notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) to compute DEGs for both Seurat and Scanpy users. **It is on the user to design a DEG analysis appropiated to the exprimental deisgn / research question. **
 
+See [below](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#degs-file) how to prepare the DEGs file.
+
 
 
 # INPUT files
