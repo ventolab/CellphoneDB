@@ -210,7 +210,7 @@ The majority of ligand–receptor interactions are manually curated by reviewing
 ## User-defined receptor-ligand datasets
 Our system allows users to create their own lists of curated proteins and complexes. In order to do so, the format of the users’ lists must be compatible with the input files. Users can submit their lists using the Python package version of CellPhoneDB, and then send them via email, the cellphonedb.org form, or a pull request to the CellPhoneDB data repository (https://github.com/Vento/cellphonedb-data).
 
-### Database structure
+## Database structure
 Information is stored in an SQLite relational database (https://www.sqlite.org). SQLAlchemy (www.sqlalchemy.org) and Python 3 were used to build the database structure and the query logic. The application is designed to allow analysis on potentially large count matrices to be performed in parallel. This requires an efficient database design, including optimisation for query times, indices and related strategies. All application code is open source and uploaded both to github and the web server.  An explanation of the content of the tables and the database schema is available in Supplementary methods and Supplementary Figure 1 and Figure 2.
 
 
