@@ -13,7 +13,7 @@ CellPhoneDB can be used to search for a particular ligand/receptor, or interroga
 For more details on the analysis check the [DOCUMENTATION here](Docs/RESULTS-DOCUMENTATION.md), our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB v3).
 
 
-## New in CellPhoneDB v4
+## New in CellPhoneDB-data v4
 
 This release involves a major [CellphoneDB database](https://github.com/ventolab/CellphoneDB-data) update. We have invested quite some time curating more cell-cell communication interactions validated experimentally. Specifically, we have:
 
