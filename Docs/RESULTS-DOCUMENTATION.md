@@ -5,6 +5,9 @@ CellPhoneDB tool provides different methods to assess cellular crosstalk between
 
 
 - [Analysis types in CellPhoneDB](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#analysis-types-in-cellphonedb)
+   - [METHOD 1 simple analysis](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#method-1-retrieval-of-receptor-ligand-expression-means)
+   - [METHOD 2 statistical_analysis](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#method-2-statistical-inference-of-receptor-ligand-specificity)
+   - [METHOD 3 degs_analysis](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#method-3-retrieval-of-differentially-expressed-receptor-ligand)
 - [Interpreting the outputs](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#interpreting-the-outputs)
    - [How to read and interpret the results?](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#how-to-read-and-interpret-the-results)
    - [Why values of clusterA-clusterB are different to the values of clusterB-clusterA?](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#why-values-of-clustera-clusterb-are-different-to-the-values-of-clusterb-clustera)
@@ -72,7 +75,7 @@ Importantly:
 
 We then perform pairwise comparisons between all cell types. First, we randomly permute the cluster labels of all cells (1,000 times as a default) and determine the mean of the average receptor expression level in a cluster and the average ligand expression level in the interacting cluster. For each receptor–ligand pair in each pairwise comparison between two cell types, this generates a null distribution. By calculating the proportion of the means which are as or higher than the actual mean, we obtain a p-value for the likelihood of cell-type specificity of a given receptor–ligand complex. We then prioritise interactions that are highly enriched between cell types based on the number of significant pairs, so that the user can manually select biologically relevant ones.
 
-### Optional in method2: Cell subsampling for accelerating analyses
+#### Cell subsampling for accelerating analyses (Optional METHOD 2)
 Sc-RNA-seq datasets are growing in size exponentially as technological developments and protocol improvements enable the sequencing of more and more cells. Large-scale datasets can profile hundreds of thousands cells, which presents a challenge for the existing analysis methods in terms of both memory usage and runtime. In order to improve the speed and efficiency of our protocol and facilitate its broad accessibility, we integrated subsampling as described in Hie et al. 2018 (PMID: 31176620). This "geometric sketching" approach aims to maintain the transcriptomic heterogeneity within a dataset with a smaller subset of cells. The subsampling step is optional, enabling users to perform the analysis either on all cells, or with other subsampling methods of their choice.
 
 Alternatively, the user can downsample the number of cells using their preferred method. We recommend the users use downsample their dataset to even the contribution of each celltype (i.e. the number of cells in each celltype). This will ensure that the null distribution is evenly representing all the celltypes (i.e. not biassed towards celltypes with larger numbers of cells). 
@@ -115,7 +118,7 @@ This file is only used by is METHOD 3 `degs_analysis`. It is a .txt with two col
 
 Note that CellphoneDB does not perform any filter and all the genes in the file will be considered significant. Please, ensure you filter the genes using your preferred cut-offs.  
 
-Note that the cell type/cluster name should match those in your `meta.txt`).  
+Note that the cell type/cluster name should match those in your `meta.txt`.  
 
 
 
