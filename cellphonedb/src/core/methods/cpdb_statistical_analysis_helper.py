@@ -10,8 +10,7 @@ import numpy as np
 import numpy_groupies as npg
 from cellphonedb.src.core.core_logger import core_logger
 from cellphonedb.src.core.models.complex import complex_helper
-import time
-
+from tqdm.std import tqdm
 
 def get_significant_means(real_mean_analysis: pd.DataFrame,
                           result_percent: pd.DataFrame,
@@ -482,10 +481,9 @@ def shuffled_analysis(iterations: int,
                                               complex_to_protein_ids,
                                               separator,
                                               real_mean_analysis)
-        results = pool.map(statistical_analysis_thread, range(iterations))
-
+        results = tqdm(pool.imap(statistical_analysis_thread, range(iterations)), total=iterations)
+        tuple(results)  # fetch the lazy results
     return results
-
 
 def _statistical_analysis(base_result,
                           cluster_combinations,
