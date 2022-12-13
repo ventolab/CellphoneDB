@@ -279,17 +279,17 @@ Homomeric complexes - proteins interacting with themselves - are excluded from t
 The majority of ligand–receptor interactions are manually curated by reviewing UniProt descriptions and PubMed information on membrane receptors. Cytokine and chemokine interactions were annotated following the International Union of Pharmacology annotation 26. The interactions of other groups of cell-surface proteins were manually reviewed, including the TGF family, integrins, lymphocyte receptors, semaphorins, ephrins, Notch and TNF receptors. The bibliography used to annotate the interaction is stored in "source". ‘Uniprot’ indicates that the interaction has been annotated using UniProt descriptions.
 
 ## User-defined receptor-ligand datasets
-Our system allows users to create their own lists of curated proteins and complexes. In order to do so, the format of the users’ lists must be compatible with the input files. Users can submit their lists using the Python package version of CellPhoneDB, and then send them via email, the cellphonedb.org form, or a pull request to the CellPhoneDB data repository (https://github.com/Vento/cellphonedb-data).
+Our system allows users to create their own lists of curated proteins and complexes. In order to do so, the format of the users’ lists must be compatible with the input files. Users can submit their lists using the Python package version of CellPhoneDB, and then send them via email, the cellphonedb.org form, or a pull request to the CellPhoneDB data repository (https://github.com/ventolab/cellphonedb-data).
 
 ## Database structure
 Information is stored in an SQLite relational database (https://www.sqlite.org). SQLAlchemy (www.sqlalchemy.org) and Python 3 were used to build the database structure and the query logic. The application is designed to allow analysis on potentially large count matrices to be performed in parallel. This requires an efficient database design, including optimisation for query times, indices and related strategies. All application code is open source and uploaded both to github and the web server.  An explanation of the content of the tables and the database schema is available in Supplementary methods and Supplementary Figure 1 and Figure 2.
 
 
 # FAQs
-## 1. What are the counts input file accepted? 
+### 1. What are the counts input file accepted? 
 CellphoneDB accepts counts files in the following formats: as a text file (with columns indicating individual cells and rows indicating genes), as a h5ad (recommended), a h5 or a path to a folder containing a 10x output with mtx/barcode/features files.
 
-## 2. How to extract the CellPhoneDB input files from a Seurat object? 
+### 2. How to extract the CellPhoneDB input files from a Seurat object? 
 We recommend to use normalised count data. This can be obtained by taking the raw data from the Seurat object and applying the normalisation manually. 
 
 The user can also normalise using their preferred method.
@@ -316,13 +316,13 @@ write.table(colData(seurat_obj), file = 'outdir/barcodes.tsv', sep = '\t', quote
 # and then compress the files to get .gz
 ```
                     
-## 3. How to extract the CellPhoneDB input files from a scanpy adata? 
+### 3. How to extract the CellPhoneDB input files from a scanpy adata? 
 
 You can provide an anndata as .h5ad file.
 
                    
                     
-## 4. Should the input file with the count data be with hgnc symbols (gene names) or Ensembl IDs? 
+### 4. Should the input file with the count data be with hgnc symbols (gene names) or Ensembl IDs? 
 CellPhoneDB.2 allows the use of both hgnc symbols and Ensembl IDs.
 
 Specify this with 
@@ -331,9 +331,9 @@ Specify this with
 ```
 
 
-## 5. What is the purpose of subsampling? 
+### 5. What is the purpose of subsampling? 
 The datasets that are generated are increasing in the number of sequenced cells exponentially. In order to increase the speed of CellPhoneDB, we included an optional step in the analysis the method described in (Hie B, Cho H, DeMeo B, Bryson B and Berger B, Geometric Sketching Compactly Summarizes the Single-Cell Transcriptomic Landscape, Cell Systems 2019). The user can also choose another method to subsample and simply input the subsampled data into CellPhoneDB in the same was as described above. We recommend subsampling for very big datasets; the minimum number of cells to use the subsampling option is 1000.
 
-## 6. What is the meaning of “Rank” in the “significant_means.txt” output file? 
+### 6. What is the meaning of “Rank” in the “significant_means.txt” output file? 
 The rank is calculated by counting the significant p-values per interaction pair (per row) and dividing with the total number of cluster-cluster comparisons. The idea is to prioritize interactions that are highly specific, that is they have only one or few significant p-values and to have on the bottom of the list the interactions that are present everywhere or not present anywhere at all.
 
