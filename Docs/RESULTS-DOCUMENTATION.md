@@ -1,4 +1,4 @@
-CELLPHONEDB GUIDE
+CellphoneDB GUIDE
 ============================================
 
 CellPhoneDB tool provides different methods to assess cellular crosstalk between different cell types by leveraging our CellPhoneDB database of interacting molecules with single-cell transcriptome data. 
@@ -8,15 +8,16 @@ CellPhoneDB tool provides different methods to assess cellular crosstalk between
    - [METHOD 1 simple analysis](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#method-1-retrieval-of-receptor-ligand-expression-means)
    - [METHOD 2 statistical_analysis](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#method-2-statistical-inference-of-receptor-ligand-specificity)
    - [METHOD 3 degs_analysis](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#method-3-retrieval-of-differentially-expressed-receptor-ligand)
+- [Input files](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#input-files)
+- [Output files](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#output-files)
 - [Interpreting the outputs](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#interpreting-the-outputs)
    - [How to read and interpret the results?](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#how-to-read-and-interpret-the-results)
    - [Why values of clusterA-clusterB are different to the values of clusterB-clusterA?](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#why-values-of-clustera-clusterb-are-different-to-the-values-of-clusterb-clustera)
-- [Output files](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#output-files)
 - [Database design and generation](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#Database-design-and-generation)
    - [Database input tables](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#database-input-files)
    - [User-defined receptor-ligand datasets](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#User-defined-receptor-ligand-datasets) 
    - [Database structure](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#Database-structure) 
-
+- [FAQs](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#FAQs) 
 
 
 # Analysis types in CellPhoneDB
@@ -95,7 +96,7 @@ This method gives the user the freedom to design their gene expression compariso
 - The user is interested on the specificities within specific lineages and wish to perform a hierarchical diffferential expression analysis (e.g. the user is interested in a specific lineage, such epithelial cells, and wishes to identify the genes changing their expression within this epithelial lineage; RESEARCH QUESTION: What are the interactions upregulated in epithelial-A compared to epithelial-B?).
 - The user wishes to compare specific populations in a disease vs control fashion (e.g. identify upregulated genes in disease T cells by comparing them against control T cells; RESEARCH QUESTION: What are the interactions upregulated by disease T-cells?).
  
-The user should perform their differential expression analysis using their preffered tool and strategy. We provide [example notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) to compute DEGs for both Seurat and Scanpy users. **It is on the user to design a DEG analysis appropiated to the exprimental deisgn / research question. **
+The user should perform their differential expression analysis using their preffered tool and strategy. We provide [example notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) to compute DEGs for both Seurat and Scanpy users. **It is on the user to design a DEG analysis appropiated to the exprimental deisgn** / **research question.**
 
 See [below](https://github.com/ventolab/CellphoneDB/blob/master/Docs/RESULTS-DOCUMENTATION.md#degs-file) how to prepare the DEGs file.
 
@@ -284,5 +285,55 @@ Our system allows users to create their own lists of curated proteins and comple
 Information is stored in an SQLite relational database (https://www.sqlite.org). SQLAlchemy (www.sqlalchemy.org) and Python 3 were used to build the database structure and the query logic. The application is designed to allow analysis on potentially large count matrices to be performed in parallel. This requires an efficient database design, including optimisation for query times, indices and related strategies. All application code is open source and uploaded both to github and the web server.  An explanation of the content of the tables and the database schema is available in Supplementary methods and Supplementary Figure 1 and Figure 2.
 
 
+# FAQs
+## 1. What are the counts input file accepted? 
+CellphoneDB accepts counts files in the following formats: as a text file (with columns indicating individual cells and rows indicating genes), as a h5ad (recommended), a h5 or a path to a folder containing a 10x output with mtx/barcode/features files.
 
+## 2. How to extract the CellPhoneDB input files from a Seurat object? 
+We recommend to use normalised count data. This can be obtained by taking the raw data from the Seurat object and applying the normalisation manually. 
+
+The user can also normalise using their preferred method.
+
+```
+# R
+# take raw data and normalise it
+count_raw <- seurat_obj@assays$RNA@counts[,seurat_obj@cell.names]
+count_norm <- apply(count_raw, 2, function(x) (x/sum(x))*10000)
+write.table(count_norm, ‘cellphonedb_count.txt’, sep=’\t’, quote=F)
+```                        
+
+Note that you can also export your Seurat object as a 10x .mtx output format containing the matrix.mtx.gz, features.tsv.gz and barcodes.tsv.gz. To generate these you can use:
+
+```
+# R
+library(Matrix)
+writeMM(obj = seurat_obj@assays$RNA@counts, file = 'outdir/matrix.mtx') # or the normalised counts stored in seurat_obj@assays$RNA@data
+features <- as.data.frame(rowData(seurat_obj))
+features$gene_names<- rownames(features)
+features <- features[c('gene_ids','gene_names','feature_types')]    
+write.table(features, file = 'outdir/features.tsv', sep = '\t', quote=F, row.names = F, col.names = F)  
+write.table(colData(seurat_obj), file = 'outdir/barcodes.tsv', sep = '\t', quote=F, row.names = F, col.names = F)
+# and then compress the files to get .gz
+```
+                    
+## 3. How to extract the CellPhoneDB input files from a scanpy adata? 
+
+You can provide an anndata as .h5ad file.
+
+                   
+                    
+## 4. Should the input file with the count data be with hgnc symbols (gene names) or Ensembl IDs? 
+CellPhoneDB.2 allows the use of both hgnc symbols and Ensembl IDs.
+
+Specify this with 
+```
+--counts-data hgnc_symbol
+```
+
+
+## 5. What is the purpose of subsampling? 
+The datasets that are generated are increasing in the number of sequenced cells exponentially. In order to increase the speed of CellPhoneDB, we included an optional step in the analysis the method described in (Hie B, Cho H, DeMeo B, Bryson B and Berger B, Geometric Sketching Compactly Summarizes the Single-Cell Transcriptomic Landscape, Cell Systems 2019). The user can also choose another method to subsample and simply input the subsampled data into CellPhoneDB in the same was as described above. We recommend subsampling for very big datasets; the minimum number of cells to use the subsampling option is 1000.
+
+## 6. What is the meaning of “Rank” in the “significant_means.txt” output file? 
+The rank is calculated by counting the significant p-values per interaction pair (per row) and dividing with the total number of cluster-cluster comparisons. The idea is to prioritize interactions that are highly specific, that is they have only one or few significant p-values and to have on the bottom of the list the interactions that are present everywhere or not present anywhere at all.
 
