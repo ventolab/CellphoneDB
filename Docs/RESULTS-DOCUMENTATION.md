@@ -50,7 +50,7 @@ There are three ways of running cellphoneDB, each producing a specific output:
    -  Output: This approach will output "relevant_interactions.txt" (instead of  "pvalues.csv") and the "significant_means.csv" files.  
 
 
-## METHOD 1. Retrieval of receptor-ligand expression means.
+## METHOD 1. Retrieval of receptor-ligand expression means
 
 With this simple `analysis` method, no analysis of significance is performed. This option will output the mean of each interaction in each celltype pair. The mean expression of a **simple interaction** is computing by averaging the expression of all the gene participants in the corresponding producing cells. To compute the mean of an interaction involving **multi-subunit heteromeric complexes** we use the member of the complex with the minimum expression.
 
@@ -78,7 +78,7 @@ Sc-RNA-seq datasets are growing in size exponentially as technological developme
 Alternatively, the user can downsample the number of cells using their preferred method. We recommend the users use downsample their dataset to even the contribution of each celltype (i.e. the number of cells in each celltype). This will ensure that the null distribution is evenly representing all the celltypes (i.e. not biassed towards celltypes with larger numbers of cells). 
 
 
-## METHOD 3. Retrieval of differentially expressed receptor-ligand.
+## METHOD 3. Retrieval of differentially expressed receptor-ligand
 
 With this `degs_analysis` method introduced in version 3 the user can retrieve interactions where all their gene participants are expressed (in the corresponding cell type pair) and at least one gene participant is differentially expressed (list provided by the user). More specifically, this method will retrieve as **relevant** those interactions where: 
    - (i) all the genes in the interaction are expressed in the corresponding celltype by more than 10% of cells (`--threshold 0.1`) and 
@@ -88,8 +88,12 @@ The relevant/selected interactions will be labelled as 1 in the `relevant_intera
 
 
 This method gives the user the freedom to design their gene expression comparison in a way that better matches their research question. With method 2, our null hypothesis (and background distribution) considers all the celltypes in the dataset. However the user may wish to use a different approach to better reflect their research scenario. Find below a list of example cases:
-- The analysis needs to account for technical batch or biological covariates. HEre is better to rely on differential expression approaches that can include such confounders and provide cellphonEDB the results directly.
-- 
+- The analysis needs to account for technical batch or biological covariates. Here is better to rely on differential expression approaches that can include such confounders and provide cellphonEDB the results directly.
+- The user is interested on the specificities within specific lineages and wish to perform a hierarchical diffferential expression analysis (e.g. the user is interested in a specific lineage, such epithelial cells, and wishes to identify the genes changing their expression within this epithelial lineage; RESEARCH QUESTION: What are the interactions upregulated in epithelial-A compared to epithelial-B?).
+- The user wishes to compare specific populations in a disease vs control fashion (e.g. identify upregulated genes in disease T cells by comparing them against control T cells; RESEARCH QUESTION: What are the interactions upregulated by disease T-cells?).
+ 
+We provide [notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) to compute DEGs for both Seurat and Scanpy users. **It is on the user to design a DEG analysis appropiated to the exprimental deisgn / research question. **
+
 
 
 # INPUT files
@@ -105,9 +109,11 @@ NOTE that by default, CellphoneDB will assume that you are using ensembl gene id
 
 ## DEGs file
 
-This is a .txt with two columns: the first column should be the cell type name and the second column the associated significant gene id. The remaining columns are ignored. See example [here](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_DEGs.tsv). 
+This file is only used by is METHOD 3 `degs_analysis`. It is a .txt with two columns: the first column should be the cell type name and the second column the associated significant gene id. The remaining columns are ignored. See example [here](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_DEGs.tsv). 
 
 Note that CellphoneDB does not perform any filter and all the genes in the file will be considered significant. Please, ensure you filter the genes using your preferred cut-offs.  
+
+Note that the cell type/cluster name should match those in your `meta.txt`).  
 
 
 
