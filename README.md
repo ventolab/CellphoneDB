@@ -10,7 +10,7 @@ CellPhoneDB is a publicly available repository of curated receptors, ligands and
 
 CellPhoneDB can be used to search for a particular ligand/receptor, or interrogate your own single-cell transcriptomics data (or even bulk transcriptomics data if your samples represent pure populations!). 
 
-For more details on the analysis check the [DOCUMENTATION here](Docs/RESULTS-DOCUMENTATION.md), our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB v3).
+For more details on the analysis check the [DOCUMENTATION](Docs/RESULTS-DOCUMENTATION.md), our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB v3).
 
 
 ## New in CellPhoneDB-data v4
