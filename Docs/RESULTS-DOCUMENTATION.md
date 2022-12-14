@@ -1,4 +1,6 @@
-CellphoneDB GUIDE
+[![Python package](https://img.shields.io/pypi/v/cellphonedb.svg?color=brightgreen&label=python-package)](https://pypi.org/project/cellphonedb)
+
+CellphoneDB v3 GUIDE
 ============================================
 
 CellphoneDB tool provides different methods to assess cellular crosstalk between different cell types by leveraging our CellphoneDB database of interacting molecules with single-cell transcriptome data. 
