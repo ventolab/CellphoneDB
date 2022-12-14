@@ -26,7 +26,8 @@ CellphoneDB tool provides different methods to assess cellular crosstalk between
 There are three ways of running CellphoneDB, each producing a specific output:
 
 
-![CellphoneDB methods](https://github.com/ventolab/CellphoneDB/blob/master/Docs/CellphoneDB_overview.png)
+![CellphoneDB methods](https://github.com/ventolab/CellphoneDB/blob/master/Docs/cellphoneDB_overview.png)
+
 
 
 - METHOD 1 simple **analysis** (>= v1): Here, no statistical analysis is performed. CellphoneDB will output the mean for all the interactions for each cell type pair combination. Note that CellphoneDB will report the means only if all the gene members of the interactions are expressed by at least a fraction of cells in a cell type (`--threshold`). If the condition `--threshold` is not met, the interaction will be ignored in the corresponding cell type pairs.
