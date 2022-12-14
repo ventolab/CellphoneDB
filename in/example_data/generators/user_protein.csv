@@ -1,0 +1,3 @@
+uniprot,protein_name,transmembrane,peripheral,secreted,secreted_desc,receptor,receptor_desc,other,other_desc,tags_reason
+P25106,ACKR3_HUMAN,True,False,False,,True,Atipical_chemokine_receptor_add,True,CoReceptor_Acts as coreceptor with CXCR4 for a restricted number of HIV isolates (uniprot),Receptor_add
+uniprot_test,protein_name_test,True,False,False,,True,,False,,
