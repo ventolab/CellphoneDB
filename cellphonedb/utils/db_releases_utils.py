@@ -3,6 +3,7 @@ from typing import Union
 import requests
 
 def get_remote_database_versions_html(include_file_browsing=False):
+    result = {'error': None}
     try:
         releases = _github_query('releases')
         if releases:
@@ -28,10 +29,15 @@ def get_remote_database_versions_html(include_file_browsing=False):
                 html += "</tr>"
                 first_row = False
             html += "</table>"
-            return html
+            result['db_releases_html_table'] = html
+            return result
 
     except NoReleasesException:
-        print('WARNING: There are no versions available (or connection could not be made to server to retrieve them)')
+        err_msg = 'ERROR: There are no versions available (or connection could not be made to server to retrieve them)'
+        print(err_msg)
+        result['error'] = err_msg
+        result['db_releases_html_table'] = None
+        return result
 
 def _github_query(kind) -> Union[dict, list]:
     queries = {
