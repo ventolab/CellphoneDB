@@ -17,7 +17,28 @@ def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, co
             constituent_proteins.append(genes['name'][genes['protein_multidata_id'] == protein_multidata_id].to_list()[0])
         complex_name2proteins[complex_name] = constituent_proteins
 
-def search(query_str, user_dir_root, cellophonedb_version):
+def search(query_str, user_dir_root, cellophonedb_version)->(list, map):
+    """
+    Searches CellphoneDB interactions for genes/proteins/complexes in query_str
+
+    Parameters
+    ----------
+    query_str: str
+        A comma- or space-separated list of Ensembl ID (e.g. ENSG00000165029), Gene name (e.g. ABCA1), \
+        UniProt ID (e.g. KLRG2_HUMAN), UniProt Accession (e.g. A4D1S0) or Complex name \
+        (e.g. 12oxoLeukotrieneB4_byPTGR1)
+    user_dir_root: str
+        The directory in which user stores CellphoneDB files
+    cellophonedb_version
+        CellphoneDB database file (cellphonedb.zip) resides in \
+        <user_dir_root>/releases/<cellophonedb_version>
+
+    Returns
+    -------
+    Tuple
+        - A list of sub-lists, where each sub-list represents details of a single interaction
+        - For all complexes that participate in the interactions found, a mapping to their constituent proteins
+    """
     start = time.time()
     results = []
     interactions, genes, complex_composition, complex_expanded = \
@@ -94,7 +115,20 @@ def generate_output(multidata_id, genes):
     # Expect only a single result
     return protein_data_list[0]
 
-def get_html_table(data, complex_name2proteins):
+def get_html_table(data, complex_name2proteins) -> str:
+    """
+    Parameters
+    ----------
+    data: list
+        A list of sub-lists, where each sub-list represents details of a single interaction
+    complex_name2proteins: map
+        For all complexes that participate in the interactions found, a mapping to their constituent proteins
+    Returns
+    -------
+    str
+        A string containing html representation of interactions in data and complex_name2proteins. \
+        The mapping in the latter is used to populate tooltips showing proteins that are a part of a complex.
+    """
     html = "<table id=\"cpdb_search_results\" class=\"display compact\">"
     first_row = True
     for row in data:

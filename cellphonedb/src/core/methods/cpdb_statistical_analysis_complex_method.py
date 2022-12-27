@@ -35,9 +35,9 @@ def call(meta: pd.DataFrame,
                                                                                   result_precision))
     if debug_seed >= 0:
         np.random.seed(debug_seed)
-        core_logger.warning('Debug random seed enabled. Setted to {}'.format(debug_seed))
+        core_logger.warning('Debug random seed enabled. Set to {}'.format(debug_seed))
 
-    # get reduced interactions (drop duplicateds)
+    # get reduced interactions (drop duplicates)
     interactions_reduced = interactions[['multidata_1_id', 'multidata_2_id']].drop_duplicates()
     
     # add multidata id and means to counts

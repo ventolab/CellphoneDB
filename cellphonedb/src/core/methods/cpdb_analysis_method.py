@@ -39,17 +39,17 @@ def call(meta: pd.DataFrame,
     counts_data: str
         Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
     interactions: pd.DataFrame
-        Interactions from CellPhoneDB database
+        Interactions from CellphoneDB database
     genes: pd.DataFrame
-        Genes from CellPhoneDB database
+        Genes from CellphoneDB database
     complexes: pd.DataFrame
-        Complex and Multidata joined from CellPhoneDB database
+        Complex and Multidata joined from CellphoneDB database
     complex_compositions: pd.DataFrame
-        ComplexComposition from CellPhoneDB database
+        ComplexComposition from CellphoneDB database
     microenvs: pd.DataFrame
-        Microenvironment data to limit cluster interactions
+        Micro-environment data to limit cluster interactions
     separator: str
-        Separator for pairs of genes (gene1|gene2) and clustes (cluster1|cluster2).
+        Separator for pairs of genes (gene1|gene2) and clusters (cluster1|cluster2).
     threshold: float
         Percentage of cells expressing the specific ligand/receptor [0.0 - 1.0]
     result_precision: int
@@ -57,14 +57,14 @@ def call(meta: pd.DataFrame,
     debug: bool
         Storge intermediate data as pickle file (debug_intermediate.pkl).
     output_path: str
-        Output path used to store intermediate files when debuging.
+        Output path used to store intermediate files when debugging.
 
     Returns
     -------
-    Tuple: A tuple containing:
-        - means_result: Result of the means
-        - significant_means: Result of the significant means
-        - deconvoluted_result: Result of the deconvoluted complex
+    Tuple
+        - means_result
+        - significant_means
+        - deconvoluted_result
     """
     core_logger.info(
         '[Non Statistical Method] Threshold:{} Precision:{}'.format(threshold,

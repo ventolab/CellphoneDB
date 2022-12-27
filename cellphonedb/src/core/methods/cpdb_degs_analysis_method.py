@@ -55,9 +55,9 @@ def call(meta: pd.DataFrame,
     complex_compositions: pd.DataFrame
         ComplexComposition from CellPhoneDB database
     microenvs: pd.DataFrame, optional
-        Microenvironment data to limit cluster interactions
+        Micro-environment data to limit cluster interactions
     separator: str, optional
-        Separator for pairs of genes (gene1|gene2) and clustes (cluster1|cluster2).
+        Separator for pairs of genes (gene1|gene2) and clusters (cluster1|cluster2).
     threshold: float, optional
         Percentage of cells expressing the specific ligand/receptor [0.0 - 1.0]
     result_precision: int, optional
@@ -65,16 +65,15 @@ def call(meta: pd.DataFrame,
     debug: bool, optional
         Storge intermediate data as pickle file (debug_intermediate.pkl).
     output_path: str, optional
-        Output path used to store intermediate files when debuging.
+        Output path used to store intermediate files when debugging.
 
     Returns
     -------
-    means_result DataFrame 
-        Result of the means
-    significant_means DataFrame
-        Result of the significant means
-    deconvoluted_result DataFrame
-        Result of the deconvoluted complex
+    Tuple
+         - deconvoluted_result
+         - means_result
+         - relevant_interactions_result
+         - significant_means
     """
     core_logger.info(
         '[Cluster DEGs Analysis] '

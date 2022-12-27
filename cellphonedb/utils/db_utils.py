@@ -17,6 +17,25 @@ MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
 INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input']
 
 def get_interactions_genes_complex(user_dir_root, db_version) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Returns a tuple of four DataFrames containing data from <user_dir_root>/releases/<db_version>/cellphonedb.zip.
+
+    Parameters
+    ----------
+    user_dir_root: str
+        The directory in which user stores CellphoneDB files
+    db_version: str
+        CellphoneDB version (and the name of the subdirectory containing the
+        curated input files from https://github.com/ventolab/cellphonedb-data)
+
+    Returns
+    -------
+    Tuple
+        - interactions: pd.DataFrame
+        - genes: pd.DataFrame
+        - complex_composition: pd.DataFrame
+        - complex_expanded: pd.DataFrame
+    """
     db_path = os.path.join(user_dir_root, "releases", db_version)
     # Extract csv files from db_files_path/cellphonedb.zip into dbTableDFs
     dbTableDFs = extract_dataframes_from_db(db_path)
@@ -92,10 +111,50 @@ def unzip(zip_file_path):
                     yield zipinfo.filename, thefile
 
 def get_db_path(user_dir_root, db_version):
+    """
+    Retrieves the path to the local database file corresponding to db_version
+
+    Parameters
+    ----------
+    user_dir_root: str
+        The directory in which user stores CellphoneDB files
+    db_version: str
+        CellphoneDB version (and the name of the subdirectory containing the
+        curated input files from https://github.com/ventolab/cellphonedb-data)
+
+    Returns
+    -------
+    str
+        The path to the local database file corresponding to db_version
+    """
     return os.path.join(user_dir_root, "releases", db_version)
 
 def create_db(user_dir_root, db_version, \
-              gene_input=None, protein_input=None, complex_input=None, interaction_input=None):
+              gene_input=None, protein_input=None, complex_input=None, interaction_input=None) -> None:
+    """
+    Creates CellphoneDB databases file (cellphonedb.zip) in <user_dir_root>/releases/<db_version> directory.
+    This simple zip file contains a number of CSV files that CellphoneDB package reads into memory
+    and uses to drive its analysis of user data.
+
+    Parameters
+    ----------
+    user_dir_root: str
+        The directory in which user stores CellphoneDB files
+    db_version: str
+        CellphoneDB version (and the name of the subdirectory containing the
+        curated input files from https://github.com/ventolab/cellphonedb-data)
+    gene_input: str
+        Path to the local gene_input.csv file
+    protein_input: str
+        Path to the local protein_input.csv file
+    complex_input: str
+        Path to the local complex_input.csv file
+    interaction_input: str
+        Path to the local interaction_input.csv file
+    Returns
+    -------
+
+    """
     db_path = os.path.join(user_dir_root, "releases", db_version)
     pathlib.Path(db_path).mkdir(parents=True, exist_ok=True)
     dataDFs = getDFs(gene_input=gene_input, protein_input=protein_input, complex_input=complex_input,

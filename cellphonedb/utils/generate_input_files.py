@@ -323,7 +323,35 @@ def download_source_files(user_dir_root, db_version):
             with open(os.path.join(sources_path, fname), 'wb') as f:
                 f.write(r.read())
 
-def generate_all(user_dir_root, db_version, user_complex=None, user_interactions=None, user_interactions_only=False ):
+def generate_all(user_dir_root, db_version, user_complex=None, user_interactions=None, user_interactions_only=False ) -> None:
+    """
+    Generate your own CellphoneDB input files, using your own complexes and interactions (if provided).
+    This allows the user to run CellphoneDB analyses against either just their own interactions/complexes,
+    or against a combined data comprising their own interactions/complexes and the curated ones from
+    https://github.com/ventolab/cellphonedb-data.
+
+    Parameters
+    ----------
+    user_dir_root: str
+        The directory in which user stores CellphoneDB files
+    db_version: str
+        CellphoneDB version (and the name of the subdirectory containing the
+        curated input files from https://github.com/ventolab/cellphonedb-data)
+    user_complex: str
+        A path to the user's csv file containing information about complexes,
+        in the format exemplified in https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_complex.csv
+    user_interactions: str
+        A path to the user's csv file containing information about interactions,
+        in the format exemplified in https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_interaction.csv
+    user_interactions_only: bool
+        If true, only the user's interactions should be included in the generated input files. If false
+        (the default) the user's interactions will be appended to the curated interactions
+        in the db_version above in https://github.com/ventolab/cellphonedb-data.
+
+    Returns
+    -------
+
+    """
     download_source_files(user_dir_root, db_version)
     db_dir = db_utils.get_db_path(user_dir_root, db_version)
     data_dir = os.path.join(db_dir,"data")

@@ -10,6 +10,21 @@ from cellphonedb.src.core.core_logger import core_logger
 
 class Subsampler(object):
     def __init__(self, log: bool, num_pc: int = 100, num_cells: int = None, verbose: bool = None, debug_seed: int = None):
+        """
+        Parameters
+        ----------
+        log: bool
+            If true, each element of counts array will be converted to its natural logarithm before subsampling
+        num_pc: int
+            Number of principal components to be used during sub-sampling (for more information see:
+            https://github.com/brianhie/geosketch)
+        num_cells: int
+            Number of samples to obtain from counts
+        verbose: bool
+        debug_seed: bool
+            Set to True to obtain the same sub-sampling across different runs
+        """
+
         self.verbose = verbose
         self.log = log
         self.num_pc = num_pc
@@ -17,6 +32,17 @@ class Subsampler(object):
         np.random.seed(debug_seed)
 
     def subsample(self, counts: pd.DataFrame) -> pd.DataFrame:
+        """
+        Parameters
+        ----------
+        counts: pd.DataFrame
+            counts DataFrame to be sub-sampled
+        Returns
+        -------
+        pd.DataFrame
+            Sub-sampled counts using the parameters passed in __init__ method
+
+        """
         input_genes = counts.shape[1]
 
         if self.num_cells is None:

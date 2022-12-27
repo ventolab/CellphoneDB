@@ -4,6 +4,21 @@ from cellphonedb.src.core.exceptions.ProcessMetaException import ProcessMetaExce
 
 
 def meta_preprocessor(meta_raw: pd.DataFrame) -> pd.DataFrame:
+    """
+    Re-formats meta_raw if need be to ensure correct columns and indexes are present
+
+    Parameters
+    ----------
+    meta_raw: pd.DataFrame
+        A DataFrame containing a mapping between cells and cell types, as returned by \
+        controller.get_user_file() and controller.get_user_files() functions.
+
+    Returns
+    -------
+    pd.DataFrame
+        meta DataFrame containing columns and indexes as expected by the analysis methods
+
+    """
     meta_raw.columns = map(str.lower, meta_raw.columns)
     try:
         if 'cell' in meta_raw and 'cell_type' in meta_raw:

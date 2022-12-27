@@ -3,6 +3,21 @@ from typing import Union
 import requests
 
 def get_remote_database_versions_html(include_file_browsing=False):
+    """Retrieve a html table containing CellphoneDB database versions and release dates.
+
+        Parameters
+        ----------
+        include_file_browsing: bool.
+            False by default; True when invoked by cellphonedb.org \
+            website only - to allow the user to select and browse individual input files from \
+            https://github.com/ventolab/cellphonedb-data.
+
+        Returns
+        -------
+        str
+            A string containing html table containing database versions and release dates
+    """
+
     result = {'error': None}
     try:
         releases = _github_query('releases')

@@ -1,6 +1,5 @@
 import sys
 import pandas as pd
-import numpy as np
 import anndata
 import squidpy as sq
 import os
@@ -10,8 +9,8 @@ import urllib.request, urllib.error, urllib.parse
 from cellphonedb.utils import utils, generate_input_files, database_version_manager, search_utils, db_utils, db_releases_utils
 from cellphonedb.utils.utils import dbg
 from cellphonedb.src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
-from cellphonedb.src.core.preprocessors import method_preprocessors
-from cellphonedb.src.exceptions.ParseCountsException import ParseCountsException
+from cellphonedb.src.core.preprocessors import method_preprocessors, counts_preprocessors
+from cellphonedb.src.core.utils import subsampler
 import time
 
 KEY2USER_TEST_FILE = {'counts' : 'test_counts.txt', 'meta': 'test_meta.txt', \
@@ -23,26 +22,55 @@ CPDB_ROOT = os.path.join(os.path.expanduser('~'),".cpdb")
 def get_user_files(user_dir_root, \
         counts_fn=KEY2USER_TEST_FILE['counts'], meta_fn=KEY2USER_TEST_FILE['meta'], microenvs_fn=None, degs_fn=None) \
         -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+
+    Parameters
+    ----------
+    user_dir_root: str
+        The directory in which user stores CellphoneDB files
+    counts_fn
+        Path to the user's counts file, exemplified by \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_counts.txt
+    meta_fn
+        Path to the user's meta file, exemplified by \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_meta.txt
+    microenvs_fn
+        Path to the user's microenvironments file, exemplified by \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_microenviroments.txt
+    degs_fn
+        Path to the user's differentially expresses genes (DEGs) file, exemplified by \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_degs.txt
+
+    Returns
+    -------
+    Tuple
+        - counts: pd.DataFrame
+        - raw_meta: pd.DataFrame
+        - meta: pd.DataFrame
+        - microenvs: pd.DataFrame
+        - degs: pd.DataFrame
+
+    """
     loaded_user_files=[]
     user_files_path = os.path.join(user_dir_root,"user_files")
     # Read user files
     counts = utils.read_data_table_from_file(os.path.join(user_files_path, counts_fn),
                                              index_column_first=True)
-    loaded_user_files.append(KEY2USER_TEST_FILE['counts'])
+    loaded_user_files.append(counts_fn)
     raw_meta = utils.read_data_table_from_file(os.path.join(user_files_path, meta_fn),
                                                index_column_first=False)
     meta = method_preprocessors.meta_preprocessor(raw_meta)
-    loaded_user_files.append(KEY2USER_TEST_FILE['meta'])
+    loaded_user_files.append(meta_fn)
 
     if microenvs_fn:
         microenvs = utils.read_data_table_from_file(os.path.join(user_files_path, microenvs_fn))
-        loaded_user_files.append(KEY2USER_TEST_FILE['microenvs'])
+        loaded_user_files.append(microenvs_fn)
     else:
         microenvs = pd.DataFrame()
 
     if degs_fn:
         degs = utils.read_data_table_from_file(os.path.join(user_files_path, degs_fn))
-        loaded_user_files.append(KEY2USER_TEST_FILE['degs'])
+        loaded_user_files.append(degs_fn)
     else:
         degs = pd.DataFrame()
 
@@ -54,6 +82,31 @@ def get_user_files(user_dir_root, \
 
 def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
         -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+
+    Parameters
+    ----------
+    user_dir_root: str
+        The directory in which user stores CellphoneDB files
+    h5ad_fn: str
+        Path to the user's file in https://broadinstitute.github.io/wot/file_formats/#h5ad format. \
+        The file is assumed to contain meta, microenvironments and differentially expressed genes (DEGs) data \
+        in the uns portion of the h5ad file, under 'meta', 'microenvs' and 'degs' keys respectively, and each \
+        follow the respective format in: \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_meta.txt \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_microenviroments.txt \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_degs.txt
+
+    Returns
+    -------
+    Tuple
+        - counts: pd.DataFrame
+        - raw_meta: pd.DataFrame
+        - meta: pd.DataFrame
+        - microenvs: pd.DataFrame
+        - degs: pd.DataFrame
+
+    """
     adata = utils.read_h5ad(os.path.join(user_dir_root,'user_files',h5ad_fn))
 
     counts = adata.to_df().T
@@ -87,26 +140,6 @@ def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
     print("User file {} was loaded successfully".format(h5ad_fn))
     return adata, counts, raw_meta, meta, microenvs, degs
 
-def _counts_validations(counts: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFrame:
-    if not len(counts.columns):
-        raise ParseCountsException('Counts values are not decimal values', 'Incorrect file format')
-    try:
-        if np.any(counts.dtypes.values != np.dtype('float32')):
-            counts = counts.astype(np.float32)  # type: pd.DataFrame
-    except:
-        raise ParseCountsException
-
-    meta.index = meta.index.astype(str)
-
-    if np.any(~meta.index.isin(counts.columns)):
-        raise ParseCountsException("Some cells in meta did not exist in counts",
-                                   "Maybe incorrect file format")
-
-    if np.any(~counts.columns.isin(meta.index)):
-        core_logger.debug("Dropping counts cells that are not present in meta")
-        counts = counts.loc[:, counts.columns.isin(meta.index)].copy()
-    return counts
-
 def testrun_analyses(user_dir_root, db_version):
     interactions, genes, complex_composition, complex_expanded = \
         db_utils.get_interactions_genes_complex(user_dir_root, db_version)
@@ -135,10 +168,10 @@ def testrun_analyses(user_dir_root, db_version):
 
     # ************ Call statistical analysis method
     meta = method_preprocessors.meta_preprocessor(raw_meta)
-    counts = _counts_validations(counts, meta)
-    subsampler = None
-    if subsampler is not None:
-        counts = subsampler.subsample(counts)
+    counts = counts_preprocessors.counts_preprocessor(counts, meta)
+    ss = subsampler.Subsampler(log=False, num_pc=100, num_cells=None, verbose=False, debug_seed=None)
+    if ss is not None:
+        counts = ss.subsample(counts)
     deconvoluted, means, pvalues, significant_means = \
         cpdb_statistical_analysis_method.call(meta,
                                               counts,
@@ -265,6 +298,9 @@ if __name__ == '__main__':
         meta = method_preprocessors.meta_preprocessor(raw_meta)
         microenvs = utils.read_data_table_from_file(
             os.path.join(root_dir, 'endometrium_example_microenviroments.tsv'))
+        ss = subsampler.Subsampler(log=False, num_pc=100, num_cells=None, verbose=False, debug_seed=None)
+        if ss is not None:
+            counts = ss.subsample(counts)
         t0 = time.time()
         deconvoluted, means, pvalues, significant_means = \
         cpdb_statistical_analysis_method.call(meta,

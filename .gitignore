@@ -3,3 +3,4 @@ cellphonedb/out
 .idea
 __pycache__
 out
+Docs/api/_build
