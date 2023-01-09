@@ -26,7 +26,7 @@ CellphoneDB tool provides different methods to assess cellular crosstalk between
 There are three ways of running CellphoneDB, each producing a specific output:
 
 
-![CellphoneDB methods](https://github.com/ventolab/CellphoneDB/blob/master/Docs/cellphoneDB_overview.png)
+![CellphoneDB methods](./cellphoneDB_overview.png)
 
 
 
@@ -61,7 +61,7 @@ There are three ways of running CellphoneDB, each producing a specific output:
 
 With this simple `analysis` method, no analysis of significance is performed. This option will output the mean of each interaction in each cell type pair. The mean expression of a **simple interaction** is computed by averaging the expression of all the gene participants in the corresponding producing cells. To compute the mean of an interaction involving **multi-subunit heteromeric complexes** we use the member of the complex with the minimum expression.
 
-![means](https://github.com/ventolab/CellphoneDB/blob/master/Docs/CellphoneDB_computing_means.png)
+![means](./cellphoneDB_computing_means.png)
 
 Only interactions involving receptors and ligands expressed by more than a fraction of the cells (`--threshold` default is 0.1, which is 10%) in the specific cluster are included. We generally do not consider that an interaction is feasible if one of their gene participants is expressed by less than 10% of cells (users can modify this fraction `--threshold`).
 
@@ -202,7 +202,7 @@ In other words:
 
 
 
-![CellphoneDB methods](https://github.com/ventolab/CellphoneDB/blob/master/Docs/interpreting_results.png)
+![CellphoneDB methods](./interpreting_results.png)
 
 
 

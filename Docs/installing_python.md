@@ -7,7 +7,7 @@ If not, you can:
 - Run ```pip3 install notebook``` in order to install Jupyter notebook.
 
 Analyse Your Data using CellphoneDB methods
------------------------------------
+-------------------------------------------
 
 In order to analyse your data using CellphoneDB, you can then do the following:
 - ```cd <your_working_directory>```
