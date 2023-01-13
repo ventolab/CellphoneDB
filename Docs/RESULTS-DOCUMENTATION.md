@@ -34,14 +34,14 @@ There are three ways of running CellphoneDB, each producing a specific output:
 - 
    - Example command: 
    ```shell
-   CellphoneDB method analysis test_meta.txt test_counts.h5ad
+   cellphonedb method analysis test_meta.txt test_counts.h5ad
    ```
    -  Output: Without running statistical inference of receptor-ligand interactions only `means.csv` and `deconvoluted.csv` are generated. 
 
 - METHOD 2 **statistical_analysis** (>= v1): This is a statistical analysis that evaluates for significance all the interactions that can potentially occur in your dataset: i.e. between ALL the potential cell type pairs. Here, CellphoneDB uses empirical shuffling to calculate which ligand–receptor pairs display significant cell-type specificity. Specifically, it estimates a null distribution of the mean of the average ligand and receptor expression in the interacting clusters by randomly permuting the cluster labels of all cells. The P value for the likelihood of cell-type specificity of a given receptor–ligand complex is calculated on the basis of the proportion of the means that are as high as or higher than the actual mean. 
     - Example command:
     ```shell
-    CellphoneDB method statistical_analysis test_meta.txt test_counts.txt
+    cellphonedb method statistical_analysis test_meta.txt test_counts.txt
     ```
     -  Output: Apart from the outputs in method 1, additional `pvalues.csv` and `significant_means.csv` files are generated with the values for the significant interactions. In this last file, ligand–receptor pairs are ranked on the basis of their total number of significant P values across the cell populations. 
 
@@ -52,7 +52,7 @@ There are three ways of running CellphoneDB, each producing a specific output:
    The user can identify marker genes or DEGs using their preferred tool (we provide [notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) for both Seurat and Scanpy users) and input the information to CellphoneDB via a [text file](https://github.com/ventolab/CellphoneDB/blob/master/README.md#preparing-your-degs-file-optional-if-method-degs_analysis). 
    - Example command: 
    ```shell
-   CellphoneDB method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt --threshold 0.1
+   cellphonedb method degs_analysis test_meta.txt test_counts.txt test_DEGs.txt --threshold 0.1
    ```
    -  Output: This approach will output `relevant_interactions.txt` (instead of "pvalues.csv") and the `significant_means.csv` files.  
 
