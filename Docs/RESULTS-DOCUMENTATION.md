@@ -15,10 +15,10 @@ CellphoneDB tool provides different methods to assess cellular crosstalk between
 - [Interpreting the outputs](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#interpreting-the-outputs)
    - [How to read and interpret the results?](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#how-to-read-and-interpret-the-results)
    - [Why values of clusterA-clusterB are different to the values of clusterB-clusterA?](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#why-values-of-clustera-clusterb-are-different-to-the-values-of-clusterb-clustera)
-- [Database design and generation](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#Database-design-and-generation)
+- [Database design and generation](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#database-design-and-generation)
    - [Database input tables](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#database-input-files)
-   - [User-defined receptor-ligand datasets](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#User-defined-receptor-ligand-datasets) 
-   - [Database structure](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#Database-structure) 
+   - [User-defined receptor-ligand datasets](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#user-defined-receptor-ligand-datasets) 
+   - [Database structure](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#database-structure) 
 - [FAQs](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#FAQs) 
 
 
