@@ -6,20 +6,20 @@ CellphoneDB v3 GUIDE
 CellphoneDB tool provides different methods to assess cellular crosstalk between different cell types by leveraging our CellphoneDB database of interacting molecules with single-cell transcriptome data. 
 
 
-- [Analysis types in CellphoneDB](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#analysis-types-in-CellphoneDB)
-   - [METHOD 1 simple analysis](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#method-1-retrieval-of-receptor-ligand-expression-means)
-   - [METHOD 2 statistical_analysis](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#method-2-statistical-inference-of-receptor-ligand-specificity)
-   - [METHOD 3 degs_analysis](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#method-3-retrieval-of-differentially-expressed-receptor-ligand)
-- [Input files](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#input-files)
-- [Output files](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#output-files)
-- [Interpreting the outputs](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#interpreting-the-outputs)
-   - [How to read and interpret the results?](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#how-to-read-and-interpret-the-results)
-   - [Why values of clusterA-clusterB are different to the values of clusterB-clusterA?](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#why-values-of-clustera-clusterb-are-different-to-the-values-of-clusterb-clustera)
-- [Database design and generation](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#Database-design-and-generation)
-   - [Database input tables](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#database-input-files)
-   - [User-defined receptor-ligand datasets](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#User-defined-receptor-ligand-datasets) 
-   - [Database structure](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#Database-structure) 
-- [FAQs](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#FAQs) 
+- [Analysis types in CellphoneDB](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#analysis-types-in-CellphoneDB)
+   - [METHOD 1 simple analysis](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#method-1-retrieval-of-receptor-ligand-expression-means)
+   - [METHOD 2 statistical_analysis](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#method-2-statistical-inference-of-receptor-ligand-specificity)
+   - [METHOD 3 degs_analysis](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#method-3-retrieval-of-differentially-expressed-receptor-ligand)
+- [Input files](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#input-files)
+- [Output files](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#output-files)
+- [Interpreting the outputs](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#interpreting-the-outputs)
+   - [How to read and interpret the results?](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#how-to-read-and-interpret-the-results)
+   - [Why values of clusterA-clusterB are different to the values of clusterB-clusterA?](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#why-values-of-clustera-clusterb-are-different-to-the-values-of-clusterb-clustera)
+- [Database design and generation](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#Database-design-and-generation)
+   - [Database input tables](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#database-input-files)
+   - [User-defined receptor-ligand datasets](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#User-defined-receptor-ligand-datasets) 
+   - [Database structure](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#Database-structure) 
+- [FAQs](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#FAQs) 
 
 
 # Analysis types in CellphoneDB
@@ -101,7 +101,7 @@ This method gives the user the freedom to design their gene expression compariso
  
 The user should perform their differential expression analysis using their preferred tool and strategy. We provide [example notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) to compute DEGs for both Seurat and Scanpy users. **The user is responsible for designing a DEG analysis appropriated to the experimental design** / **research question.**
 
-See [below](https://github.com/ventolab/CellphoneDB/blob/bare-essentials/docs/RESULTS-DOCUMENTATION.md#degs-file) how to prepare the DEGs file.
+See [below](https://cellphonedb.readthedocs.io/en/latest/RESULTS-DOCUMENTATION.html#degs-file) how to prepare the DEGs file.
 
 
 
