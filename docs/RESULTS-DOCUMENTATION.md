@@ -3,24 +3,7 @@
 CellphoneDB v3 GUIDE
 ============================================
 
-CellphoneDB tool provides different methods to assess cellular crosstalk between different cell types by leveraging our CellphoneDB database of interacting molecules with single-cell transcriptome data. 
-
-
-- `Analysis types in CellphoneDB<analysis-types-in-CellphoneDB>`
-   - `METHOD 1 simple analysis<method-1-retrieval-of-receptor-ligand-expression-means>`
-   - `METHOD 2 statistical_analysis]<method-2-statistical-inference-of-receptor-ligand-specificity>`
-   - `METHOD 3 degs_analysis<method-3-retrieval-of-differentially-expressed-receptor-ligand>`
-- `Input files]<input-files>`
-- `Output files<output-files>`
-- `Interpreting the outputs<interpreting-the-outputs>`
-   - `How to read and interpret the results?<how-to-read-and-interpret-the-results>`
-   - `Why values of clusterA-clusterB are different to the values of clusterB-clusterA?<why-values-of-clustera-clusterb-are-different-to-the-values-of-clusterb-clustera>`
-- `Database design and generation<database-design-and-generation>`
-   - `Database input tables<database-input-files>`
-   - `User-defined receptor-ligand datasets<user-defined-receptor-ligand-datasets>`
-   - `Database structure<database-structure>`
-- `FAQs<FAQs>`
-
+CellphoneDB tool provides different methods to assess cellular crosstalk between different cell types by leveraging our CellphoneDB database of interacting molecules with single-cell transcriptome data.
 
 # Analysis types in CellphoneDB
 There are three ways of running CellphoneDB, each producing a specific output:
@@ -101,7 +84,7 @@ This method gives the user the freedom to design their gene expression compariso
  
 The user should perform their differential expression analysis using their preferred tool and strategy. We provide [example notebooks](https://github.com/ventolab/CellphoneDB/tree/master/notebooks) to compute DEGs for both Seurat and Scanpy users. **The user is responsible for designing a DEG analysis appropriated to the experimental design** / **research question.**
 
-See `below<degs-file>` how to prepare the DEGs file.
+See below for how to prepare the DEGs file.
 
 
 
