@@ -1,7 +1,0 @@
-squidpy>=1.2.3
-sphinx>=5.3.0
-sphinx_rtd_theme>=1.1.1
-nbsphinx>=0.8.10
-myst_parser>=0.18.1
-
-
