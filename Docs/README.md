@@ -1,6 +1,6 @@
 # How to compile documentation
 ```shell script
-cd Docs/api
+cd docs/api
 pip install -r requirements.txt
 pip install -r ../../requirements.txt
 make html
