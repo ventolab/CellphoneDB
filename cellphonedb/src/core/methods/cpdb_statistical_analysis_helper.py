@@ -763,7 +763,7 @@ def add_multidata_and_means_to_counts(counts: pd.DataFrame, genes: pd.DataFrame,
     counts.set_index('id_multidata', inplace=True, drop=True)
     counts = counts[cells_names]
     if np.any(counts.dtypes.values != np.dtype('float32')):
-        counts = counts.astype(np.float32)
+        counts = counts.astype(float)
     counts = counts.groupby(counts.index).mean()
     
     return counts, counts_relations

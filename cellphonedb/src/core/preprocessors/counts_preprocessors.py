@@ -23,7 +23,7 @@ def counts_preprocessor(counts: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFram
         raise ParseCountsException('Counts values are not decimal values', 'Incorrect file format')
     try:
         if np.any(counts.dtypes.values != np.dtype('float32')):
-            counts = counts.astype(np.float32)  # type: pd.DataFrame
+            counts = counts.astype(float)  # type: pd.DataFrame
     except:
         raise ParseCountsException
 
