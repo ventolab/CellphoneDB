@@ -1,7 +1,6 @@
 import sys
 import pandas as pd
 import anndata
-import squidpy as sq
 import os
 from typing import Tuple
 import io
@@ -408,30 +407,6 @@ if __name__ == '__main__':
         utils.write_to_file(relevant_interactions, 'relevant_interactions.txt', output_path)
         utils.write_to_file(significant_means, 'significant_means.txt', output_path)
         utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
-    elif arg == 'sq':
-        # Perform receptor-ligand analysis with squidpy
-        root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'examples')
-        adata = utils.read_h5ad(os.path.join(root_dir, 'endometrium_example_counts.h5ad'))
-        res = sq.gr.ligrec(
-            adata,
-            n_perms=1000,
-            cluster_key="cell_type",
-            copy=True,
-            use_raw=False,
-            alpha=1.0,
-            threshold=0.1,
-            transmitter_params={"categories": "ligand"},
-            receiver_params={"categories": "receptor"},
-            interactions_params={'resources': 'CellPhoneDB'},
-            complex_policy="min"
-        )
-        print(res["means"].index)
-        print(res["means"].columns)
-        output_path = os.path.join(root_dir, 'squidpy')
-        utils.write_to_file(res["means"], 'means1.txt', output_path, index_label='names', index=True)
-        utils.write_to_file(res["pvalues"], 'pvalues1.txt', output_path, index_label='names', index=True)
-        utils.write_to_file(res["metadata"], 'metadata1.txt', output_path, index_label='names', index=True)
-
     else:
         print("Arguments can be a (perform analysis) or db (create database)")
 

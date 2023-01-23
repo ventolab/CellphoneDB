@@ -6,4 +6,3 @@ scikit-learn==0.22
 geosketch>=1.2
 anndata>=0.8
 ktplotspy>=0.1.4
-squidpy>=1.2.3
