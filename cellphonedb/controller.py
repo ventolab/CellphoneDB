@@ -5,8 +5,8 @@ import os
 from typing import Tuple
 import io
 import urllib.request, urllib.error, urllib.parse
-from cellphonedb.utils import utils, generate_input_files, database_version_manager, search_utils, db_utils, db_releases_utils
-from cellphonedb.utils.utils import dbg
+from cellphonedb.utils import file_utils, generate_input_files, database_version_manager, search_utils, db_utils, db_releases_utils
+from cellphonedb.utils.file_utils import dbg
 from cellphonedb.src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
 from cellphonedb.src.core.preprocessors import method_preprocessors, counts_preprocessors
 from cellphonedb.src.core.utils import subsampler
@@ -53,22 +53,22 @@ def get_user_files(user_dir_root, \
     loaded_user_files=[]
     user_files_path = os.path.join(user_dir_root,"user_files")
     # Read user files
-    counts = utils.read_data_table_from_file(os.path.join(user_files_path, counts_fn),
+    counts = file_utils.read_data_table_from_file(os.path.join(user_files_path, counts_fn),
                                              index_column_first=True)
     loaded_user_files.append(counts_fn)
-    raw_meta = utils.read_data_table_from_file(os.path.join(user_files_path, meta_fn),
+    raw_meta = file_utils.read_data_table_from_file(os.path.join(user_files_path, meta_fn),
                                                index_column_first=False)
     meta = method_preprocessors.meta_preprocessor(raw_meta)
     loaded_user_files.append(meta_fn)
 
     if microenvs_fn:
-        microenvs = utils.read_data_table_from_file(os.path.join(user_files_path, microenvs_fn))
+        microenvs = file_utils.read_data_table_from_file(os.path.join(user_files_path, microenvs_fn))
         loaded_user_files.append(microenvs_fn)
     else:
         microenvs = pd.DataFrame()
 
     if degs_fn:
-        degs = utils.read_data_table_from_file(os.path.join(user_files_path, degs_fn))
+        degs = file_utils.read_data_table_from_file(os.path.join(user_files_path, degs_fn))
         loaded_user_files.append(degs_fn)
     else:
         degs = pd.DataFrame()
@@ -106,14 +106,14 @@ def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
         - degs: pd.DataFrame
 
     """
-    adata = utils.read_h5ad(os.path.join(user_dir_root,'user_files',h5ad_fn))
+    adata = file_utils.read_h5ad(os.path.join(user_dir_root,'user_files',h5ad_fn))
 
     counts = adata.to_df().T
     counts.columns = adata.obs['sample']
 
     meta_str = adata.uns['meta']
     if meta_str:
-        raw_meta = utils._read_data(io.StringIO(meta_str), separator='\t', index_column_first=False, dtype=None,
+        raw_meta = file_utils._read_data(io.StringIO(meta_str), separator='\t', index_column_first=False, dtype=None,
                                     na_values=None, compression=None)
         meta = method_preprocessors.meta_preprocessor(raw_meta)
         # adata and the merge below are needed for plotting results via ktplotspy
@@ -122,7 +122,7 @@ def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
 
     microenvs_str = adata.uns['microenvs']
     if microenvs_str:
-        microenvs = utils._read_data(io.StringIO(microenvs_str), separator='\t', index_column_first=False, dtype=None,
+        microenvs = file_utils._read_data(io.StringIO(microenvs_str), separator='\t', index_column_first=False, dtype=None,
                                      na_values=None, compression=None)
         dbg(microenvs.info)
     else:
@@ -130,7 +130,7 @@ def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
 
     degs_str = adata.uns['degs']
     if degs_str:
-        degs = utils._read_data(io.StringIO(degs_str), separator='\t', index_column_first=False, dtype=None, na_values=None,
+        degs = file_utils._read_data(io.StringIO(degs_str), separator='\t', index_column_first=False, dtype=None, na_values=None,
                                 compression=None)
         dbg(degs.info)
     else:
@@ -290,12 +290,12 @@ if __name__ == '__main__':
         dbversion = "v4.0.0"
         interactions, genes, complex_composition, complex_expanded = \
             db_utils.get_interactions_genes_complex(CPDB_ROOT, RELEASED_VERSION)
-        adata = utils.read_h5ad(os.path.join(root_dir, 'endometrium_example_counts.h5ad'))
+        adata = file_utils.read_h5ad(os.path.join(root_dir, 'endometrium_example_counts.h5ad'))
         counts = adata.to_df().T
-        raw_meta = utils.read_data_table_from_file(
+        raw_meta = file_utils.read_data_table_from_file(
             os.path.join(root_dir, 'endometrium_example_meta.tsv'))
         meta = method_preprocessors.meta_preprocessor(raw_meta)
-        microenvs = utils.read_data_table_from_file(
+        microenvs = file_utils.read_data_table_from_file(
             os.path.join(root_dir, 'endometrium_example_microenviroments.tsv'))
         ss = subsampler.Subsampler(log=False, num_pc=100, num_cells=None, verbose=False, debug_seed=None)
         if ss is not None:
@@ -320,12 +320,12 @@ if __name__ == '__main__':
                                               debug=False)
         print("Statistical method took: ", time.time() - t0, "seconds to complete")
         output_path=os.path.join(root_dir, 'stat_new')
-        utils.write_to_file(means, 'means.txt', output_path)
-        utils.write_to_file(pvalues, 'pvalues.txt', output_path)
-        utils.write_to_file(significant_means, 'significant_means.txt', output_path)
-        utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
+        file_utils.write_to_file(means, 'means.txt', output_path)
+        file_utils.write_to_file(pvalues, 'pvalues.txt', output_path)
+        file_utils.write_to_file(significant_means, 'significant_means.txt', output_path)
+        file_utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
         """
-        degs = utils.read_data_table_from_file(os.path.join(root_dir, 'endometrium_example_DEGs.tsv'))
+        degs = file_utils.read_data_table_from_file(os.path.join(root_dir, 'endometrium_example_DEGs.tsv'))
         output_path = os.path.join(root_dir, 'deg_new')
         deconvoluted, means, relevant_interactions, significant_means = \
             cpdb_degs_analysis_method.call(meta,
@@ -345,10 +345,10 @@ if __name__ == '__main__':
                                            separator='|',
                                            debug=False,
                                            output_path='')
-        utils.write_to_file(means, 'means.txt', output_path)
-        utils.write_to_file(relevant_interactions, 'relevant_interactions.txt', output_path)
-        utils.write_to_file(significant_means, 'significant_means.txt', output_path)
-        utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
+        file_utils.write_to_file(means, 'means.txt', output_path)
+        file_utils.write_to_file(relevant_interactions, 'relevant_interactions.txt', output_path)
+        file_utils.write_to_file(significant_means, 'significant_means.txt', output_path)
+        file_utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
         """
     elif arg == 'to':
         # Run statistical and deg analyses for ovarian example - for the purpose of comparing results to old CellphoneDB
@@ -356,11 +356,11 @@ if __name__ == '__main__':
         dbversion = "v4.0.0"
         interactions, genes, complex_composition, complex_expanded = \
             db_utils.get_interactions_genes_complex(CPDB_ROOT, RELEASED_VERSION)
-        adata = utils.read_h5ad(os.path.join(root_dir, 'granulosa_normloqTransformed.h5ad'))
+        adata = file_utils.read_h5ad(os.path.join(root_dir, 'granulosa_normloqTransformed.h5ad'))
         counts = adata.to_df().T
-        raw_meta = utils.read_data_table_from_file(os.path.join(root_dir, 'ovarian_meta.tsv'))
+        raw_meta = file_utils.read_data_table_from_file(os.path.join(root_dir, 'ovarian_meta.tsv'))
         meta = method_preprocessors.meta_preprocessor(raw_meta)
-        microenvs = utils.read_data_table_from_file(os.path.join(root_dir, 'ovarian_microenviroment.tsv'))
+        microenvs = file_utils.read_data_table_from_file(os.path.join(root_dir, 'ovarian_microenviroment.tsv'))
         deconvoluted, means, pvalues, significant_means = \
             cpdb_statistical_analysis_method.call(meta,
                                                   counts,
@@ -379,11 +379,11 @@ if __name__ == '__main__':
                                                   separator='|',
                                                   debug=False)
         output_path = os.path.join(root_dir, 'stat_new')
-        utils.write_to_file(means, 'means.txt', output_path)
-        utils.write_to_file(pvalues, 'pvalues.txt', output_path)
-        utils.write_to_file(significant_means, 'significant_means.txt', output_path)
-        utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
-        degs = utils.read_data_table_from_file(root_dir, 'DEGs.tsv')
+        file_utils.write_to_file(means, 'means.txt', output_path)
+        file_utils.write_to_file(pvalues, 'pvalues.txt', output_path)
+        file_utils.write_to_file(significant_means, 'significant_means.txt', output_path)
+        file_utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
+        degs = file_utils.read_data_table_from_file(root_dir, 'DEGs.tsv')
         output_path = os.path.join(root_dir, 'deg_new')
         deconvoluted, means, relevant_interactions, significant_means = \
             cpdb_degs_analysis_method.call(meta,
@@ -403,10 +403,10 @@ if __name__ == '__main__':
                                            separator='|',
                                            debug=False,
                                            output_path='')
-        utils.write_to_file(means, 'means.txt', output_path)
-        utils.write_to_file(relevant_interactions, 'relevant_interactions.txt', output_path)
-        utils.write_to_file(significant_means, 'significant_means.txt', output_path)
-        utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
+        file_utils.write_to_file(means, 'means.txt', output_path)
+        file_utils.write_to_file(relevant_interactions, 'relevant_interactions.txt', output_path)
+        file_utils.write_to_file(significant_means, 'significant_means.txt', output_path)
+        file_utils.write_to_file(deconvoluted, 'deconvoluted.txt', output_path)
     else:
         print("Arguments can be a (perform analysis) or db (create database)")
 

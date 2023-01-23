@@ -1,8 +1,9 @@
-pandas>=1.5.0
-numpy>=1.21.6
+pandas>=1.0.0,<=1.1.4
+numpy>=1.16.5,<=1.19.5
 numpy-groupies>=0.9.15
 requests>=2.25
 scikit-learn==0.22
-geosketch>=1.2
+geosketch>=0.3,<=1.1
 anndata>=0.8
 ktplotspy>=0.1.4
+tqdm>=4.3,<5.0
