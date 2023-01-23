@@ -7,8 +7,8 @@ import time
 import zipfile
 import itertools
 import pathlib
-from cellphonedb.utils.utils import dbg
-from cellphonedb.utils import utils, unique_id_generator
+from cellphonedb.utils.file_utils import dbg
+from cellphonedb.utils import file_utils, unique_id_generator
 import urllib.request, urllib.error, urllib.parse
 
 DBFILE_NAME = "cellphonedb"
@@ -247,7 +247,7 @@ def create_db(user_dir_root, db_version, \
     # Remove interactions non-CPDB interactors
     interactions_aux_df = interactions_aux_df[
         interactions_aux_df.apply(
-            lambda interaction: utils.is_cellphonedb_interactor(interaction, ('_x', '_y')), axis=1)]
+            lambda interaction: file_utils.is_cellphonedb_interactor(interaction, ('_x', '_y')), axis=1)]
     interactions_aux_df['id_cp_interaction'] = interactions_aux_df.apply(
         lambda interaction: unique_id_generator.interaction(interaction, ('_x', '_y')), axis=1)
     dbg(interactions_aux_df.info)
@@ -286,8 +286,8 @@ def download_input_files(user_dir_root, db_version):
 
 def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_input=None):
     dfs = {}
-    dfs['gene_input'] = utils.read_data_table_from_file(gene_input)
-    dfs['protein_input'] = utils.read_data_table_from_file(protein_input)
-    dfs['complex_input'] = utils.read_data_table_from_file(complex_input)
-    dfs['interaction_input'] = utils.read_data_table_from_file(interaction_input)
+    dfs['gene_input'] = file_utils.read_data_table_from_file(gene_input)
+    dfs['protein_input'] = file_utils.read_data_table_from_file(protein_input)
+    dfs['complex_input'] = file_utils.read_data_table_from_file(complex_input)
+    dfs['interaction_input'] = file_utils.read_data_table_from_file(interaction_input)
     return dfs

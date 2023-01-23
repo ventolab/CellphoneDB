@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime
 from json import JSONDecodeError
-from cellphonedb.utils import utils
+from cellphonedb.utils import file_utils
 
 import pandas as pd
 
@@ -85,7 +85,7 @@ def filter_by_cellphonedb_interactor(uniprots: pd.DataFrame, interactions: pd.Da
     interactions_filtered.drop_duplicates(inplace=True)
 
     interactions_filtered = interactions_filtered[
-        interactions_filtered.apply(lambda interaction: utils.is_cellphonedb_interactor(interaction),
+        interactions_filtered.apply(lambda interaction: file_utils.is_cellphonedb_interactor(interaction),
                                     axis=1)]
 
     return interactions_filtered[interactions.columns.values]
