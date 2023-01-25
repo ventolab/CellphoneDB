@@ -17,7 +17,7 @@ def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, co
             constituent_proteins.append(genes['name'][genes['protein_multidata_id'] == protein_multidata_id].to_list()[0])
         complex_name2proteins[complex_name] = constituent_proteins
 
-def search(query_str, user_dir_root, cellophonedb_version)->(list, map):
+def search(query_str, cpdb_dir)->(list, map):
     """
     Searches CellphoneDB interactions for genes/proteins/complexes in query_str
 
@@ -27,11 +27,8 @@ def search(query_str, user_dir_root, cellophonedb_version)->(list, map):
         A comma- or space-separated list of Ensembl ID (e.g. ENSG00000165029), Gene name (e.g. ABCA1), \
         UniProt ID (e.g. KLRG2_HUMAN), UniProt Accession (e.g. A4D1S0) or Complex name \
         (e.g. 12oxoLeukotrieneB4_byPTGR1)
-    user_dir_root: str
-        The directory in which user stores CellphoneDB files
-    cellophonedb_version
-        CellphoneDB database file (cellphonedb.zip) resides in \
-        <user_dir_root>/releases/<cellophonedb_version>
+    cpdb_dir: str
+        The directory in which user stores CellphoneDB database file
 
     Returns
     -------
@@ -42,7 +39,7 @@ def search(query_str, user_dir_root, cellophonedb_version)->(list, map):
     start = time.time()
     results = []
     interactions, genes, complex_composition, complex_expanded = \
-        db_utils.get_interactions_genes_complex(user_dir_root, cellophonedb_version)
+        db_utils.get_interactions_genes_complex(cpdb_dir)
 
     complex_name2proteins = {}
     # Assemble a list of multidata_ids to search interactions DF with

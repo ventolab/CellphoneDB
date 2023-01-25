@@ -16,17 +16,14 @@ MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
                                 'transmembrane','secreted','peripheral','integrin','is_complex']
 INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input']
 
-def get_interactions_genes_complex(user_dir_root, db_version) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def get_interactions_genes_complex(cpdb_dir) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Returns a tuple of four DataFrames containing data from <user_dir_root>/releases/<db_version>/cellphonedb.zip.
+    Returns a tuple of four DataFrames containing data from <cpdb_dir>/cellphonedb.zip.
 
     Parameters
     ----------
-    user_dir_root: str
-        The directory in which user stores CellphoneDB files
-    db_version: str
-        CellphoneDB version (and the name of the subdirectory containing the
-        curated input files from https://github.com/ventolab/cellphonedb-data)
+    cpdb_dir: str
+        The directory in which user stores CellphoneDB database file
 
     Returns
     -------
@@ -36,9 +33,8 @@ def get_interactions_genes_complex(user_dir_root, db_version) -> Tuple[pd.DataFr
         - complex_composition: pd.DataFrame
         - complex_expanded: pd.DataFrame
     """
-    db_path = os.path.join(user_dir_root, "releases", db_version)
     # Extract csv files from db_files_path/cellphonedb.zip into dbTableDFs
-    dbTableDFs = extract_dataframes_from_db(db_path)
+    dbTableDFs = extract_dataframes_from_db(cpdb_dir)
     # Convert dbTableDFs into interactions, genes, complex_composition, complex_expanded data frames
     mtTable = dbTableDFs['multidata_table']
     dbg(mtTable.dtypes)
@@ -129,20 +125,17 @@ def get_db_path(user_dir_root, db_version):
     """
     return os.path.join(user_dir_root, "releases", db_version)
 
-def create_db(user_dir_root, db_version, \
+def create_db(target_dir, \
               gene_input=None, protein_input=None, complex_input=None, interaction_input=None) -> None:
     """
-    Creates CellphoneDB databases file (cellphonedb.zip) in <user_dir_root>/releases/<db_version> directory.
+    Creates CellphoneDB databases file (cellphonedb.zip) in <target_dir> directory.
     This simple zip file contains a number of CSV files that CellphoneDB package reads into memory
     and uses to drive its analysis of user data.
 
     Parameters
     ----------
-    user_dir_root: str
-        The directory in which user stores CellphoneDB files
-    db_version: str
-        CellphoneDB version (and the name of the subdirectory containing the
-        curated input files from https://github.com/ventolab/cellphonedb-data)
+    target_dir: str
+        The directory in which to place the database file
     gene_input: str
         Path to the local gene_input.csv file
     protein_input: str
@@ -155,8 +148,7 @@ def create_db(user_dir_root, db_version, \
     -------
 
     """
-    db_path = os.path.join(user_dir_root, "releases", db_version)
-    pathlib.Path(db_path).mkdir(parents=True, exist_ok=True)
+    pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     dataDFs = getDFs(gene_input=gene_input, protein_input=protein_input, complex_input=complex_input,
                      interaction_input=interaction_input)
 
@@ -268,20 +260,18 @@ def create_db(user_dir_root, db_version, \
         zip_file.writestr('complex_composition_table.csv', complex_composition_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('multidata_table.csv', multidata_db_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('interaction_table.csv', interactions_df.to_csv(index=False, sep=',').encode('utf-8'))
-    with open(os.path.join(db_path,'cellphonedb.zip'), 'wb') as f:
+    with open(os.path.join(target_dir,'cellphonedb.zip'), 'wb') as f:
         f.write(zip_buffer.getvalue())
-    print("Created CellphoneDB {} in {} successfully" \
-          .format(db_version, os.path.join(db_path,'cellphonedb.zip')))
+    print("Created cellphonedb.zip in {} successfully" \
+          .format(os.path.join(target_dir,'cellphonedb.zip')))
 
-def download_input_files(user_dir_root, db_version):
-    db_path = get_db_path(user_dir_root, db_version)
-    db_data_path = os.path.join(db_path, "data")
-    pathlib.Path(db_path).mkdir(parents=True, exist_ok=True)
+def download_input_files(target_dir):
+    pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     for fname in INPUT_FILE_NAMES:
         fname = fname+".csv"
         print("Downloading: " + fname)
         r = urllib.request.urlopen('https://raw.githubusercontent.com/ventolab/cellphonedb-data/master/data/' + fname)
-        with open(os.path.join(db_data_path, fname), 'wb') as f:
+        with open(os.path.join(target_dir, fname), 'wb') as f:
             f.write(r.read())
 
 def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_input=None):

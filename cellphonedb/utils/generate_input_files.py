@@ -307,9 +307,8 @@ def _filter_complexes(complexes: pd.DataFrame, interacting_partners: pd.DataFram
 
     return filtered_complexes
 
-def download_source_files(user_dir_root, db_version):
-    data_dir = os.path.join(db_utils.get_db_path(user_dir_root, db_version), "data")
-    sources_path = os.path.join(data_dir, "sources")
+def download_source_files(target_dir):
+    sources_path = os.path.join(target_dir, "sources")
     print("Downloading cellphonedb-data/data/sources files into {}:".format(sources_path))
     pathlib.Path(sources_path).mkdir(parents=True, exist_ok=True)
     r = urllib.request.urlopen("https://api.github.com/repos/ventolab/cellphonedb-data/git/trees/master?recursive=1")
@@ -323,7 +322,7 @@ def download_source_files(user_dir_root, db_version):
             with open(os.path.join(sources_path, fname), 'wb') as f:
                 f.write(r.read())
 
-def generate_all(user_dir_root, db_version, user_complex=None, user_interactions=None, user_interactions_only=False ) -> None:
+def generate_all(target_dir, user_complex=None, user_interactions=None, user_interactions_only=False ) -> None:
     """
     Generate your own CellphoneDB input files, using your own complexes and interactions (if provided).
     This allows the user to run CellphoneDB analyses against either just their own interactions/complexes,
@@ -332,8 +331,8 @@ def generate_all(user_dir_root, db_version, user_complex=None, user_interactions
 
     Parameters
     ----------
-    user_dir_root: str
-        The directory in which user stores CellphoneDB files
+    target_dir: str
+        The directory in which the generated *_input files should be placed
     db_version: str
         CellphoneDB version (and the name of the subdirectory containing the
         curated input files from https://github.com/ventolab/cellphonedb-data)
@@ -352,13 +351,11 @@ def generate_all(user_dir_root, db_version, user_complex=None, user_interactions
     -------
 
     """
-    download_source_files(user_dir_root, db_version)
-    db_dir = db_utils.get_db_path(user_dir_root, db_version)
-    data_dir = os.path.join(db_dir,"data")
-    generated_path = os.path.join(data_dir, "generated")
+    download_source_files(target_dir)
+    generated_path = os.path.join(target_dir, "generated")
     print("Generating gene_generated.csv file into {}".format(generated_path))
     pathlib.Path(generated_path).mkdir(parents=True, exist_ok=True)
-    generate_genes(data_dir,
+    generate_genes(target_dir,
                    user_gene=None,
                    fetch_uniprot=False,
                    fetch_ensembl=False,
@@ -366,27 +363,27 @@ def generate_all(user_dir_root, db_version, user_complex=None, user_interactions
                    project_name=None,
                    )
     print("Generating proteins_generated.csv file into {}".format(generated_path))
-    generate_proteins(data_dir,
+    generate_proteins(target_dir,
                       user_protein=None,
                       fetch_uniprot=False,
                       result_path=generated_path,
                       log_file="log.txt",
                       project_name=None)
     print("Generating complex_generated.csv file into {}".format(generated_path))
-    generate_complex(data_dir,
+    generate_complex(target_dir,
                      user_complex=user_complex,
                      result_path=generated_path,
                      log_file='log.txt',
                      project_name=None)
     print("Generating interactions_input.csv file into {}".format(generated_path))
-    generate_interactions(data_dir,
+    generate_interactions(target_dir,
                           user_interactions=user_interactions,
                           user_interactions_only=user_interactions_only,
                           result_path=generated_path,
                           project_name=None,
                           release=False)
     print("Generating gene, protein and complex input files file into {}".format(generated_path))
-    filter_all(data_dir,
+    filter_all(target_dir,
                input_path=generated_path,
                user_complex=user_complex,
                user_interaction=user_interactions,

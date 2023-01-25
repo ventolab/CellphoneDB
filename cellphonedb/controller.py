@@ -18,14 +18,14 @@ KEY2USER_TEST_FILE = {'counts' : 'test_counts.txt', 'meta': 'test_meta.txt', \
 RELEASED_VERSION="v5.0.0"
 CPDB_ROOT = os.path.join(os.path.expanduser('~'),".cpdb")
 
-def get_user_files(user_dir_root, \
+def get_user_files(user_files_path, \
         counts_fn=KEY2USER_TEST_FILE['counts'], meta_fn=KEY2USER_TEST_FILE['meta'], microenvs_fn=None, degs_fn=None) \
         -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
 
     Parameters
     ----------
-    user_dir_root: str
+    user_files_path: str
         The directory in which user stores CellphoneDB files
     counts_fn
         Path to the user's counts file, exemplified by \
@@ -51,7 +51,6 @@ def get_user_files(user_dir_root, \
 
     """
     loaded_user_files=[]
-    user_files_path = os.path.join(user_dir_root,"user_files")
     # Read user files
     counts = file_utils.read_data_table_from_file(os.path.join(user_files_path, counts_fn),
                                              index_column_first=True)
@@ -79,13 +78,13 @@ def get_user_files(user_dir_root, \
 
     return counts, raw_meta, meta, microenvs, degs
 
-def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
+def get_user_file(user_files_path, h5ad_fn='test.h5ad') \
         -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
 
     Parameters
     ----------
-    user_dir_root: str
+    user_files_path: str
         The directory in which user stores CellphoneDB files
     h5ad_fn: str
         Path to the user's file in https://broadinstitute.github.io/wot/file_formats/#h5ad format. \
@@ -106,7 +105,7 @@ def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
         - degs: pd.DataFrame
 
     """
-    adata = file_utils.read_h5ad(os.path.join(user_dir_root,'user_files',h5ad_fn))
+    adata = file_utils.read_h5ad(os.path.join(user_files_path,h5ad_fn))
 
     counts = adata.to_df().T
     counts.columns = adata.obs['sample']
@@ -139,10 +138,11 @@ def get_user_file(user_dir_root, h5ad_fn='test.h5ad') \
     print("User file {} was loaded successfully".format(h5ad_fn))
     return adata, counts, raw_meta, meta, microenvs, degs
 
-def testrun_analyses(user_dir_root, db_version):
+def testrun_analyses(cpdb_dir):
     interactions, genes, complex_composition, complex_expanded = \
-        db_utils.get_interactions_genes_complex(user_dir_root, db_version)
-    counts, raw_meta, meta, microenvs, degs = get_user_files(user_dir_root, \
+        db_utils.get_interactions_genes_complex(cpdb_dir)
+    user_files_path = os.path.join(cpdb_dir, "user_files")
+    counts, raw_meta, meta, microenvs, degs = get_user_files(user_files_path, \
                                                                         counts_fn=KEY2USER_TEST_FILE['counts'],
                                                                         meta_fn=KEY2USER_TEST_FILE['meta'], \
                                                                         microenvs_fn=KEY2USER_TEST_FILE['microenvs'],
@@ -222,23 +222,8 @@ def testrun_analyses(user_dir_root, db_version):
     # dbg("relevant_interactions:", relevant_interactions.index, relevant_interactions.columns, relevant_interactions.info)
 
 
-def download_source_files(user_dir_root, db_version):
-    sources_path = os.path.join(db_utils.get_db_data_path(user_dir_root, db_version), "sources")
-    print("Downloading cellphonedb-data/data/sources files into {}:".format(sources_path))
-    pathlib.Path(sources_path).mkdir(parents=True, exist_ok=True)
-    r = urllib.request.urlopen("https://api.github.com/repos/ventolab/cellphonedb-data/git/trees/master?recursive=1")
-    files_data = json.load(r)['tree']
-    for rec in files_data:
-        if rec['path'].startswith('data/sources/'):
-            fname = rec['path'].split('/')[-1]
-            url = 'https://raw.githubusercontent.com/ventolab/cellphonedb-data/master/{}'.format(rec['path'])
-            print("Downloading: " + fname)
-            r = urllib.request.urlopen(url)
-            with open(os.path.join(sources_path, fname), 'wb') as f:
-                f.write(r.read())
-
-def convert_to_h5ad(user_dir_root):
-    counts, raw_meta, meta, microenvs, degs = get_user_files(user_dir_root, \
+def convert_to_h5ad(user_files_path):
+    counts, raw_meta, meta, microenvs, degs = get_user_files(user_files_path, \
                                                                         counts_fn=KEY2USER_TEST_FILE['counts'],
                                                                         meta_fn=KEY2USER_TEST_FILE['meta'],
                                                                         microenvs_fn=KEY2USER_TEST_FILE['microenvs'],
@@ -249,26 +234,27 @@ def convert_to_h5ad(user_dir_root):
     var = pd.DataFrame(index=counts.index)
     adata = anndata.AnnData(counts.T.values, obs=obs, var=var, dtype='float64')
     for key in [x for x in KEY2USER_TEST_FILE.keys() if x != 'counts']:
-        with open(os.path.join(user_dir_root,'user_files',KEY2USER_TEST_FILE[key]),
+        with open(os.path.join(user_files_path,KEY2USER_TEST_FILE[key]),
                   'r') as content_file:
             content = content_file.read()
             adata.uns[key] = content
-    outputPath = os.path.join(user_dir_root,"user_files","test.h5ad")
+    outputPath = os.path.join(user_files_path,"user_files","test.h5ad")
     adata.write(outputPath)
 
 if __name__ == '__main__':
     arg = sys.argv[1]
     if arg == 'a':
-        testrun_analyses(CPDB_ROOT, RELEASED_VERSION)
+        cpdb_dir = db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION)
+        testrun_analyses(cpdb_dir)
     elif arg == 'db':
-        db_utils.download_input_files(CPDB_ROOT, RELEASED_VERSION)
-        db_dir = db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION)
-        data_dir = os.path.join(db_dir, "data")
+        target_dir = db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION)
+        data_dir = os.path.join(target_dir, "data")
+        db_utils.download_input_files(data_dir)
         gene_input_path = os.path.join(data_dir, "gene_input.csv")
         protein_input_path = os.path.join(data_dir, "protein_input.csv")
         complex_input_path = os.path.join(data_dir, "complex_input.csv")
         interaction_input_path = os.path.join(data_dir, "interaction_input.csv")
-        db_utils.create_db(CPDB_ROOT, RELEASED_VERSION, \
+        db_utils.create_db(target_dir, \
                            gene_input=gene_input_path, protein_input=protein_input_path, complex_input=complex_input_path,
                            interaction_input=interaction_input_path)
     elif arg == "dbd":
@@ -277,9 +263,10 @@ if __name__ == '__main__':
     elif arg == 'c':
         convert_to_h5ad(CPDB_ROOT)
     elif arg == 's':
-        search_utils.search('ENSG00000134780,integrin_a10b1_complex', CPDB_ROOT, RELEASED_VERSION)
+        search_utils.search('ENSG00000134780,integrin_a10b1_complex', CPDB_ROOT)
     elif arg == 'g':
-        generate_input_files.generate_all(CPDB_ROOT, RELEASED_VERSION, \
+        target_dir = os.path.join(db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION), "data")
+        generate_input_files.generate_all(target_dir, \
                                           user_complex=None, user_interactions=None, user_interactions_only=False)
     elif arg == 'rel':
         db_releases_utils.get_remote_database_versions_html()
