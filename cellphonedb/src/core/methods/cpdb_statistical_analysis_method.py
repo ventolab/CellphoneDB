@@ -2,15 +2,12 @@ from typing import Tuple
 import pandas as pd
 
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
+from cellphonedb.utils import db_utils
 
-
-def call(meta: pd.DataFrame,
+def call(cpdb_dir: str,
+         meta: pd.DataFrame,
          count: pd.DataFrame,
          counts_data: str,
-         interactions: pd.DataFrame,
-         genes: pd.DataFrame,
-         complex_expanded: pd.DataFrame,
-         complex_composition: pd.DataFrame,
          microenvs: pd.DataFrame,
          iterations: int,
          threshold: float,
@@ -29,20 +26,14 @@ def call(meta: pd.DataFrame,
 
      Parameters
      ----------
+     cpdb_dir: str
+        Directory containing cellphonedb.zip file
      meta: str
          Meta data.
      counts: str
          Counts data.
      counts_data: str
          Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
-     interactions: pd.DataFrame
-         Interactions from CellphoneDB database
-     genes: pd.DataFrame
-         Genes from CellphoneDB database
-     complex_expanded: pd.DataFrame
-         Complex and Multidata joined from CellphoneDB database
-     complex_composition: pd.DataFrame
-         ComplexComposition from CellphoneDB database
      microenvs: pd.DataFrame
          Micro-environment data to limit cluster interactions
      iterations: int
@@ -75,6 +66,10 @@ def call(meta: pd.DataFrame,
          - significant_means
          - deconvoluted_result
      """
+
+    # Load into memory CellphoneDB data
+    interactions, genes, complex_composition, complex_expanded = \
+        db_utils.get_interactions_genes_complex(cpdb_dir)
     
     pvalues, means, significant_means, deconvoluted = \
         cpdb_statistical_analysis_complex_method.call(meta.copy(),

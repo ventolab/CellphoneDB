@@ -8,15 +8,13 @@ from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCounts
 from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFound
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper, cpdb_statistical_analysis_complex_method
 from cellphonedb.src.core.models.complex import complex_helper
+from cellphonedb.utils import db_utils
 
-def call(meta: pd.DataFrame,
+def call(cpdb_dir: str,
+         meta: pd.DataFrame,
          counts: pd.DataFrame,
          degs: pd.DataFrame,
          counts_data: str,
-         interactions: pd.DataFrame,
-         genes: pd.DataFrame,
-         complexes: pd.DataFrame,
-         complex_compositions: pd.DataFrame,
          microenvs: pd.DataFrame = None,
          separator: str = "|",
          iterations: int = 1000,
@@ -38,6 +36,8 @@ def call(meta: pd.DataFrame,
 
     Parameters
     ----------
+    cpdb_dir: str
+        Directory containing cellphonedb.zip file
     meta: pd.DataFrame
         Meta data.
     counts: pd.DataFrame
@@ -46,14 +46,6 @@ def call(meta: pd.DataFrame,
         DEGs data.
     counts_data: str
         Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
-    interactions: pd.DataFrame
-        Interactions from CellPhoneDB database
-    genes: pd.DataFrame
-        Genes from CellPhoneDB database
-    complexes: pd.DataFrame
-        Complex and Multidata joined from CellPhoneDB database
-    complex_compositions: pd.DataFrame
-        ComplexComposition from CellPhoneDB database
     microenvs: pd.DataFrame, optional
         Micro-environment data to limit cluster interactions
     separator: str, optional
@@ -86,6 +78,10 @@ def call(meta: pd.DataFrame,
 ***********************************
 DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
 ***********************************""")
+
+    # Load into memory CellphoneDB data
+    interactions, genes, complex_compositions, complexes = \
+        db_utils.get_interactions_genes_complex(cpdb_dir)
 
     if debug_seed >= 0:
         np.random.seed(debug_seed)

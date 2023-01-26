@@ -4,12 +4,13 @@ from typing import TextIO, Optional
 
 import csv
 import scipy.io
-from anndata import read_h5ad
+from anndata import read_h5ad, AnnData
 import pandas as pd
 
 from cellphonedb.src.exceptions.NotADataFrameException import NotADataFrameException
 from cellphonedb.src.exceptions.ReadFileException import ReadFileException
 from cellphonedb.src.exceptions.ReadFromPickleException import ReadFromPickleException
+from cellphonedb.src.core.preprocessors import method_preprocessors
 
 DEBUG=False
 
@@ -180,3 +181,24 @@ def write_to_csv(rows, file_path, delimiter=','):
         writer = csv.writer(f, delimiter=delimiter, quoting=csv.QUOTE_NONE, escapechar='\\')
         for row in rows:
             writer.writerow(row)
+
+def get_counts_meta_adata(user_files_dir, counts_fn, meta_fn) -> AnnData:
+    counts_fp = os.path.join(user_files_dir, counts_fn)
+    meta_fp = os.path.join(user_files_dir, meta_fn)
+
+    filename, file_extension = os.path.splitext(counts_fp)
+
+    if file_extension == '.h5ad':
+        adata = read_h5ad(counts_fp)
+    elif file_extension == '.txt':
+        df = read_data_table_from_file(counts_fp, index_column_first=True)
+        obs = pd.DataFrame()
+        obs.index = df.columns
+        var = pd.DataFrame(index=df.index)
+        adata = AnnData(df.T.values, obs=obs, var=var, dtype='float64')
+
+    raw_meta = read_data_table_from_file(meta_fp, index_column_first=False)
+    meta = method_preprocessors.meta_preprocessor(raw_meta)
+    adata.obs = meta
+
+    return adata

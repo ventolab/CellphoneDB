@@ -10,14 +10,13 @@ from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFo
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper
 from cellphonedb.src.core.models.complex import complex_helper
+from cellphonedb.utils import db_utils
 
-def call(meta: pd.DataFrame,
+def call(
+         cpdb_dir: str,
+         meta: pd.DataFrame,
          counts: pd.DataFrame,
          counts_data: str,
-         interactions: pd.DataFrame,
-         genes: pd.DataFrame,
-         complexes: pd.DataFrame,
-         complex_compositions: pd.DataFrame,
          microenvs: pd.DataFrame,
          separator: str = "|",
          threshold: float = 0.1,
@@ -32,20 +31,14 @@ def call(meta: pd.DataFrame,
 
     Parameters
     ----------
+    cpdb_dir: str
+        Directory containing cellphonedb.zip file
     meta: str
         Meta data.
     counts: str
         Counts data.
     counts_data: str
         Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
-    interactions: pd.DataFrame
-        Interactions from CellphoneDB database
-    genes: pd.DataFrame
-        Genes from CellphoneDB database
-    complexes: pd.DataFrame
-        Complex and Multidata joined from CellphoneDB database
-    complex_compositions: pd.DataFrame
-        ComplexComposition from CellphoneDB database
     microenvs: pd.DataFrame
         Micro-environment data to limit cluster interactions
     separator: str
@@ -69,6 +62,9 @@ def call(meta: pd.DataFrame,
     core_logger.info(
         '[Non Statistical Method] Threshold:{} Precision:{}'.format(threshold,
                                                                     result_precision))
+    # Load into memory CellphoneDB data
+    interactions, genes, complex_compositions, complexes = \
+        db_utils.get_interactions_genes_complex(cpdb_dir)
 
     # get reduced interactions (drop duplicateds)
     interactions_reduced = interactions[['multidata_1_id', 'multidata_2_id']].drop_duplicates()
