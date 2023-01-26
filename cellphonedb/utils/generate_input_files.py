@@ -88,7 +88,7 @@ def generate_genes(data_dir,
 
     cpdb_genes = gene_generator(ensembl_db, uniprot_db, hla_genes, user_gene, result_columns)
 
-    cpdb_genes[result_columns].to_csv('{}/{}'.format(output_path, 'gene_generated.csv'), index=False)
+    cpdb_genes[result_columns].to_csv('{}/{}'.format(output_path, 'gene_input.csv'), index=False)
 
 def generate_interactions(data_dir,
                           user_interactions=None,
@@ -233,7 +233,7 @@ def generate_proteins(data_dir,
     result = protein_generator(uniprot_db, curated_proteins, user_protein, default_values, default_types,
                                result_columns, log_path)
 
-    result[result_columns].to_csv('{}/{}'.format(output_path, 'protein_generated.csv'), index=False)
+    result[result_columns].to_csv('{}/{}'.format(output_path, 'protein_input.csv'), index=False)
 
 def generate_complex(data_dir,
                      user_complex=None,
@@ -250,7 +250,7 @@ def generate_complex(data_dir,
 
     result = complex_generator(curated_complex, user_complex, log_path)
 
-    result.to_csv('{}/{}'.format(output_path, 'complex_generated.csv'), index=False)
+    result.to_csv('{}/{}'.format(output_path, 'complex_input.csv'), index=False)
 
 def filter_all(data_dir,
                input_path,
@@ -259,9 +259,9 @@ def filter_all(data_dir,
                result_path='filtered',
                project_name=None):
     interactions = pd.read_csv(os.path.join(input_path, 'interaction_input.csv'))
-    complexes = pd.read_csv(os.path.join(input_path, 'complex_generated.csv'))
-    proteins = pd.read_csv(os.path.join(input_path, 'protein_generated.csv'))
-    genes = pd.read_csv(os.path.join(input_path, 'gene_generated.csv'))
+    complexes = pd.read_csv(os.path.join(input_path, 'complex_input.csv'))
+    proteins = pd.read_csv(os.path.join(input_path, 'protein_input.csv'))
+    genes = pd.read_csv(os.path.join(input_path, 'gene_input.csv'))
     output_path = file_utils.set_paths(result_path, project_name)
 
     interacting_partners = pd.concat([interactions['partner_a'], interactions['partner_b']]).drop_duplicates()
@@ -352,40 +352,39 @@ def generate_all(target_dir, user_complex=None, user_interactions=None, user_int
 
     """
     download_source_files(target_dir)
-    generated_path = os.path.join(target_dir, "generated")
-    print("Generating gene_generated.csv file into {}".format(generated_path))
-    pathlib.Path(generated_path).mkdir(parents=True, exist_ok=True)
+    print("Generating gene_input.csv file into {}".format(target_dir))
+    pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     generate_genes(target_dir,
                    user_gene=None,
                    fetch_uniprot=False,
                    fetch_ensembl=False,
-                   result_path=generated_path,
+                   result_path=target_dir,
                    project_name=None,
                    )
-    print("Generating proteins_generated.csv file into {}".format(generated_path))
+    print("Generating proteins_input.csv file into {}".format(target_dir))
     generate_proteins(target_dir,
                       user_protein=None,
                       fetch_uniprot=False,
-                      result_path=generated_path,
+                      result_path=target_dir,
                       log_file="log.txt",
                       project_name=None)
-    print("Generating complex_generated.csv file into {}".format(generated_path))
+    print("Generating complex_input.csv file into {}".format(target_dir))
     generate_complex(target_dir,
                      user_complex=user_complex,
-                     result_path=generated_path,
+                     result_path=target_dir,
                      log_file='log.txt',
                      project_name=None)
-    print("Generating interactions_input.csv file into {}".format(generated_path))
+    print("Generating interactions_input.csv file into {}".format(target_dir))
     generate_interactions(target_dir,
                           user_interactions=user_interactions,
                           user_interactions_only=user_interactions_only,
-                          result_path=generated_path,
+                          result_path=target_dir,
                           project_name=None,
                           release=False)
-    print("Generating gene, protein and complex input files file into {}".format(generated_path))
+    print("Generating gene, protein and complex input files file into {}".format(target_dir))
     filter_all(target_dir,
-               input_path=generated_path,
+               input_path=target_dir,
                user_complex=user_complex,
                user_interaction=user_interactions,
-               result_path=generated_path,
+               result_path=target_dir,
                project_name=None)
