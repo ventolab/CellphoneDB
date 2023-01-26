@@ -229,16 +229,11 @@ def convert_to_h5ad(user_files_path):
                                                                         microenvs_fn=KEY2USER_TEST_FILE['microenvs'],
                                                                         degs_fn='test_degs.txt')
     obs = pd.DataFrame()
-    obs['sample'] = counts.columns
+    obs.index = counts.columns
     # dataframe for annotating the variables
     var = pd.DataFrame(index=counts.index)
     adata = anndata.AnnData(counts.T.values, obs=obs, var=var, dtype='float64')
-    for key in [x for x in KEY2USER_TEST_FILE.keys() if x != 'counts']:
-        with open(os.path.join(user_files_path,KEY2USER_TEST_FILE[key]),
-                  'r') as content_file:
-            content = content_file.read()
-            adata.uns[key] = content
-    outputPath = os.path.join(user_files_path,"user_files","test.h5ad")
+    outputPath = os.path.join(user_files_path,"test.h5ad")
     adata.write(outputPath)
 
 if __name__ == '__main__':
@@ -261,7 +256,7 @@ if __name__ == '__main__':
         # database_version_manager.download_database("latest")
         database_version_manager.download_database("v4.0.0")
     elif arg == 'c':
-        convert_to_h5ad(CPDB_ROOT)
+        convert_to_h5ad(os.path.join(CPDB_ROOT, "user_files"))
     elif arg == 's':
         search_utils.search('ENSG00000134780,integrin_a10b1_complex', CPDB_ROOT)
     elif arg == 'g':
