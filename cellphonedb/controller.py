@@ -263,7 +263,7 @@ if __name__ == '__main__':
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'examples')
         dbversion = "v4.0.0"
         interactions, genes, complex_composition, complex_expanded = \
-            db_utils.get_interactions_genes_complex(CPDB_ROOT, RELEASED_VERSION)
+            db_utils.get_interactions_genes_complex(db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION))
         adata = file_utils.read_h5ad(os.path.join(root_dir, 'endometrium_example_counts.h5ad'))
         counts = adata.to_df().T
         raw_meta = file_utils.read_data_table_from_file(
@@ -329,7 +329,7 @@ if __name__ == '__main__':
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'bug_2_ovary')
         dbversion = "v4.0.0"
         interactions, genes, complex_composition, complex_expanded = \
-            db_utils.get_interactions_genes_complex(CPDB_ROOT, RELEASED_VERSION)
+            db_utils.get_interactions_genes_complex(db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION))
         adata = file_utils.read_h5ad(os.path.join(root_dir, 'granulosa_normloqTransformed.h5ad'))
         counts = adata.to_df().T
         raw_meta = file_utils.read_data_table_from_file(os.path.join(root_dir, 'ovarian_meta.tsv'))
