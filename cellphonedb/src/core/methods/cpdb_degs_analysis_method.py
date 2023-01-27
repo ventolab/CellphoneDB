@@ -17,9 +17,7 @@ def call(cpdb_dir: str,
          counts_data: str,
          microenvs: pd.DataFrame = None,
          separator: str = "|",
-         iterations: int = 1000,
          threshold: float = 0.1,
-         threads: int = 4,
          debug_seed: int= -1,
          result_precision: int = 3,
          debug: bool = False,
@@ -69,11 +67,7 @@ def call(cpdb_dir: str,
     """
     core_logger.info(
         '[Cluster DEGs Analysis] '
-        'Threshold:{} Iterations:{} Debug-seed:{} Threads:{} Precision:{}'.format(threshold,
-                                                                                  iterations,
-                                                                                  debug_seed,
-                                                                                  threads,
-                                                                                  result_precision))
+        'Threshold:{} Debug-seed:{} Precision:{}'.format(threshold, debug_seed, result_precision))
     core_logger.warning("""
 ***********************************
 DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
