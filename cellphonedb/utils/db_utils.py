@@ -269,14 +269,14 @@ def create_db(target_dir) -> None:
 
 def download_database(target_dir, cpdb_version):
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
-    r = urllib.request.urlopen('https://github.com/ventolab/cellphonedb-data/archive/refs/tags/{}.zip'.format(cpdb_version))
+    r = urllib.request.urlopen('https://github.com/prete/cellphonedb-data/archive/refs/tags/{}.zip'.format(cpdb_version))
     zipContent = ZipFile(io.BytesIO(r.read()))
     for fpath in zipContent.namelist():
         fname = fpath.split("/")[-1]
         if re.search('_input|cellphonedb.zip', fname) != None:
-            print("Downloading: " + fname)
             with open(os.path.join(target_dir, fname), 'wb') as f:
                 f.write(zipContent.read(fpath))
+    print("Downloaded CellphoneDB database successfully")
 
 def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_input=None):
     dfs = {}

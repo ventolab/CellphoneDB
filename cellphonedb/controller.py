@@ -14,7 +14,7 @@ import time
 KEY2USER_TEST_FILE = {'counts' : 'test_counts.txt', 'meta': 'test_meta.txt', \
                          'microenvs' : 'test_microenviroments.txt', 'degs' : 'test_degs.txt'}
 
-RELEASED_VERSION="v5.0.0"
+RELEASED_VERSION="v4.1.0"
 CPDB_ROOT = os.path.join(os.path.expanduser('~'),".cpdb")
 
 def get_user_files(user_files_path, \
@@ -148,13 +148,10 @@ def testrun_analyses(cpdb_dir):
                                                                         degs_fn=KEY2USER_TEST_FILE['degs'])
     # ************ Call analysis method
     means, significant_means, deconvoluted = cpdb_analysis_method.call(
+        cpdb_dir,
         meta,
         counts,
         'ensembl',
-        interactions,
-        genes,
-        complex_expanded,
-        complex_composition,
         microenvs=microenvs,
         # Does not store results files in cellphonedb/out/debug_intermediate.pkl
         debug=False,
@@ -171,13 +168,10 @@ def testrun_analyses(cpdb_dir):
     if ss is not None:
         counts = ss.subsample(counts)
     deconvoluted, means, pvalues, significant_means = \
-        cpdb_statistical_analysis_method.call(meta,
+        cpdb_statistical_analysis_method.call(cpdb_dir,
+                                              meta,
                                               counts,
                                               'ensembl',
-                                              interactions,
-                                              genes,
-                                              complex_expanded,
-                                              complex_composition,
                                               microenvs=microenvs,
                                               iterations = 1000,
                                               threshold = 0.1,
@@ -197,14 +191,11 @@ def testrun_analyses(cpdb_dir):
     # ************ Call degs analysis method
     # NB. Same data prep as for cpdb_statistical_analysis_method
     deconvoluted, means, relevant_interactions, significant_means = \
-        cpdb_degs_analysis_method.call(meta,
+        cpdb_degs_analysis_method.call(cpdb_dir,
+                                    meta,
                                     counts,
                                     degs,
                                     'ensembl',
-                                    interactions,
-                                    genes,
-                                    complex_expanded,
-                                    complex_composition,
                                     microenvs=microenvs,
                                     threshold = 0.1,
                                     debug_seed = -1,
@@ -234,26 +225,19 @@ def convert_to_h5ad(user_files_path):
     adata.write(outputPath)
 
 if __name__ == '__main__':
+    cpdb_dir = db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION)
     arg = sys.argv[1]
     if arg == 'a':
-        cpdb_dir = db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION)
         testrun_analyses(cpdb_dir)
     elif arg == 'db':
-        # cpdb_version = RELEASED_VERSION
-        cpdb_version = "v4.0.0"
-        target_dir = db_utils.get_db_path(CPDB_ROOT, cpdb_version)
-        db_utils.download_input_files(target_dir, cpdb_version)
-        db_utils.create_db(target_dir)
-    elif arg == "dbd":
-        # database_version_manager.download_database("latest")
-        database_version_manager.download_database("v4.0.0")
+        db_utils.download_database(cpdb_dir, RELEASED_VERSION)
+        db_utils.create_db(cpdb_dir)
     elif arg == 'c':
         convert_to_h5ad(os.path.join(CPDB_ROOT, "user_files"))
     elif arg == 's':
-        search_utils.search('ENSG00000134780,integrin_a10b1_complex', CPDB_ROOT)
+        search_utils.search('ENSG00000134780,integrin_a10b1_complex', cpdb_dir)
     elif arg == 'g':
-        target_dir = os.path.join(db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION), "data")
-        generate_input_files.generate_all(target_dir, \
+        generate_input_files.generate_all(cpdb_dir, \
                                           user_complex=None, user_interactions=None, user_interactions_only=False)
     elif arg == 'rel':
         db_releases_utils.get_remote_database_versions_html()
@@ -263,7 +247,7 @@ if __name__ == '__main__':
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'examples')
         dbversion = "v4.0.0"
         interactions, genes, complex_composition, complex_expanded = \
-            db_utils.get_interactions_genes_complex(db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION))
+            db_utils.get_interactions_genes_complex(cpdb_dir)
         adata = file_utils.read_h5ad(os.path.join(root_dir, 'endometrium_example_counts.h5ad'))
         counts = adata.to_df().T
         raw_meta = file_utils.read_data_table_from_file(
@@ -276,13 +260,10 @@ if __name__ == '__main__':
             counts = ss.subsample(counts)
         t0 = time.time()
         deconvoluted, means, pvalues, significant_means = \
-        cpdb_statistical_analysis_method.call(meta,
+        cpdb_statistical_analysis_method.call(cpdb_dir,
+                                              meta,
                                               counts,
                                               'hgnc_symbol',
-                                              interactions,
-                                              genes,
-                                              complex_expanded,
-                                              complex_composition,
                                               microenvs=microenvs,
                                               iterations=1000,
                                               threshold=0.1,
@@ -302,18 +283,13 @@ if __name__ == '__main__':
         degs = file_utils.read_data_table_from_file(os.path.join(root_dir, 'endometrium_example_DEGs.tsv'))
         output_path = os.path.join(root_dir, 'deg_new')
         deconvoluted, means, relevant_interactions, significant_means = \
-            cpdb_degs_analysis_method.call(meta,
+            cpdb_degs_analysis_method.call(cpdb_dir,
+                                           meta,
                                            counts,
                                            degs,
                                            'hgnc_symbol',
-                                           interactions,
-                                           genes,
-                                           complex_expanded,
-                                           complex_composition,
                                            microenvs=microenvs,
-                                           iterations=1000,
                                            threshold=0.1,
-                                           threads=4,
                                            debug_seed=-1,
                                            result_precision=3,
                                            separator='|',
@@ -329,7 +305,7 @@ if __name__ == '__main__':
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'bug_2_ovary')
         dbversion = "v4.0.0"
         interactions, genes, complex_composition, complex_expanded = \
-            db_utils.get_interactions_genes_complex(db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION))
+            db_utils.get_interactions_genes_complex(cpdb_dir)
         adata = file_utils.read_h5ad(os.path.join(root_dir, 'granulosa_normloqTransformed.h5ad'))
         counts = adata.to_df().T
         raw_meta = file_utils.read_data_table_from_file(os.path.join(root_dir, 'ovarian_meta.tsv'))
