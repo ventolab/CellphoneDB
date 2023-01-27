@@ -239,16 +239,11 @@ if __name__ == '__main__':
         cpdb_dir = db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION)
         testrun_analyses(cpdb_dir)
     elif arg == 'db':
-        target_dir = db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION)
-        data_dir = os.path.join(target_dir, "data")
-        db_utils.download_input_files(data_dir)
-        gene_input_path = os.path.join(data_dir, "gene_input.csv")
-        protein_input_path = os.path.join(data_dir, "protein_input.csv")
-        complex_input_path = os.path.join(data_dir, "complex_input.csv")
-        interaction_input_path = os.path.join(data_dir, "interaction_input.csv")
-        db_utils.create_db(target_dir, \
-                           gene_input=gene_input_path, protein_input=protein_input_path, complex_input=complex_input_path,
-                           interaction_input=interaction_input_path)
+        # cpdb_version = RELEASED_VERSION
+        cpdb_version = "v4.0.0"
+        target_dir = db_utils.get_db_path(CPDB_ROOT, cpdb_version)
+        db_utils.download_input_files(target_dir, cpdb_version)
+        db_utils.create_db(target_dir)
     elif arg == "dbd":
         # database_version_manager.download_database("latest")
         database_version_manager.download_database("v4.0.0")

@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 import io
+import re
 import time
 import zipfile
 import itertools
@@ -10,6 +11,7 @@ import pathlib
 from cellphonedb.utils.file_utils import dbg
 from cellphonedb.utils import file_utils, unique_id_generator
 import urllib.request, urllib.error, urllib.parse
+from zipfile import ZipFile
 
 DBFILE_NAME = "cellphonedb"
 MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
@@ -125,29 +127,29 @@ def get_db_path(user_dir_root, db_version):
     """
     return os.path.join(user_dir_root, "releases", db_version)
 
-def create_db(target_dir, \
-              gene_input=None, protein_input=None, complex_input=None, interaction_input=None) -> None:
+def create_db(target_dir) -> None:
     """
     Creates CellphoneDB databases file (cellphonedb.zip) in <target_dir> directory.
+    The assumption is that <target_dir> contains the four *_input.csv files required to
+    create the database file.
     This simple zip file contains a number of CSV files that CellphoneDB package reads into memory
     and uses to drive its analysis of user data.
 
     Parameters
     ----------
     target_dir: str
-        The directory in which to place the database file
-    gene_input: str
-        Path to the local gene_input.csv file
-    protein_input: str
-        Path to the local protein_input.csv file
-    complex_input: str
-        Path to the local complex_input.csv file
-    interaction_input: str
-        Path to the local interaction_input.csv file
+        The directory in which to place the database file (and which contains the four *_input.csv files required to
+    create the database file
+
     Returns
     -------
 
     """
+    gene_input = os.path.join(target_dir, "gene_input.csv")
+    protein_input = os.path.join(target_dir, "protein_input.csv")
+    complex_input = os.path.join(target_dir, "complex_input.csv")
+    interaction_input = os.path.join(target_dir, "interaction_input.csv")
+
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     dataDFs = getDFs(gene_input=gene_input, protein_input=protein_input, complex_input=complex_input,
                      interaction_input=interaction_input)
@@ -265,14 +267,16 @@ def create_db(target_dir, \
     print("Created cellphonedb.zip in {} successfully" \
           .format(os.path.join(target_dir,'cellphonedb.zip')))
 
-def download_input_files(target_dir):
+def download_database(target_dir, cpdb_version):
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
-    for fname in INPUT_FILE_NAMES:
-        fname = fname+".csv"
-        print("Downloading: " + fname)
-        r = urllib.request.urlopen('https://raw.githubusercontent.com/ventolab/cellphonedb-data/master/data/' + fname)
-        with open(os.path.join(target_dir, fname), 'wb') as f:
-            f.write(r.read())
+    r = urllib.request.urlopen('https://github.com/ventolab/cellphonedb-data/archive/refs/tags/{}.zip'.format(cpdb_version))
+    zipContent = ZipFile(io.BytesIO(r.read()))
+    for fpath in zipContent.namelist():
+        fname = fpath.split("/")[-1]
+        if re.search('_input|cellphonedb.zip', fname) != None:
+            print("Downloading: " + fname)
+            with open(os.path.join(target_dir, fname), 'wb') as f:
+                f.write(zipContent.read(fpath))
 
 def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_input=None):
     dfs = {}
