@@ -11,17 +11,17 @@ from cellphonedb.src.core.models.complex import complex_helper
 from cellphonedb.utils import db_utils, file_utils
 
 def call(cpdb_file_path: str,
-         meta: pd.DataFrame,
-         counts: pd.DataFrame,
-         degs: pd.DataFrame,
+         meta_file_path: str,
+         counts_file_path: str,
+         degs_file_path: str,
          counts_data: str,
-         output_path: str,
-         microenvs: pd.DataFrame = None,
+         microenvs_file_path: str = None,
          separator: str = "|",
          threshold: float = 0.1,
          debug_seed: int= -1,
          result_precision: int = 3,
          debug: bool = False,
+         output_path: str = None,
          output_suffix: str = None
          ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Differentially Expressed Genes (DEGs) analysis
@@ -37,18 +37,18 @@ def call(cpdb_file_path: str,
     ----------
     cpdb_file_path: str
         CellphoneDB database file path
-    meta: pd.DataFrame
-        Meta data.
-    counts: pd.DataFrame
-        Counts data.
-    degs: pd.DataFrame
-        DEGs data.
+    meta_file_path: str
+        Path to metadata csv file
+    counts_file_path: str
+        Path to counts csv file
+    degs_file_path: str
+        Path to differential expression csv file
     counts_data: str
         Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
     output_path: str
         Output path used to store the analysis results (and to store intermediate files when debugging)
-    microenvs: pd.DataFrame, optional
-        Micro-environment data to limit cluster interactions
+    microenvs_file_path: str, optional
+        Path to Micro-environment file. Its content is used to limit cluster interactions
     separator: str, optional
         Separator for pairs of genes (gene1|gene2) and clusters (cluster1|cluster2).
     threshold: float, optional
@@ -75,6 +75,10 @@ def call(cpdb_file_path: str,
 ***********************************
 DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
 ***********************************""")
+
+    # Load user files into memory
+    counts, meta, microenvs, degs = file_utils.get_user_files( \
+        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, degs_fp=degs_file_path)
 
     # Load into memory CellphoneDB data
     interactions, genes, complex_compositions, complexes = \

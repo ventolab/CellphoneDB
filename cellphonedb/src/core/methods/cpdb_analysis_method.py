@@ -14,15 +14,15 @@ from cellphonedb.utils import db_utils, file_utils
 
 def call(
          cpdb_file_path: str,
-         meta: pd.DataFrame,
-         counts: pd.DataFrame,
+         meta_file_path: str,
+         counts_file_path: str,
          counts_data: str,
-         output_path: str,
-         microenvs: pd.DataFrame,
+         microenvs_file_path: str,
          separator: str = "|",
          threshold: float = 0.1,
          result_precision: int = 3,
          debug: bool = False,
+         output_path: str = None,
          output_suffix: str = None
          ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Non-statistical method for analysis
@@ -34,16 +34,16 @@ def call(
     ----------
     cpdb_file_path: str
         CellphoneDB database file path
-    meta: str
-        Meta data.
-    counts: str
-        Counts data.
+    meta_file_path: str
+        Path to metadata csv file
+    counts_file_path: str
+        Path to counts csv file
     counts_data: str
         Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
     output_path: str
         Output path used to store the analysis results (and to store intermediate files when debugging)
-    microenvs: pd.DataFrame
-        Micro-environment data to limit cluster interactions
+    microenvs_file_path: str
+        Path to Micro-environment file. Its content is used to limit cluster interactions
     separator: str
         Separator for pairs of genes (gene1|gene2) and clusters (cluster1|cluster2).
     threshold: float
@@ -65,6 +65,11 @@ def call(
     core_logger.info(
         '[Non Statistical Method] Threshold:{} Precision:{}'.format(threshold,
                                                                     result_precision))
+
+    # Load user files into memory
+    counts, meta, microenvs, degs = file_utils.get_user_files( \
+        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path)
+
     # Load into memory CellphoneDB data
     interactions, genes, complex_compositions, complexes = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)

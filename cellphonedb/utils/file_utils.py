@@ -1,7 +1,8 @@
 import os
+import io
 from datetime import datetime
 import pickle
-from typing import TextIO, Optional
+from typing import TextIO, Optional, Tuple
 
 import csv
 import scipy.io
@@ -11,7 +12,7 @@ import pandas as pd
 from cellphonedb.src.exceptions.NotADataFrameException import NotADataFrameException
 from cellphonedb.src.exceptions.ReadFileException import ReadFileException
 from cellphonedb.src.exceptions.ReadFromPickleException import ReadFromPickleException
-from cellphonedb.src.core.preprocessors import method_preprocessors
+from cellphonedb.src.core.preprocessors import method_preprocessors, counts_preprocessors
 
 DEBUG=False
 
@@ -183,10 +184,7 @@ def write_to_csv(rows, file_path, delimiter=','):
         for row in rows:
             writer.writerow(row)
 
-def get_counts_meta_adata(user_files_dir, counts_fn, meta_fn) -> AnnData:
-    counts_fp = os.path.join(user_files_dir, counts_fn)
-    meta_fp = os.path.join(user_files_dir, meta_fn)
-
+def get_counts_meta_adata(counts_fp, meta_fp) -> AnnData:
     filename, file_extension = os.path.splitext(counts_fp)
 
     if file_extension == '.h5ad':
@@ -215,3 +213,59 @@ def save_dfs_as_csv(out, suffix, analysis_name, name2df):
         file_path = os.path.join(out, "{}_{}_{}.{}".format(analysis_name, name, suffix, "csv"))
         df.to_csv(file_path)
         print("Saved {} to {}".format(name, file_path))
+
+def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None) \
+        -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+
+    Parameters
+    ----------
+    counts_fp
+        Path to the user's counts file, exemplified by \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_counts.txt
+    meta_fp
+        Path to the user's meta file, exemplified by \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_meta.txt
+    microenvs_fp
+        Path to the user's microenvironments file, exemplified by \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_microenviroments.txt
+    degs_fp
+        Path to the user's differentially expresses genes (DEGs) file, exemplified by \
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_degs.txt
+
+    Returns
+    -------
+    Tuple
+        - counts: pd.DataFrame
+        - meta: pd.DataFrame
+        - microenvs: pd.DataFrame
+        - degs: pd.DataFrame
+
+    """
+    loaded_user_files=[]
+    # Read user files
+    counts = read_data_table_from_file(counts_fp, index_column_first=True)
+    loaded_user_files.append(counts_fp)
+    raw_meta = read_data_table_from_file(meta_fp, index_column_first=False)
+    meta = method_preprocessors.meta_preprocessor(raw_meta)
+    loaded_user_files.append(meta_fp)
+    # Ensure that counts values are of type float32, and that all cells in meta exist in counts
+    counts = counts_preprocessors.counts_preprocessor(counts, meta)
+
+    if microenvs_fp:
+        microenvs = read_data_table_from_file(microenvs_fp)
+        loaded_user_files.append(microenvs_fp)
+    else:
+        microenvs = pd.DataFrame()
+
+    if degs_fp:
+        degs = read_data_table_from_file(degs_fp)
+        loaded_user_files.append(degs_fp)
+    else:
+        degs = pd.DataFrame()
+
+    print("The following user files were loaded successfully:")
+    for fn in loaded_user_files:
+        print(fn)
+
+    return counts, meta, microenvs, degs

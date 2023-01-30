@@ -307,7 +307,7 @@ def _filter_complexes(complexes: pd.DataFrame, interacting_partners: pd.DataFram
 
     return filtered_complexes
 
-def generate_all(target_dir, \
+def generate_all(target_dir, cpdb_version, \
                  user_complex=None, user_interactions=None, user_interactions_only=False ) -> None:
     """
     Generate your own CellphoneDB input files, using your own complexes and interactions (if provided).
@@ -339,7 +339,7 @@ def generate_all(target_dir, \
     """
     sources_dir = os.path.join(target_dir, "sources")
     pathlib.Path(sources_dir).mkdir(parents=True, exist_ok=True)
-    db_utils.download_released_files(sources_dir, "data\/sources\/")
+    db_utils.download_released_files(sources_dir, cpdb_version, "data\/sources\/")
     print("Generating gene_input.csv file into {}".format(target_dir))
     generate_genes(target_dir,
                    user_gene=None,
