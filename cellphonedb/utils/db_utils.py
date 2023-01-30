@@ -268,16 +268,17 @@ def create_db(target_dir) -> None:
         f.write(zip_buffer.getvalue())
     print("Created {} successfully".format(file_path))
 
-def download_database(target_dir, cpdb_version):
+def download_released_files(target_dir, cpdb_version, regex):
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     r = urllib.request.urlopen('https://github.com/prete/cellphonedb-data/archive/refs/tags/{}.zip'.format(cpdb_version))
     zipContent = ZipFile(io.BytesIO(r.read()))
     for fpath in zipContent.namelist():
-        fname = fpath.split("/")[-1]
-        if fname == "cellphonedb.zip":
-            with open(os.path.join(target_dir, fname), 'wb') as f:
-                f.write(zipContent.read(fpath))
-    print("Downloaded CellphoneDB database successfully")
+        if re.search(regex, fpath):
+            fname = fpath.split("/")[-1]
+            if fname:
+                with open(os.path.join(target_dir, fname), 'wb') as f:
+                    f.write(zipContent.read(fpath))
+                    print("Downloaded {} into {}".format(fname, target_dir))
 
 def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_input=None):
     dfs = {}

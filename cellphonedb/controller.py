@@ -231,14 +231,14 @@ if __name__ == '__main__':
     if arg == 'a':
         testrun_analyses(cpdb_file_path)
     elif arg == 'db':
-        db_utils.download_database(cpdb_dir, RELEASED_VERSION)
+        db_utils.download_released_files(cpdb_dir, RELEASED_VERSION, "cellphonedb.zip")
         db_utils.create_db(cpdb_dir)
     elif arg == 'c':
         convert_to_h5ad(os.path.join(CPDB_ROOT, "user_files"))
     elif arg == 's':
         search_utils.search('ENSG00000134780,integrin_a10b1_complex', cpdb_dir)
     elif arg == 'g':
-        generate_input_files.generate_all(cpdb_dir, \
+        generate_input_files.generate_all(cpdb_dir, RELEASED_VERSION, \
                                           user_complex=None, user_interactions=None, user_interactions_only=False)
     elif arg == 'rel':
         db_releases_utils.get_remote_database_versions_html()

@@ -307,22 +307,8 @@ def _filter_complexes(complexes: pd.DataFrame, interacting_partners: pd.DataFram
 
     return filtered_complexes
 
-def download_source_files(target_dir):
-    sources_path = os.path.join(target_dir, "sources")
-    print("Downloading cellphonedb-data/data/sources files into {}:".format(sources_path))
-    pathlib.Path(sources_path).mkdir(parents=True, exist_ok=True)
-    r = urllib.request.urlopen("https://api.github.com/repos/ventolab/cellphonedb-data/git/trees/master?recursive=1")
-    files_data = json.load(r)['tree']
-    for rec in files_data:
-        if rec['path'].startswith('data/sources/'):
-            fname = rec['path'].split('/')[-1]
-            url = 'https://raw.githubusercontent.com/ventolab/cellphonedb-data/master/{}'.format(rec['path'])
-            print("Downloading: " + fname)
-            r = urllib.request.urlopen(url)
-            with open(os.path.join(sources_path, fname), 'wb') as f:
-                f.write(r.read())
-
-def generate_all(target_dir, user_complex=None, user_interactions=None, user_interactions_only=False ) -> None:
+def generate_all(target_dir, cpdb_version, \
+                 user_complex=None, user_interactions=None, user_interactions_only=False ) -> None:
     """
     Generate your own CellphoneDB input files, using your own complexes and interactions (if provided).
     This allows the user to run CellphoneDB analyses against either just their own interactions/complexes,
@@ -351,9 +337,10 @@ def generate_all(target_dir, user_complex=None, user_interactions=None, user_int
     -------
 
     """
-    download_source_files(target_dir)
+    sources_dir = os.path.join(target_dir, "sources")
+    pathlib.Path(sources_dir).mkdir(parents=True, exist_ok=True)
+    db_utils.download_released_files(sources_dir, cpdb_version, "data\/sources\/")
     print("Generating gene_input.csv file into {}".format(target_dir))
-    pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     generate_genes(target_dir,
                    user_gene=None,
                    fetch_uniprot=False,
