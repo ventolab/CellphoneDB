@@ -4,7 +4,7 @@ import anndata
 import os
 from typing import Tuple
 import io
-from cellphonedb.utils import file_utils, generate_input_files, database_version_manager, search_utils, db_utils, db_releases_utils
+from cellphonedb.utils import file_utils, generate_input_files, search_utils, db_utils, db_releases_utils
 from cellphonedb.utils.file_utils import dbg
 from cellphonedb.src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
 from cellphonedb.src.core.preprocessors import method_preprocessors, counts_preprocessors

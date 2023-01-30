@@ -8,20 +8,21 @@ from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCounts
 from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFound
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper, cpdb_statistical_analysis_complex_method
 from cellphonedb.src.core.models.complex import complex_helper
-from cellphonedb.utils import db_utils
+from cellphonedb.utils import db_utils, file_utils
 
 def call(cpdb_dir: str,
          meta: pd.DataFrame,
          counts: pd.DataFrame,
          degs: pd.DataFrame,
          counts_data: str,
+         output_path: str,
          microenvs: pd.DataFrame = None,
          separator: str = "|",
          threshold: float = 0.1,
          debug_seed: int= -1,
          result_precision: int = 3,
          debug: bool = False,
-         output_path: str = ''
+         output_suffix: str = None
          ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Differentially Expressed Genes (DEGs) analysis
 
@@ -44,6 +45,8 @@ def call(cpdb_dir: str,
         DEGs data.
     counts_data: str
         Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
+    output_path: str
+        Output path used to store the analysis results (and to store intermediate files when debugging)
     microenvs: pd.DataFrame, optional
         Micro-environment data to limit cluster interactions
     separator: str, optional
@@ -54,10 +57,10 @@ def call(cpdb_dir: str,
         Number of decimal digits in results.
     debug: bool, optional
         Storge intermediate data as pickle file (debug_intermediate.pkl).
-    output_path: str, optional
-        Output path used to store intermediate files when debugging.
+    output_suffix: str, optional
+        Suffix to append to the result file's name (if not provided, timestamp will be used)
 
-    Returns
+    Return
     -------
     Tuple
          - deconvoluted_result
@@ -197,6 +200,11 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
 
+    file_utils.save_dfs_as_csv(output_path, output_suffix, "degs_analysis", \
+                            {"deconvoluted_result" : deconvoluted_result, \
+                            "means_result" : means_result, \
+                            "relevant_interactions_result" : relevant_interactions_result, \
+                            "significant_means" : significant_means} )
     return deconvoluted_result, means_result, relevant_interactions_result, significant_means
 
 

@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 import pickle
 from typing import TextIO, Optional
 
@@ -202,3 +203,12 @@ def get_counts_meta_adata(user_files_dir, counts_fn, meta_fn) -> AnnData:
     adata.obs = meta
 
     return adata
+
+def save_dfs_as_csv(out, suffix, analysis_name, name2df):
+    if suffix is None:
+        suffix = datetime.now().strftime("%m_%d_%Y_%H:%M:%S")
+    os.makedirs(out, exist_ok=True)
+    for name, df in name2df.items():
+        file_path = os.path.join(out, "{}_{}_{}.{}".format(analysis_name, name, suffix, "csv"))
+        df.to_csv(file_path)
+        print("Saved {} to {}".format(name, file_path))

@@ -10,19 +10,20 @@ from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFo
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper
 from cellphonedb.src.core.models.complex import complex_helper
-from cellphonedb.utils import db_utils
+from cellphonedb.utils import db_utils, file_utils
 
 def call(
          cpdb_dir: str,
          meta: pd.DataFrame,
          counts: pd.DataFrame,
          counts_data: str,
+         output_path: str,
          microenvs: pd.DataFrame,
          separator: str = "|",
          threshold: float = 0.1,
          result_precision: int = 3,
          debug: bool = False,
-         output_path: str = "",
+         output_suffix: str = None
          ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Non-statistical method for analysis
 
@@ -39,6 +40,8 @@ def call(
         Counts data.
     counts_data: str
         Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
+    output_path: str
+        Output path used to store the analysis results (and to store intermediate files when debugging)
     microenvs: pd.DataFrame
         Micro-environment data to limit cluster interactions
     separator: str
@@ -49,8 +52,8 @@ def call(
         Number of decimal digits in results.
     debug: bool
         Storge intermediate data as pickle file (debug_intermediate.pkl).
-    output_path: str
-        Output path used to store intermediate files when debugging.
+    output_suffix: str, optional
+        Suffix to append to the result file's name (if not provided, timestamp will be used)
 
     Returns
     -------
@@ -144,6 +147,10 @@ def call(
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
 
+    file_utils.save_dfs_as_csv(output_path, output_suffix, "simple_analysis", \
+                            {"means_result" : means_result, \
+                            "significant_means" : significant_means, \
+                            "deconvoluted_result" : deconvoluted_result} )
     return means_result, significant_means, deconvoluted_result
 
 
