@@ -144,10 +144,10 @@ def get_html_table(data, complex_name2proteins) -> str:
                     html += "<td style=\"text-align:left\"><span title=\"{}\">{}</span></td>".format(complex_mouseover, name)
                 elif field.startswith(SIMPLE_PFX):
                     name = field.split(":")[1]
-                    html += "<td style=\"text-align:left\"><a class=\"teal-text\" href=\"https://www.uniprot.org/uniprotkb/{}/entry\">{}</a></td>" \
+                    html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" href=\"https://www.uniprot.org/uniprotkb/{}/entry\">{}</a></td>" \
                         .format(name, name)
                 elif field.startswith(ENS_PFX):
-                    html += "<td style=\"text-align:left\"><a class=\"teal-text\" href=\"https://www.ensembl.org/id/{}\">{}</a></td>" \
+                    html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" href=\"https://www.ensembl.org/id/{}\">{}</a></td>" \
                         .format(field, field)
                 else:
                     html += "<td style=\"text-align:left\">{}</td>".format(field)
