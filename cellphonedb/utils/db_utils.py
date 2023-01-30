@@ -274,7 +274,7 @@ def download_database(target_dir, cpdb_version):
     zipContent = ZipFile(io.BytesIO(r.read()))
     for fpath in zipContent.namelist():
         fname = fpath.split("/")[-1]
-        if re.search('_input|cellphonedb.zip', fname) != None:
+        if fname == "cellphonedb.zip":
             with open(os.path.join(target_dir, fname), 'wb') as f:
                 f.write(zipContent.read(fpath))
     print("Downloaded CellphoneDB database successfully")
