@@ -10,7 +10,7 @@ from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper, cpdb_
 from cellphonedb.src.core.models.complex import complex_helper
 from cellphonedb.utils import db_utils, file_utils
 
-def call(cpdb_dir: str,
+def call(cpdb_file_path: str,
          meta: pd.DataFrame,
          counts: pd.DataFrame,
          degs: pd.DataFrame,
@@ -35,8 +35,8 @@ def call(cpdb_dir: str,
 
     Parameters
     ----------
-    cpdb_dir: str
-        Directory containing cellphonedb.zip file
+    cpdb_file_path: str
+        CellphoneDB database file path
     meta: pd.DataFrame
         Meta data.
     counts: pd.DataFrame
@@ -78,7 +78,7 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
 
     # Load into memory CellphoneDB data
     interactions, genes, complex_compositions, complexes = \
-        db_utils.get_interactions_genes_complex(cpdb_dir)
+        db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     if debug_seed >= 0:
         np.random.seed(debug_seed)

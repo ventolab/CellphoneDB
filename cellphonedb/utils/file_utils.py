@@ -204,9 +204,12 @@ def get_counts_meta_adata(user_files_dir, counts_fn, meta_fn) -> AnnData:
 
     return adata
 
+def get_timestamp_suffix():
+    return datetime.now().strftime("%m_%d_%Y_%H:%M:%S")
+
 def save_dfs_as_csv(out, suffix, analysis_name, name2df):
     if suffix is None:
-        suffix = datetime.now().strftime("%m_%d_%Y_%H:%M:%S")
+        suffix = get_timestamp_suffix()
     os.makedirs(out, exist_ok=True)
     for name, df in name2df.items():
         file_path = os.path.join(out, "{}_{}_{}.{}".format(analysis_name, name, suffix, "csv"))

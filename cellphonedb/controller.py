@@ -137,7 +137,7 @@ def get_user_file(user_files_path, h5ad_fn='test.h5ad') \
     print("User file {} was loaded successfully".format(h5ad_fn))
     return adata, counts, raw_meta, meta, microenvs, degs
 
-def testrun_analyses(cpdb_dir):
+def testrun_analyses(cpdb_file_path):
     interactions, genes, complex_composition, complex_expanded = \
         db_utils.get_interactions_genes_complex(cpdb_dir)
     user_files_path = os.path.join(cpdb_dir, "user_files")
@@ -226,9 +226,10 @@ def convert_to_h5ad(user_files_path):
 
 if __name__ == '__main__':
     cpdb_dir = db_utils.get_db_path(CPDB_ROOT, RELEASED_VERSION)
+    cpdb_file_path = os.path.join(cpdb_dir, "cellphonedb.zip")
     arg = sys.argv[1]
     if arg == 'a':
-        testrun_analyses(cpdb_dir)
+        testrun_analyses(cpdb_file_path)
     elif arg == 'db':
         db_utils.download_database(cpdb_dir, RELEASED_VERSION)
         db_utils.create_db(cpdb_dir)
@@ -247,7 +248,7 @@ if __name__ == '__main__':
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'examples')
         dbversion = "v4.0.0"
         interactions, genes, complex_composition, complex_expanded = \
-            db_utils.get_interactions_genes_complex(cpdb_dir)
+            db_utils.get_interactions_genes_complex(cpdb_file_path)
         adata = file_utils.read_h5ad(os.path.join(root_dir, 'endometrium_example_counts.h5ad'))
         counts = adata.to_df().T
         raw_meta = file_utils.read_data_table_from_file(
@@ -305,7 +306,7 @@ if __name__ == '__main__':
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'bug_2_ovary')
         dbversion = "v4.0.0"
         interactions, genes, complex_composition, complex_expanded = \
-            db_utils.get_interactions_genes_complex(cpdb_dir)
+            db_utils.get_interactions_genes_complex(cpdb_file_path)
         adata = file_utils.read_h5ad(os.path.join(root_dir, 'granulosa_normloqTransformed.h5ad'))
         counts = adata.to_df().T
         raw_meta = file_utils.read_data_table_from_file(os.path.join(root_dir, 'ovarian_meta.tsv'))

@@ -4,7 +4,7 @@ import pandas as pd
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
 from cellphonedb.utils import db_utils, file_utils
 
-def call(cpdb_dir: str,
+def call(cpdb_file_path: str,
          meta: pd.DataFrame,
          count: pd.DataFrame,
          counts_data: str,
@@ -27,8 +27,8 @@ def call(cpdb_dir: str,
 
      Parameters
      ----------
-     cpdb_dir: str
-        Directory containing cellphonedb.zip file
+    cpdb_file_path: str
+        CellphoneDB database file path
      meta: str
          Meta data.
      counts: str
@@ -72,7 +72,7 @@ def call(cpdb_dir: str,
 
     # Load into memory CellphoneDB data
     interactions, genes, complex_composition, complex_expanded = \
-        db_utils.get_interactions_genes_complex(cpdb_dir)
+        db_utils.get_interactions_genes_complex(cpdb_file_path)
     
     pvalues, means, significant_means, deconvoluted = \
         cpdb_statistical_analysis_complex_method.call(meta.copy(),

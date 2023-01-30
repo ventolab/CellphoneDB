@@ -18,14 +18,14 @@ MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
                                 'transmembrane','secreted','peripheral','integrin','is_complex']
 INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input']
 
-def get_interactions_genes_complex(cpdb_dir) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Returns a tuple of four DataFrames containing data from <cpdb_dir>/cellphonedb.zip.
 
     Parameters
     ----------
-    cpdb_dir: str
-        The directory in which user stores CellphoneDB database file
+    cpdb_file_path: str
+        CellphoneDB database file path
 
     Returns
     -------
@@ -36,7 +36,7 @@ def get_interactions_genes_complex(cpdb_dir) -> Tuple[pd.DataFrame, pd.DataFrame
         - complex_expanded: pd.DataFrame
     """
     # Extract csv files from db_files_path/cellphonedb.zip into dbTableDFs
-    dbTableDFs = extract_dataframes_from_db(cpdb_dir)
+    dbTableDFs = extract_dataframes_from_db(cpdb_file_path)
     # Convert dbTableDFs into interactions, genes, complex_composition, complex_expanded data frames
     mtTable = dbTableDFs['multidata_table']
     dbg(mtTable.dtypes)
@@ -82,10 +82,10 @@ def get_interactions_genes_complex(cpdb_dir) -> Tuple[pd.DataFrame, pd.DataFrame
 
     return interactions, genes, complex_composition, complex_expanded
 
-def extract_dataframes_from_db(db_files_path):
+def extract_dataframes_from_db(cpdb_file_path):
     dfs = {}
     start = time.time()
-    for tuple in unzip(os.path.join(db_files_path,'{}.{}'.format(DBFILE_NAME, "zip"))):
+    for tuple in unzip(cpdb_file_path):
         file_name = tuple[0]
         file_handle = tuple[1]
         dbg("Retrieving from zip file: " + file_name)
@@ -262,10 +262,11 @@ def create_db(target_dir) -> None:
         zip_file.writestr('complex_composition_table.csv', complex_composition_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('multidata_table.csv', multidata_db_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('interaction_table.csv', interactions_df.to_csv(index=False, sep=',').encode('utf-8'))
-    with open(os.path.join(target_dir,'cellphonedb.zip'), 'wb') as f:
+    file_suffix = file_utils.get_timestamp_suffix()
+    file_path = os.path.join(target_dir,'cellphonedb_{}.zip'.format(file_suffix))
+    with open(file_path, 'wb') as f:
         f.write(zip_buffer.getvalue())
-    print("Created cellphonedb.zip in {} successfully" \
-          .format(os.path.join(target_dir,'cellphonedb.zip')))
+    print("Created {} successfully".format(file_path))
 
 def download_database(target_dir, cpdb_version):
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)

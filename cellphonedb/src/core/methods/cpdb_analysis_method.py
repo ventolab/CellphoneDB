@@ -13,7 +13,7 @@ from cellphonedb.src.core.models.complex import complex_helper
 from cellphonedb.utils import db_utils, file_utils
 
 def call(
-         cpdb_dir: str,
+         cpdb_file_path: str,
          meta: pd.DataFrame,
          counts: pd.DataFrame,
          counts_data: str,
@@ -32,8 +32,8 @@ def call(
 
     Parameters
     ----------
-    cpdb_dir: str
-        Directory containing cellphonedb.zip file
+    cpdb_file_path: str
+        CellphoneDB database file path
     meta: str
         Meta data.
     counts: str
@@ -67,7 +67,7 @@ def call(
                                                                     result_precision))
     # Load into memory CellphoneDB data
     interactions, genes, complex_compositions, complexes = \
-        db_utils.get_interactions_genes_complex(cpdb_dir)
+        db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     # get reduced interactions (drop duplicateds)
     interactions_reduced = interactions[['multidata_1_id', 'multidata_2_id']].drop_duplicates()
