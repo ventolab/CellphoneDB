@@ -268,8 +268,9 @@ def create_db(target_dir) -> None:
         f.write(zip_buffer.getvalue())
     print("Created {} successfully".format(file_path))
 
-def download_released_files(target_dir, cpdb_version, regex):
+def download_released_files(target_dir, regex):
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
+    cpdb_version = target_dir.split("/")[-1]
     r = urllib.request.urlopen('https://github.com/prete/cellphonedb-data/archive/refs/tags/{}.zip'.format(cpdb_version))
     zipContent = ZipFile(io.BytesIO(r.read()))
     for fpath in zipContent.namelist():
