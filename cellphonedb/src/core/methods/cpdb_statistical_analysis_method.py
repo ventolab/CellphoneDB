@@ -9,13 +9,13 @@ def call(cpdb_file_path: str,
          meta_file_path: str,
          counts_file_path: str,
          counts_data: str,
-         microenvs_file_path: str,
          iterations: int,
          threshold: float,
          threads: int,
          debug_seed: int,
          result_precision: int,
          pvalue: float,
+         microenvs_file_path: str = None,
          subsampling=False,
          subsampling_log=False,
          subsampling_num_pc=100,
@@ -42,8 +42,6 @@ def call(cpdb_file_path: str,
          Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
      output_path: str
         Output path used to store the analysis results (and to store intermediate files when debugging)
-     microenvs_file_path: str
-         Path to Micro-environment file. Its content is used to limit cluster interactions
      iterations: int
         Number of times cell type labels will be shuffled across cells in order to
         determine statistically significant ligand/receptor expression means.
@@ -54,6 +52,13 @@ def call(cpdb_file_path: str,
      debug_seed: int
         This parameter is used for testing only (and only in single-threaded mode
         only - see: https://stackoverflow.com/questions/21494489/what-does-numpy-random-seed0-do).
+     result_precision: int
+         Number of decimal digits in results.
+     pvalue: float
+         A p-value below which a ligand/receptor expression mean is considered to be
+         statistically significant.
+     microenvs_file_path: str
+         Path to Micro-environment file. Its content is used to limit cluster interactions
      subsampling: bool
         Enable subsampling
      subsampling_log: bool,
@@ -62,11 +67,6 @@ def call(cpdb_file_path: str,
         Subsampling NumPC argument (number of PCs to use) [100]
      subsampling_num_cells: int
         Number of cells to subsample to [1/3 of cells]
-     result_precision: int
-         Number of decimal digits in results.
-     pvalue: float
-         A p-value below which a ligand/receptor expression mean is considered to be
-         statistically significant.
      separator: str
          Separator for pairs of genes (gene1|gene2) and clusters (cluster1|cluster2).
      debug: bool
