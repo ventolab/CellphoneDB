@@ -2,27 +2,28 @@ from typing import Tuple
 import pandas as pd
 
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
+from cellphonedb.src.core.exceptions.MissingRequiredArgumentsException import MissingRequiredArgumentsException
 from cellphonedb.utils import db_utils, file_utils
 from cellphonedb.src.core.utils import subsampler
 
-def call(cpdb_file_path: str,
-         meta_file_path: str,
-         counts_file_path: str,
-         counts_data: str,
-         iterations: int,
-         threshold: float,
-         threads: int,
-         debug_seed: int,
-         result_precision: int,
-         pvalue: float,
+def call(cpdb_file_path: str = None,
+         meta_file_path: str = None,
+         counts_file_path: str = None,
+         counts_data: str = None,
+         output_path: str = None,
          microenvs_file_path: str = None,
+         iterations: int = 1000,
+         threshold: float = 0.1,
+         threads: int = 4,
+         debug_seed: int = -1,
+         result_precision: int = 3,
+         pvalue: float = 0.05,
          subsampling=False,
          subsampling_log=False,
          subsampling_num_pc=100,
          subsampling_num_cells=None,
          separator: str = '|',
          debug: bool = False,
-         output_path: str = None,
          output_suffix: str = None,
          ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Statistical method for analysis
@@ -42,6 +43,8 @@ def call(cpdb_file_path: str,
          Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
      output_path: str
         Output path used to store the analysis results (and to store intermediate files when debugging)
+     microenvs_file_path: str, optional
+         Path to Micro-environment file. Its content is used to limit cluster interactions
      iterations: int
         Number of times cell type labels will be shuffled across cells in order to
         determine statistically significant ligand/receptor expression means.
@@ -57,8 +60,6 @@ def call(cpdb_file_path: str,
      pvalue: float
          A p-value below which a ligand/receptor expression mean is considered to be
          statistically significant.
-     microenvs_file_path: str
-         Path to Micro-environment file. Its content is used to limit cluster interactions
      subsampling: bool
         Enable subsampling
      subsampling_log: bool,
@@ -82,6 +83,12 @@ def call(cpdb_file_path: str,
          - significant_means
          - deconvoluted_result
      """
+
+    # Report error unless the required arguments have been provided
+    required_arguments = [cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path]
+    if None in required_arguments or '' in required_arguments:
+        raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format( \
+        "cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path"))
 
     # Load user files into memory
     counts, meta, microenvs, degs = file_utils.get_user_files( \

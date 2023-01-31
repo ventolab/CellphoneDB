@@ -6,22 +6,23 @@ import numpy as np
 from cellphonedb.src.core.core_logger import core_logger
 from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
 from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFound
+from cellphonedb.src.core.exceptions.MissingRequiredArgumentsException import MissingRequiredArgumentsException
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper, cpdb_statistical_analysis_complex_method
 from cellphonedb.src.core.models.complex import complex_helper
 from cellphonedb.utils import db_utils, file_utils
 
-def call(cpdb_file_path: str,
-         meta_file_path: str,
-         counts_file_path: str,
-         degs_file_path: str,
-         counts_data: str,
+def call(cpdb_file_path: str = None,
+         meta_file_path: str = None,
+         counts_file_path: str = None,
+         degs_file_path: str = None,
+         counts_data: str = None,
+         output_path: str = None,
          microenvs_file_path: str = None,
          separator: str = "|",
          threshold: float = 0.1,
          debug_seed: int= -1,
          result_precision: int = 3,
          debug: bool = False,
-         output_path: str = None,
          output_suffix: str = None
          ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Differentially Expressed Genes (DEGs) analysis
@@ -75,6 +76,12 @@ def call(cpdb_file_path: str,
 ***********************************
 DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
 ***********************************""")
+
+    # Report error unless the required arguments have been provided
+    required_arguments = [cpdb_file_path, meta_file_path, counts_file_path, degs_file_path, counts_data, output_path]
+    if None in required_arguments or '' in required_arguments:
+        raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format( \
+        "cpdb_file_path, meta_file_path, counts_file_path, degs_file_path, counts_data, output_path"))
 
     # Load user files into memory
     counts, meta, microenvs, degs = file_utils.get_user_files( \
