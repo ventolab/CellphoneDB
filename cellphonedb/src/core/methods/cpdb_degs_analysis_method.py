@@ -211,7 +211,7 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
 
-    file_utils.save_dfs_as_csv(output_path, output_suffix, "degs_analysis", \
+    file_utils.save_dfs_as_tsv(output_path, output_suffix, "degs_analysis", \
                             {"deconvoluted_result" : deconvoluted_result, \
                             "means_result" : means_result, \
                             "relevant_interactions_result" : relevant_interactions_result, \

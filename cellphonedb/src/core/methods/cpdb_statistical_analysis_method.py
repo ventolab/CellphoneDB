@@ -128,7 +128,7 @@ def call(cpdb_file_path: str = None,
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
 
-    file_utils.save_dfs_as_csv(output_path, output_suffix, "statistical_analysis", \
+    file_utils.save_dfs_as_tsv(output_path, output_suffix, "statistical_analysis", \
                             {"deconvoluted" : deconvoluted, \
                             "means" : means, \
                             "pvalues" : pvalues, \

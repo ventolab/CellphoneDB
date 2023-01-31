@@ -158,7 +158,7 @@ def call(
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
 
-    file_utils.save_dfs_as_csv(output_path, output_suffix, "simple_analysis", \
+    file_utils.save_dfs_as_tsv(output_path, output_suffix, "simple_analysis", \
                             {"means_result" : means_result, \
                             "significant_means" : significant_means, \
                             "deconvoluted_result" : deconvoluted_result} )
