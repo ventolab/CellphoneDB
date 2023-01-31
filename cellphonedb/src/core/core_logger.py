@@ -15,5 +15,5 @@ if not core_logger.handlers:
     formatter = logging.Formatter('[ ][CORE][%(asctime)s][%(levelname)s] %(message)s', "%d/%m/%y-%H:%M:%S")
     ch.setFormatter(formatter)
 
-    setLevel()
+    setLevel("INFO")
     core_logger.addHandler(ch)
