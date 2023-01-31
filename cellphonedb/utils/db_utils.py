@@ -44,6 +44,9 @@ def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.Dat
     for col in MULTIDATA_TABLE_BOOLEAN_COLS:
         mtTable[col] = mtTable[col].astype(bool)
     # Read genes 'table' - c.f. old CellphoneDB: GeneRepository.get_all_expanded()
+    # Drop 'protein_name' column from dbTableDFs['gene_table'] as dbTableDFs['protein_table'] already has it
+    if 'protein_name' in dbTableDFs['gene_table'].columns:
+        dbTableDFs['gene_table'] = dbTableDFs['gene_table'].drop('protein_name', axis=1)
     # First filter out entries where gene_name = X with no hgnc_symbol, e.g. in the case of IGF2, filter out ENSG00000284779
     dbTableDFs['gene_table'] = dbTableDFs['gene_table'][~dbTableDFs['gene_table']['hgnc_symbol'].isnull()]
     # Now merge gene_table with protein_table and multidata_table
@@ -166,7 +169,7 @@ def create_db(target_dir) -> None:
     gene_db_df.insert(0, 'id_gene', list(range(num_genes)), False)
     # Assign values from protein_db_df['protein_multidata_id'] into gene_db_df['protein_id']
     # via join between 'uniprot' and 'protein_name'
-    gene_db_df = pd.merge(gene_db_df, protein_db_df[['protein_multidata_id', 'uniprot']], on='uniprot')
+    gene_db_df = pd.merge(gene_db_df, protein_db_df[['protein_name', 'protein_multidata_id', 'uniprot']], on='uniprot')
     gene_db_df = gene_db_df.drop('uniprot', axis=1)
     protein_db_df = protein_db_df.drop('uniprot', axis=1)
     gene_db_df.rename(columns = {'protein_multidata_id':'protein_id'}, inplace = True)
