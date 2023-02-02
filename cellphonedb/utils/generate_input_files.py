@@ -4,7 +4,6 @@ import urllib.parse
 import numpy as np
 import pandas as pd
 import pathlib
-import json
 
 from cellphonedb.src.core.generators.complex_generator import complex_generator
 from cellphonedb.src.core.generators.gene_generator import gene_generator
