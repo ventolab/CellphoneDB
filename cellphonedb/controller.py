@@ -2,9 +2,9 @@ import sys
 import pandas as pd
 import anndata
 import os
-from cellphonedb.utils import file_utils, generate_input_files, search_utils, db_utils, db_releases_utils
+from cellphonedb.utils import file_utils, search_utils, db_utils, db_releases_utils
 from cellphonedb.src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
-from cellphonedb.src.core.preprocessors import method_preprocessors, counts_preprocessors
+from cellphonedb.src.core.preprocessors import method_preprocessors
 from cellphonedb.src.core.utils import subsampler
 import time
 
@@ -112,9 +112,6 @@ if __name__ == '__main__':
         convert_to_h5ad(os.path.join(CPDB_ROOT, "user_files"))
     elif arg == 's':
         search_utils.search('ENSG00000134780,integrin_a10b1_complex', cpdb_dir)
-    elif arg == 'g':
-        generate_input_files.generate_all(cpdb_dir, RELEASED_VERSION, \
-                                          user_complex=None, user_interactions=None, user_interactions_only=False)
     elif arg == 'rel':
         db_releases_utils.get_remote_database_versions_html()
     elif arg == 'te':
