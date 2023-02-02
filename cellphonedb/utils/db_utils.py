@@ -13,7 +13,6 @@ from cellphonedb.utils import file_utils, unique_id_generator
 import urllib.request, urllib.error, urllib.parse
 from zipfile import ZipFile
 
-DBFILE_NAME = "cellphonedb.zip"
 MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
                                 'transmembrane','secreted','peripheral','integrin','is_complex']
 INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input']
@@ -270,7 +269,7 @@ def create_db(target_dir) -> None:
     print("Created {} successfully".format(file_path))
 
 def download_database(target_dir, cpdb_version):
-    download_released_files(target_dir, cpdb_version, DBFILE_NAME)
+    download_released_files(target_dir, cpdb_version, "cellphonedb.zip|_input")
 
 def download_released_files(target_dir, cpdb_version, regex):
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
