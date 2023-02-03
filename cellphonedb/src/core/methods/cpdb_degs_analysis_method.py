@@ -300,7 +300,7 @@ def build_results(interactions: pd.DataFrame,
     # drop irrelevant interactions (all zeros)
     relevant_interactions = relevant_interactions.loc[
         (relevant_interactions!=0).any(axis=1)]
-    # drop irrelvant clusters (columns with all zeros)
+    # drop irrelevant clusters (columns with all zeros)
     relevant_interactions = relevant_interactions.loc[
         :,(relevant_interactions!=0).any(axis=0)]
     # concat interactions data and relevant interactions data
