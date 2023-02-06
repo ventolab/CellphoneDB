@@ -12,6 +12,7 @@ from cellphonedb.utils.file_utils import dbg
 from cellphonedb.utils import file_utils, unique_id_generator
 import urllib.request, urllib.error, urllib.parse
 from zipfile import ZipFile
+from cellphonedb.src.core.exceptions.DatabaseCreationException import DatabaseCreationException
 
 MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
                                 'transmembrane','secreted','peripheral','integrin','is_complex']
@@ -154,6 +155,9 @@ def create_db(target_dir) -> None:
     dataDFs = getDFs(gene_input=gene_input, protein_input=protein_input, complex_input=complex_input,
                      interaction_input=interaction_input)
 
+    # Perform sanity tests on *_input files and report any issues to the user
+    sanity_test(dataDFs)
+
     # Collect protein data
     protein_db_df = dataDFs['protein_input'][['protein_name', 'tags', 'tags_reason', 'tags_description', 'uniprot']]
     num_proteins = protein_db_df.shape[0]
@@ -290,3 +294,65 @@ def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_
     dfs['complex_input'] = file_utils.read_data_table_from_file(complex_input)
     dfs['interaction_input'] = file_utils.read_data_table_from_file(interaction_input)
     return dfs
+
+def sanity_test(dataDFs):
+    data_issues_found = False
+    protein_db_df = dataDFs['protein_input']
+    complex_db_df = dataDFs['complex_input']
+    gene_db_df = dataDFs['gene_input']
+    interaction_db_df = dataDFs['interaction_input']
+
+    # 1. Report any uniprot accessions that map to multiple gene_names
+    gene_names_uniprot_df = gene_db_df[['gene_name', 'uniprot']].copy()
+    gene_names_uniprot_df.drop_duplicates(inplace=True)
+    dups = gene_names_uniprot_df[gene_names_uniprot_df['uniprot'].duplicated() == True]
+    if not dups.empty:
+        data_issues_found = True
+        print("ERROR: The following UniProt ids map to multiple gene names (they should map to only one). Please remove all such duplicates.")
+        print(", ".join(dups['uniprot'].tolist()))
+
+    # 2. Remove (complete) duplicates from complex_db_df
+    complex_db_df.drop_duplicates(
+        ['complex_name','uniprot_1','uniprot_2','uniprot_3','uniprot_4','uniprot_5'],
+        inplace=True, keep='last')
+
+    # 3. Report complexes with (possibly) a different names, but with the same uniprot
+    # accession participants (though not necessarily in the same order - hence the use of set below)
+    # NB. set below as we don't care about the order of participants when looking for duplicates
+    participant_sets = [set([i for i in row if str(i) != 'nan']) for row in \
+            complex_db_df[['uniprot_1','uniprot_2','uniprot_3','uniprot_4','uniprot_5']].itertuples(index=False)]
+    # Find duplicate sets of participants
+    seen = set()
+    # See https://stackoverflow.com/questions/23577724/type-error-unhashable-typeset re: frozenset
+    duplicate_participant_sets = [x for x in participant_sets if x in seen or seen.add(frozenset(x))]
+    if duplicate_participant_sets:
+        data_issues_found = True
+        print ("ERROR: The following sets of complex participants appear in multiple rows of complex_input.csv file. " + \
+               "Please remove all such duplicates.")
+        for dup in set([frozenset(x) for x in duplicate_participant_sets]):
+            print(', '.join(dup))
+
+    # 4. Remove (complete) duplicates from interaction_db_df
+    interaction_db_df.drop_duplicates(
+        ['id_cp_interaction','partner_a','partner_b'], inplace=True, keep='last')
+
+    # 5. Report interactions with (possibly) a different names, but with the same partners
+    # accession participants (though not necessarily in the same order - hence the use of set below)
+    partner_sets = [set([i for i in row]) for row in \
+            interaction_db_df[['partner_a','partner_b']].itertuples(index=False)]
+    # Find duplicate sets of partners
+    seen = set()
+    duplicate_partner_sets = [x for x in partner_sets if x in seen or seen.add(frozenset(x))]
+    if duplicate_partner_sets:
+        data_issues_found = True
+        print("ERROR: The following sets of interaction partners appear in multiple rows of interaction_input.csv file. " + \
+              "Please remove all such duplicates.")
+    for dup in set([frozenset(x) for x in duplicate_partner_sets]):
+        print(','.join(dup))
+
+    # 6. Remove (complete) duplicates from protein_db_df
+    protein_db_df.drop_duplicates(
+        ['uniprot','protein_name'], inplace=True, keep='last')
+
+    if data_issues_found:
+        raise DatabaseCreationException
