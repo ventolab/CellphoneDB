@@ -308,7 +308,8 @@ def sanity_test(dataDFs):
     dups = gene_names_uniprot_df[gene_names_uniprot_df['uniprot'].duplicated() == True]
     if not dups.empty:
         data_issues_found = True
-        print("ERROR: The following UniProt ids map to multiple gene names (they should map to only one). Please remove all such duplicates.")
+        print("ERROR: The following UniProt ids map to multiple gene names (they should map to only one).\n" + \
+              "Please remove all such duplicates:\n")
         print(", ".join(dups['uniprot'].tolist()))
 
     # 2. Remove (complete) duplicates from complex_db_df
@@ -316,21 +317,27 @@ def sanity_test(dataDFs):
         ['complex_name'] + PROTEIN_COLUMN_NAMES,
         inplace=True, keep='last')
 
-    # 3. Report complexes with (possibly) a different names, but with the same uniprot
+    # 3. Report complexes with (possibly) different names, but with the same uniprot
     # accession participants (though not necessarily in the same order - hence the use of set below)
-    # NB. set below as we don't care about the order of participants when looking for duplicates
-    participant_sets = [set([i for i in row if str(i) != 'nan']) for row in \
-            complex_db_df[PROTEIN_COLUMN_NAMES].itertuples(index=False)]
-    # Find duplicate sets of participants
-    seen = set()
-    # See https://stackoverflow.com/questions/23577724/type-error-unhashable-typeset re: frozenset
-    duplicate_participant_sets = [x for x in participant_sets if x in seen or seen.add(frozenset(x))]
-    if duplicate_participant_sets:
+    # NB. Use set below as we don't care about the order of participants when looking for duplicates
+    participants_set_to_complex_names = {}
+    for row in complex_db_df[['complex_name'] + PROTEIN_COLUMN_NAMES].itertuples(index=False):
+        participants_set = frozenset([i for i in row[1:] if str(i) != 'nan'])
+        if participants_set not in participants_set_to_complex_names:
+            complex_name = row[0]
+            participants_set_to_complex_names[participants_set] = [complex_name]
+        else:
+            participants_set_to_complex_names[participants_set].append(complex_name)
+    complex_dups = ""
+    for participants_set in participants_set_to_complex_names:
+        complex_names = participants_set_to_complex_names[participants_set]
+        if len(complex_names) > 1:
+            complex_dups += ", ".join(complex_names) + " : " + ", ".join(participants_set) + "\n"
+    if len(complex_dups) > 0:
         data_issues_found = True
-        print ("ERROR: The following sets of complex participants appear in multiple rows of complex_input.csv file. " + \
-               "Please remove all such duplicates.")
-        for dup in set([frozenset(x) for x in duplicate_participant_sets]):
-            print(', '.join(dup))
+        print("ERROR: The following multiple complexes (left) appear to have the same composition (right).\n" + \
+              "Please remove all such duplicates:\n")
+        print(complex_dups)
 
     # 4. Remove (complete) duplicates from interaction_db_df
     interaction_db_df.drop_duplicates(
@@ -345,8 +352,8 @@ def sanity_test(dataDFs):
     duplicate_partner_sets = [x for x in partner_sets if x in seen or seen.add(frozenset(x))]
     if duplicate_partner_sets:
         data_issues_found = True
-        print("ERROR: The following sets of interaction partners appear in multiple rows of interaction_input.csv file. " + \
-              "Please remove all such duplicates.")
+        print("ERROR: The following sets of interaction partners appear in multiple rows of interaction_input.csv file.\n" + \
+              "Please remove all such duplicates:\n")
     for dup in set([frozenset(x) for x in duplicate_partner_sets]):
         print(','.join(dup))
 
