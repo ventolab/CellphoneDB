@@ -17,6 +17,7 @@ from cellphonedb.src.core.exceptions.DatabaseCreationException import DatabaseCr
 MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
                                 'transmembrane','secreted','peripheral','integrin','is_complex']
 INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input']
+PROTEIN_COLUMN_NAMES = ['uniprot_1','uniprot_2','uniprot_3','uniprot_4']
 
 def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
@@ -180,7 +181,7 @@ def create_db(target_dir) -> None:
 
     # Collect complex data
     complex_db_df = dataDFs['complex_input'] \
-        [['uniprot_1','uniprot_2','uniprot_3','uniprot_4','pdb_structure','pdb_id','stoichiometry','comments_complex']]
+        [PROTEIN_COLUMN_NAMES + ['pdb_structure','pdb_id','stoichiometry','comments_complex']]
     # Note that uniprot_* cols will be dropped after complex_composition_df has been constructed
     num_complexes = complex_db_df.shape[0]
     complex_db_df.insert(0, 'id_complex', list(range(num_complexes)), False)
@@ -213,13 +214,12 @@ def create_db(target_dir) -> None:
     dbg(multidata_db_df.shape, multidata_db_df.index, multidata_db_df.columns)
 
     # First collect total_protein counts for each complex in complex_db_df
-    uniprot_cols = ['uniprot_1','uniprot_2','uniprot_3','uniprot_4']
-    total_protein_cnt_list = np.apply_along_axis(lambda s: sum(type(x) == str for x in s), 1, complex_db_df[uniprot_cols].values).tolist()
+    total_protein_cnt_list = np.apply_along_axis(lambda s: sum(type(x) == str for x in s), 1, complex_db_df[PROTEIN_COLUMN_NAMES].values).tolist()
     complex_db_df.insert(len(complex_db_df.columns), 'total_protein', total_protein_cnt_list, True)
     dbg(complex_db_df.info)
     # Next collect all complex_composition data into cc_list
     cc_list = []
-    for r in complex_db_df[uniprot_cols + ['complex_multidata_id','total_protein']].values.tolist():
+    for r in complex_db_df[PROTEIN_COLUMN_NAMES + ['complex_multidata_id','total_protein']].values.tolist():
         for acc in filter(lambda x: type(x) == str, r):
             protein_multidata_id = \
                 multidata_db_df.loc[(multidata_db_df['is_complex'] == False) & (multidata_db_df['name'] == acc), ['id_multidata']] \
@@ -231,8 +231,8 @@ def create_db(target_dir) -> None:
     complex_composition_df = pd.DataFrame(cc_list, columns=['complex_multidata_id', 'protein_multidata_id', 'total_protein'])
     complex_composition_df.insert(0, 'id_complex_composition', list(range(len(cc_list))), False)
     dbg(complex_composition_df.shape, complex_composition_df.index, complex_composition_df.columns, complex_composition_df.info)
-    # Next drop the auxiliary columns from complex_db_df: uniprot_cols and 'total_protein'
-    for col in uniprot_cols + ['total_protein']:
+    # Next drop the auxiliary columns from complex_db_df: PROTEIN_COLUMN_NAMES and 'total_protein'
+    for col in PROTEIN_COLUMN_NAMES + ['total_protein']:
         complex_db_df = complex_db_df.drop(col, axis=1)
 
     # Collect interaction data
@@ -313,14 +313,14 @@ def sanity_test(dataDFs):
 
     # 2. Remove (complete) duplicates from complex_db_df
     complex_db_df.drop_duplicates(
-        ['complex_name','uniprot_1','uniprot_2','uniprot_3','uniprot_4','uniprot_5'],
+        ['complex_name'] + PROTEIN_COLUMN_NAMES,
         inplace=True, keep='last')
 
     # 3. Report complexes with (possibly) a different names, but with the same uniprot
     # accession participants (though not necessarily in the same order - hence the use of set below)
     # NB. set below as we don't care about the order of participants when looking for duplicates
     participant_sets = [set([i for i in row if str(i) != 'nan']) for row in \
-            complex_db_df[['uniprot_1','uniprot_2','uniprot_3','uniprot_4','uniprot_5']].itertuples(index=False)]
+            complex_db_df[PROTEIN_COLUMN_NAMES].itertuples(index=False)]
     # Find duplicate sets of participants
     seen = set()
     # See https://stackoverflow.com/questions/23577724/type-error-unhashable-typeset re: frozenset
@@ -353,6 +353,24 @@ def sanity_test(dataDFs):
     # 6. Remove (complete) duplicates from protein_db_df
     protein_db_df.drop_duplicates(
         ['uniprot','protein_name'], inplace=True, keep='last')
+
+    # 7. Warn the user if some complexes don't participate in any interactions
+    all_complexes_set = set(complex_db_df['complex_name'].tolist())
+    interaction_participants_set = set (interaction_db_df['partner_a'].tolist() + interaction_db_df['partner_b'].tolist())
+    orphan_complexes = all_complexes_set - interaction_participants_set
+    if orphan_complexes:
+        print("WARNING: The following complexes are not found in interaction_input.txt")
+        print ("\n".join(orphan_complexes))
+
+    # 8. Warn the user if some proteins don't participate in any interactions directly, or are part some complex in orphan_complexes
+    all_proteins_set = set(protein_db_df['uniprot'].tolist())
+    proteins_in_complexes_participating_in_interactions = []
+    for colName in PROTEIN_COLUMN_NAMES:
+        proteins_in_complexes_participating_in_interactions += complex_db_df[~complex_db_df['complex_name'].isin(orphan_complexes)][colName].tolist()
+    orphan_proteins = all_proteins_set - interaction_participants_set - set(proteins_in_complexes_participating_in_interactions)
+    if orphan_proteins:
+        print("WARNING: The following proteins are not found in interaction_input.txt (either directly or via complexes they are part of)")
+        print ("\n".join(orphan_proteins))
 
     if data_issues_found:
         raise DatabaseCreationException
