@@ -83,19 +83,20 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
         raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format( \
         "cpdb_file_path, meta_file_path, counts_file_path, degs_file_path, counts_data, output_path"))
 
+    # Load into memory CellphoneDB data
+    interactions, genes, complex_compositions, complexes, gene_synonym2gene_name = \
+        db_utils.get_interactions_genes_complex(cpdb_file_path)
+
     # Load user files into memory
     counts, meta, microenvs, degs = file_utils.get_user_files( \
-        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, degs_fp=degs_file_path)
-
-    # Load into memory CellphoneDB data
-    interactions, genes, complex_compositions, complexes = \
-        db_utils.get_interactions_genes_complex(cpdb_file_path)
+        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, degs_fp=degs_file_path, \
+        gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
     if debug_seed >= 0:
         np.random.seed(debug_seed)
         core_logger.warning('Debug random seed enabled. Set to {}'.format(debug_seed))
 
-    # get reduced interactions (drop duplicateds)
+    # get reduced interactions (drop duplicates)
     interactions_reduced = interactions[['multidata_1_id', 'multidata_2_id']].drop_duplicates()
     
     # add multidata id and means to counts

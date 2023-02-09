@@ -19,7 +19,7 @@ MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
 INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input']
 PROTEIN_COLUMN_NAMES = ['uniprot_1','uniprot_2','uniprot_3','uniprot_4']
 
-def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
     """
     Returns a tuple of four DataFrames containing data from <cpdb_dir>/cellphonedb.zip.
 
@@ -35,10 +35,15 @@ def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.Dat
         - genes: pd.DataFrame
         - complex_composition: pd.DataFrame
         - complex_expanded: pd.DataFrame
+        - gene_synonym2gene_name: dict
     """
     # Extract csv files from db_files_path/cellphonedb.zip into dbTableDFs
     dbTableDFs = extract_dataframes_from_db(cpdb_file_path)
     # Convert dbTableDFs into interactions, genes, complex_composition, complex_expanded data frames
+    # and gene_synonym2gene_name dict
+    gs2gn = dbTableDFs['gene_synonym_to_gene_name']
+    gene_synonym2gene_name = dict(zip(gs2gn['Gene Synonym'], gs2gn['Gene Name']))
+
     mtTable = dbTableDFs['multidata_table']
     dbg(mtTable.dtypes)
     # Convert all MULTIDATA_TABLE_BOOLEAN_COLS from Integer (0/1) to Boolean
@@ -82,7 +87,7 @@ def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.Dat
     interactions.set_index('id_interaction', drop=True, inplace=True)
     complex_composition.set_index('id_complex_composition', inplace=True, drop=True)
 
-    return interactions, genes, complex_composition, complex_expanded
+    return interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name
 
 def extract_dataframes_from_db(cpdb_file_path):
     dfs = {}
@@ -151,12 +156,13 @@ def create_db(target_dir) -> None:
     protein_input = os.path.join(target_dir, "protein_input.csv")
     complex_input = os.path.join(target_dir, "complex_input.csv")
     interaction_input = os.path.join(target_dir, "interaction_input.csv")
+    gene_synonyms_input = os.path.join(target_dir, "uniprot_synonyms.tsv")
 
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     dataDFs = getDFs(gene_input=gene_input, protein_input=protein_input, complex_input=complex_input,
-                     interaction_input=interaction_input)
+                     interaction_input=interaction_input, gene_synonyms_input=gene_synonyms_input)
 
-    # Perform sanity tests on *_input files and report any issues to the user
+    # Perform sanity tests on *_input files and report any issues to the user as warnings
     sanity_test(dataDFs)
 
     # Collect protein data
@@ -178,6 +184,16 @@ def create_db(target_dir) -> None:
     protein_db_df = protein_db_df.drop('uniprot', axis=1)
     gene_db_df.rename(columns = {'protein_multidata_id':'protein_id'}, inplace = True)
     # print(gene_db_df.info)
+
+    # Collect mapping: gene synonym (not in gene_input.csv) -> gene name (in gene_input.csv)
+    gene_synonym_to_gene_name = {}
+    for gene_names in dataDFs['gene_synonyms_input'].filter(regex=("Gene Names.*")).dropna().agg(' '.join, axis=1).tolist():
+        gene_names_arr = re.split(';\s*|\s+', gene_names)
+        for gene_name in gene_db_df[gene_db_df['gene_name'].isin(gene_names_arr)]['gene_name'].tolist():
+            for gene_synonym in gene_names_arr:
+                if gene_synonym != gene_name:
+                    gene_synonym_to_gene_name[gene_synonym] = gene_name
+    gene_synonym_to_gene_name_db_df = pd.DataFrame(gene_synonym_to_gene_name.items(), columns=['Gene Synonym', 'Gene Name'])
 
     # Collect complex data
     complex_db_df = dataDFs['complex_input'] \
@@ -266,6 +282,8 @@ def create_db(target_dir) -> None:
         zip_file.writestr('complex_composition_table.csv', complex_composition_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('multidata_table.csv', multidata_db_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('interaction_table.csv', interactions_df.to_csv(index=False, sep=',').encode('utf-8'))
+        zip_file.writestr('gene_synonym_to_gene_name.csv', gene_synonym_to_gene_name_db_df.to_csv(index=False, sep=',').encode('utf-8'))
+
     file_suffix = file_utils.get_timestamp_suffix()
     file_path = os.path.join(target_dir,'cellphonedb_{}.zip'.format(file_suffix))
     with open(file_path, 'wb') as f:
@@ -273,7 +291,7 @@ def create_db(target_dir) -> None:
     print("Created {} successfully".format(file_path))
 
 def download_database(target_dir, cpdb_version):
-    download_released_files(target_dir, cpdb_version, "cellphonedb.zip|_input")
+    download_released_files(target_dir, cpdb_version, "cellphonedb.zip|_input|sources\/uniprot_synonyms")
 
 def download_released_files(target_dir, cpdb_version, regex):
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
@@ -287,16 +305,17 @@ def download_released_files(target_dir, cpdb_version, regex):
                     f.write(zipContent.read(fpath))
                     print("Downloaded {} into {}".format(fname, target_dir))
 
-def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_input=None):
+def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_input=None, gene_synonyms_input=None):
     dfs = {}
     dfs['gene_input'] = file_utils.read_data_table_from_file(gene_input)
     dfs['protein_input'] = file_utils.read_data_table_from_file(protein_input)
     dfs['complex_input'] = file_utils.read_data_table_from_file(complex_input)
     dfs['interaction_input'] = file_utils.read_data_table_from_file(interaction_input)
+    dfs['gene_synonyms_input'] = file_utils.read_data_table_from_file(gene_synonyms_input)
     return dfs
 
 def sanity_test(dataDFs):
-    data_issues_found = False
+    data_errors_found = False
     protein_db_df = dataDFs['protein_input']
     complex_db_df = dataDFs['complex_input']
     gene_db_df = dataDFs['gene_input']
@@ -307,9 +326,8 @@ def sanity_test(dataDFs):
     gene_names_uniprot_df.drop_duplicates(inplace=True)
     dups = gene_names_uniprot_df[gene_names_uniprot_df['uniprot'].duplicated() == True]
     if not dups.empty:
-        data_issues_found = True
-        print("ERROR: The following UniProt ids map to multiple gene names (they should map to only one).\n" + \
-              "Please remove all such duplicates:\n")
+        # data_errors_found = True
+        print("WARNING: The following UniProt ids map to multiple gene names (it is expected that they should map to only one).\n")
         print(", ".join(dups['uniprot'].tolist()))
 
     # 2. Remove (complete) duplicates from complex_db_df
@@ -323,8 +341,8 @@ def sanity_test(dataDFs):
     participants_set_to_complex_names = {}
     for row in complex_db_df[['complex_name'] + PROTEIN_COLUMN_NAMES].itertuples(index=False):
         participants_set = frozenset([i for i in row[1:] if str(i) != 'nan'])
+        complex_name = row[0]
         if participants_set not in participants_set_to_complex_names:
-            complex_name = row[0]
             participants_set_to_complex_names[participants_set] = [complex_name]
         else:
             participants_set_to_complex_names[participants_set].append(complex_name)
@@ -334,9 +352,8 @@ def sanity_test(dataDFs):
         if len(complex_names) > 1:
             complex_dups += ", ".join(complex_names) + " : " + ", ".join(participants_set) + "\n"
     if len(complex_dups) > 0:
-        data_issues_found = True
-        print("ERROR: The following multiple complexes (left) appear to have the same composition (right).\n" + \
-              "Please remove all such duplicates:\n")
+        # data_errors_found = True
+        print("WARNING: The following multiple complexes (left) appear to have the same composition (right).\n")
         print(complex_dups)
 
     # 4. Remove (complete) duplicates from interaction_db_df
@@ -351,11 +368,11 @@ def sanity_test(dataDFs):
     seen = set()
     duplicate_partner_sets = [x for x in partner_sets if x in seen or seen.add(frozenset(x))]
     if duplicate_partner_sets:
-        data_issues_found = True
-        print("ERROR: The following sets of interaction partners appear in multiple rows of interaction_input.csv file.\n" + \
-              "Please remove all such duplicates:\n")
-    for dup in set([frozenset(x) for x in duplicate_partner_sets]):
-        print(','.join(dup))
+        # data_errors_found = True
+        print("WARNING: The following sets of interaction partners appear in multiple rows of interaction_input.csv file.\n")
+        for dup in set([frozenset(x) for x in duplicate_partner_sets]):
+            print(','.join(dup))
+        print()
 
     # 6. Remove (complete) duplicates from protein_db_df
     protein_db_df.drop_duplicates(
@@ -368,6 +385,7 @@ def sanity_test(dataDFs):
     if orphan_complexes:
         print("WARNING: The following complexes are not found in interaction_input.txt")
         print ("\n".join(orphan_complexes))
+    print()
 
     # 8. Warn the user if some proteins don't participate in any interactions directly, or are part some complex in orphan_complexes
     all_proteins_set = set(protein_db_df['uniprot'].tolist())
@@ -379,5 +397,5 @@ def sanity_test(dataDFs):
         print("WARNING: The following proteins are not found in interaction_input.txt (either directly or via complexes they are part of)")
         print ("\n".join(orphan_proteins))
 
-    if data_issues_found:
+    if data_errors_found:
         raise DatabaseCreationException

@@ -39,13 +39,17 @@ def search(query_str, cpdb_file_path)->(list, map):
     """
     start = time.time()
     results = []
-    interactions, genes, complex_composition, complex_expanded = \
+    interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
+
 
     complex_name2proteins = {}
     # Assemble a list of multidata_ids to search interactions DF with
     multidata_ids = []
     for token in re.split(',\s*| ', query_str):
+        if token in gene_synonym2gene_name:
+            # Map any gene synonyms not in gene_input to gene names in gene_input
+            token = gene_synonym2gene_name[token]
         complex_multidata_ids = []
         # Attempt to find token in genes (N.B. genes contains protein information also)
         gene_protein_data_list = genes['protein_multidata_id'] \

@@ -1,9 +1,7 @@
 import os
-import io
 from datetime import datetime
 import pickle
 from typing import TextIO, Optional, Tuple
-
 import csv
 import scipy.io
 from anndata import read_h5ad, AnnData
@@ -214,7 +212,7 @@ def save_dfs_as_tsv(out, suffix, analysis_name, name2df):
         df.to_csv(file_path, sep = '\t', index=False)
         print("Saved {} to {}".format(name, file_path))
 
-def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None) \
+def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None, gene_synonym2gene_name=None, counts_data=None) \
         -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
 
@@ -244,7 +242,14 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
     """
     loaded_user_files=[]
     # Read user files
-    counts = read_data_table_from_file(counts_fp, index_column_first=True)
+    print("Reading user files...")
+    counts = read_data_table_from_file(counts_fp, index_column_first=False)
+
+    # In counts df, replace any gene synonyms not in gene_input.csv to gene names that are in gene_input.
+    if counts_data == "hgnc_symbol" or counts_data == "gene_name":
+        counts.iloc[:,0].replace(gene_synonym2gene_name, inplace=True)
+    counts.set_index(counts.columns[0], inplace=True)
+
     loaded_user_files.append(counts_fp)
     raw_meta = read_data_table_from_file(meta_fp, index_column_first=False)
     meta = method_preprocessors.meta_preprocessor(raw_meta)

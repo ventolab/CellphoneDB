@@ -90,19 +90,20 @@ def call(cpdb_file_path: str = None,
         raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format( \
         "cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path"))
 
+    # Load into memory CellphoneDB data
+    interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
+        db_utils.get_interactions_genes_complex(cpdb_file_path)
+
     # Load user files into memory
     counts, meta, microenvs, degs = file_utils.get_user_files( \
-        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path)
+        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, \
+        gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
     # Subsample counts data, if required
     if subsampling:
         ss = subsampler.Subsampler(log=subsampling_log, num_pc=subsampling_num_pc, num_cells=subsampling_num_cells, verbose=False, debug_seed=None)
         counts = ss.subsample(counts)
 
-    # Load into memory CellphoneDB data
-    interactions, genes, complex_composition, complex_expanded = \
-        db_utils.get_interactions_genes_complex(cpdb_file_path)
-    
     pvalues, means, significant_means, deconvoluted = \
         cpdb_statistical_analysis_complex_method.call(meta.copy(),
                                                       counts.copy(),
