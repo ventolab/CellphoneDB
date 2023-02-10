@@ -243,12 +243,12 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
     loaded_user_files=[]
     # Read user files
     print("Reading user files...")
-    counts = read_data_table_from_file(counts_fp, index_column_first=False)
+    counts = read_data_table_from_file(counts_fp, index_column_first=True)
 
     # In counts df, replace any gene synonyms not in gene_input.csv to gene names that are in gene_input.
+
     if counts_data == "hgnc_symbol" or counts_data == "gene_name":
-        counts.iloc[:,0].replace(gene_synonym2gene_name, inplace=True)
-    counts.set_index(counts.columns[0], inplace=True)
+        counts.rename(index=gene_synonym2gene_name, inplace=True)
 
     loaded_user_files.append(counts_fp)
     raw_meta = read_data_table_from_file(meta_fp, index_column_first=False)
@@ -256,7 +256,6 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
     loaded_user_files.append(meta_fp)
     # Ensure that counts values are of type float32, and that all cells in meta exist in counts
     counts = counts_preprocessors.counts_preprocessor(counts, meta)
-
     if microenvs_fp:
         microenvs = read_data_table_from_file(microenvs_fp)
         loaded_user_files.append(microenvs_fp)
