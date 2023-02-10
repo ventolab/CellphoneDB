@@ -245,10 +245,10 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
     print("Reading user files...")
     counts = read_data_table_from_file(counts_fp, index_column_first=True)
 
+    # N.B. The functionality below has been switched off for the time being, on Kevin's request
     # In counts df, replace any gene synonyms not in gene_input.csv to gene names that are in gene_input.
-
-    if counts_data == "hgnc_symbol" or counts_data == "gene_name":
-        counts.rename(index=gene_synonym2gene_name, inplace=True)
+    # if counts_data == "hgnc_symbol" or counts_data == "gene_name":
+    #     counts.rename(index=gene_synonym2gene_name, inplace=True)
 
     loaded_user_files.append(counts_fp)
     raw_meta = read_data_table_from_file(meta_fp, index_column_first=False)

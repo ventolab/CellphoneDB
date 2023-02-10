@@ -47,9 +47,12 @@ def search(query_str, cpdb_file_path)->(list, map):
     # Assemble a list of multidata_ids to search interactions DF with
     multidata_ids = []
     for token in re.split(',\s*| ', query_str):
-        if token in gene_synonym2gene_name:
-            # Map any gene synonyms not in gene_input to gene names in gene_input
-            token = gene_synonym2gene_name[token]
+
+        # N.B. The functionality below has been switched off for the time being, on Kevin's request
+        # if token in gene_synonym2gene_name:
+        #     # Map any gene synonyms not in gene_input to gene names in gene_input
+        #     token = gene_synonym2gene_name[token]
+
         complex_multidata_ids = []
         # Attempt to find token in genes (N.B. genes contains protein information also)
         gene_protein_data_list = genes['protein_multidata_id'] \
