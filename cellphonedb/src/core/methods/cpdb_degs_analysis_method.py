@@ -20,7 +20,6 @@ def call(cpdb_file_path: str = None,
          microenvs_file_path: str = None,
          separator: str = "|",
          threshold: float = 0.1,
-         debug_seed: int= -1,
          result_precision: int = 3,
          debug: bool = False,
          output_suffix: str = None
@@ -71,7 +70,7 @@ def call(cpdb_file_path: str = None,
     """
     core_logger.info(
         '[Cluster DEGs Analysis] '
-        'Threshold:{} Debug-seed:{} Precision:{}'.format(threshold, debug_seed, result_precision))
+        'Threshold:{} Precision:{}'.format(threshold, result_precision))
     core_logger.warning("""
 ***********************************
 DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
@@ -91,10 +90,6 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
     counts, meta, microenvs, degs = file_utils.get_user_files( \
         counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, degs_fp=degs_file_path, \
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
-
-    if debug_seed >= 0:
-        np.random.seed(debug_seed)
-        core_logger.warning('Debug random seed enabled. Set to {}'.format(debug_seed))
 
     # get reduced interactions (drop duplicates)
     interactions_reduced = interactions[['multidata_1_id', 'multidata_2_id']].drop_duplicates()
