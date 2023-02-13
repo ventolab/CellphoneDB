@@ -18,7 +18,8 @@ def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, co
             constituent_proteins.append(genes['name'][genes['protein_multidata_id'] == protein_multidata_id].to_list()[0])
         complex_name2proteins[complex_name] = constituent_proteins
 
-def search(query_str, cpdb_file_path)->(list, map):
+def search(query_str: str = "",
+           cpdb_file_path: str = None)->(list, map):
     """
     Searches CellphoneDB interactions for genes/proteins/complexes in query_str
 
@@ -63,7 +64,6 @@ def search(query_str, cpdb_file_path)->(list, map):
                     complex_composition['complex_multidata_id'] \
                         [complex_composition['protein_multidata_id'] == protein_multidata_id].to_list()
                 multidata_ids += complex_multidata_ids
-
         else:
             # No match in genes - attempt to find token in complex_expanded
             complex_multidata_ids += complex_expanded['complex_multidata_id'] \
