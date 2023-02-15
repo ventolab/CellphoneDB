@@ -17,7 +17,7 @@ from cellphonedb.src.core.exceptions.DatabaseCreationException import DatabaseCr
 MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
                                 'transmembrane','secreted','peripheral','integrin','is_complex']
 INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input']
-PROTEIN_COLUMN_NAMES = ['uniprot_1','uniprot_2','uniprot_3','uniprot_4']
+PROTEIN_COLUMN_NAMES = ['uniprot_1','uniprot_2','uniprot_3','uniprot_4','uniprot_5']
 
 def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
     """
@@ -357,8 +357,8 @@ def sanity_test(dataDFs):
         print("WARNING: The following multiple complexes (left) appear to have the same composition (right):")
         print(complex_dups)
 
-    # 4. Report interactions with (possibly) a different names, but with the same partners
-    # accession participants (though not necessarily in the same order - hence the use of set below)
+    # 4. Report interactions with (possibly) a different name, but with the same participants
+    # (though not necessarily in the same order - hence the use of set below)
     partner_sets = [set([i for i in row]) for row in \
             interaction_db_df[['partner_a','partner_b']].itertuples(index=False)]
     # Find duplicate sets of partners
@@ -395,6 +395,35 @@ def sanity_test(dataDFs):
     if orphan_proteins:
         print("WARNING: The following proteins are not found in interaction_input.txt (either directly or via complexes they are part of):")
         print ("\n".join(orphan_proteins))
+
+    # 8. Warn the user if some interactions contain interactors that are neither in complex_input.csv or protein_input.csv
+    unknown_interactors = set()
+    for col in ['partner_a', 'partner_b']:
+        aux_df = pd.merge(interaction_db_df, protein_db_df, left_on=col, right_on='uniprot',how='outer')
+        unknown_interactor_proteins = set(aux_df[pd.isnull(aux_df['uniprot'])][col].tolist())
+        aux_df = pd.merge(interaction_db_df, complex_db_df, left_on=col, right_on='complex_name', how='outer')
+        unknown_interactor_complexes = set(aux_df[pd.isnull(aux_df['complex_name'])][col].tolist())
+        unknown_interactors = unknown_interactors.union(unknown_interactor_proteins.intersection(unknown_interactor_complexes))
+    if unknown_interactors:
+        print("WARNING: The following interactors in interaction_input.txt could not be found in either protein_input.csv or complex_indput.csv:")
+        print("\n".join(sorted(unknown_interactors)) + "\n")
+
+    # 9. Warn if some complexes contain proteins not in protein_input.csv
+    unknown_proteins = set()
+    for col in PROTEIN_COLUMN_NAMES:
+        aux_df = pd.merge(complex_db_df, protein_db_df, left_on=col, right_on='uniprot', how='outer')
+        unknown_complex_proteins = set(aux_df[pd.isnull(aux_df['uniprot']) & ~pd.isnull(aux_df[col])][col].tolist())
+        unknown_proteins = unknown_proteins.union(unknown_complex_proteins)
+    if unknown_proteins:
+        print("WARNING: The following proteins in complex_input.txt could not be found in protein_input.csv:")
+        print("\n".join(sorted(unknown_proteins)) + "\n")
+
+    # 10. Warn if some proteins in protein_input.csv are not in gene_input.csv
+    proteins = set(protein_db_df['uniprot'].tolist())
+    unknown_proteins = proteins.difference(set(gene_db_df['uniprot'].tolist()))
+    if unknown_proteins:
+        print("WARNING: The following proteins in protein_input.txt could not be found in gene_input.csv:")
+        print("\n".join(sorted(unknown_proteins)) + "\n")
 
     if data_errors_found:
         raise DatabaseCreationException
