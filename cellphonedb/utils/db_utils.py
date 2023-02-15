@@ -327,13 +327,14 @@ def sanity_test(dataDFs):
     dups = gene_names_uniprot_df[gene_names_uniprot_df['uniprot'].duplicated() == True]
     if not dups.empty:
         # data_errors_found = True
-        print("WARNING: The following UniProt ids map to multiple gene names (it is expected that they should map to only one).\n")
+        print("WARNING: The following UniProt ids map to multiple gene names (it is expected that they should map to only one):")
         print(", ".join(dups['uniprot'].tolist()))
 
-    # 2. Remove (complete) duplicates from complex_db_df
-    complex_db_df.drop_duplicates(
-        ['complex_name'] + PROTEIN_COLUMN_NAMES,
-        inplace=True, keep='last')
+    # 2. Warn about complex name duplicates in complex_db_df
+    test_complex_db_df = complex_db_df.set_index('complex_name')
+    if test_complex_db_df.index.has_duplicates:
+        print("WARNING: complex_input.csv has the following duplicates:")
+        print("\n".join(complex_db_df[test_complex_db_df.index.duplicated(keep='first')]['complex_name'].tolist()) + "\n")
 
     # 3. Report complexes with (possibly) different names, but with the same uniprot
     # accession participants (though not necessarily in the same order - hence the use of set below)
@@ -353,14 +354,10 @@ def sanity_test(dataDFs):
             complex_dups += ", ".join(complex_names) + " : " + ", ".join(participants_set) + "\n"
     if len(complex_dups) > 0:
         # data_errors_found = True
-        print("WARNING: The following multiple complexes (left) appear to have the same composition (right).\n")
+        print("WARNING: The following multiple complexes (left) appear to have the same composition (right):")
         print(complex_dups)
 
-    # 4. Remove (complete) duplicates from interaction_db_df
-    interaction_db_df.drop_duplicates(
-        ['id_cp_interaction','partner_a','partner_b'], inplace=True, keep='last')
-
-    # 5. Report interactions with (possibly) a different names, but with the same partners
+    # 4. Report interactions with (possibly) a different names, but with the same partners
     # accession participants (though not necessarily in the same order - hence the use of set below)
     partner_sets = [set([i for i in row]) for row in \
             interaction_db_df[['partner_a','partner_b']].itertuples(index=False)]
@@ -369,32 +366,34 @@ def sanity_test(dataDFs):
     duplicate_partner_sets = [x for x in partner_sets if x in seen or seen.add(frozenset(x))]
     if duplicate_partner_sets:
         # data_errors_found = True
-        print("WARNING: The following sets of interaction partners appear in multiple rows of interaction_input.csv file.\n")
+        print("WARNING: The following sets of interaction partners appear in multiple rows of interaction_input.csv file:")
         for dup in set([frozenset(x) for x in duplicate_partner_sets]):
             print(','.join(dup))
         print()
 
-    # 6. Remove (complete) duplicates from protein_db_df
-    protein_db_df.drop_duplicates(
-        ['uniprot','protein_name'], inplace=True, keep='last')
+    # 5. Warn about uniprot accession duplicates in protein_db_df
+    test_protein_db_df = protein_db_df.set_index('uniprot')
+    if test_protein_db_df.index.has_duplicates:
+        print("WARNING: protein_input.csv has the following UniProt accession duplicates:")
+        print("\n".join(protein_db_df[test_protein_db_df.index.duplicated(keep='first')]['uniprot'].tolist()) + "\n")
 
-    # 7. Warn the user if some complexes don't participate in any interactions
+    # 6. Warn the user if some complexes don't participate in any interactions
     all_complexes_set = set(complex_db_df['complex_name'].tolist())
     interaction_participants_set = set (interaction_db_df['partner_a'].tolist() + interaction_db_df['partner_b'].tolist())
     orphan_complexes = all_complexes_set - interaction_participants_set
     if orphan_complexes:
-        print("WARNING: The following complexes are not found in interaction_input.txt")
+        print("WARNING: The following complexes are not found in interaction_input.txt:")
         print ("\n".join(orphan_complexes))
     print()
 
-    # 8. Warn the user if some proteins don't participate in any interactions directly, or are part some complex in orphan_complexes
+    # 7. Warn the user if some proteins don't participate in any interactions directly, or are part some complex in orphan_complexes
     all_proteins_set = set(protein_db_df['uniprot'].tolist())
     proteins_in_complexes_participating_in_interactions = []
     for colName in PROTEIN_COLUMN_NAMES:
         proteins_in_complexes_participating_in_interactions += complex_db_df[~complex_db_df['complex_name'].isin(orphan_complexes)][colName].tolist()
     orphan_proteins = all_proteins_set - interaction_participants_set - set(proteins_in_complexes_participating_in_interactions)
     if orphan_proteins:
-        print("WARNING: The following proteins are not found in interaction_input.txt (either directly or via complexes they are part of)")
+        print("WARNING: The following proteins are not found in interaction_input.txt (either directly or via complexes they are part of):")
         print ("\n".join(orphan_proteins))
 
     if data_errors_found:
