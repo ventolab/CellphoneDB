@@ -156,7 +156,7 @@ def create_db(target_dir) -> None:
     protein_input = os.path.join(target_dir, "protein_input.csv")
     complex_input = os.path.join(target_dir, "complex_input.csv")
     interaction_input = os.path.join(target_dir, "interaction_input.csv")
-    gene_synonyms_input = os.path.join(target_dir, "uniprot_synonyms.tsv")
+    gene_synonyms_input = os.path.join(target_dir, "sources/uniprot_synonyms.tsv")
 
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     dataDFs = getDFs(gene_input=gene_input, protein_input=protein_input, complex_input=complex_input,
@@ -294,13 +294,15 @@ def download_database(target_dir, cpdb_version):
     download_released_files(target_dir, cpdb_version, "cellphonedb.zip|_input|sources\/uniprot_synonyms")
 
 def download_released_files(target_dir, cpdb_version, regex):
-    pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     r = urllib.request.urlopen('https://github.com/prete/cellphonedb-data/archive/refs/tags/{}.zip'.format(cpdb_version))
     zipContent = ZipFile(io.BytesIO(r.read()))
     for fpath in zipContent.namelist():
         if re.search(regex, fpath):
             fname = fpath.split("/")[-1]
             if fname:
+                if re.search("sources", fpath):
+                    target_dir = os.path.join(target_dir, "sources")
+                pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
                 with open(os.path.join(target_dir, fname), 'wb') as f:
                     f.write(zipContent.read(fpath))
                     print("Downloaded {} into {}".format(fname, target_dir))
