@@ -81,7 +81,7 @@ def call(
         counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, \
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
-    # get reduced interactions (drop duplicateds)
+    # get reduced interactions (drop duplicates)
     interactions_reduced = interactions[['multidata_1_id', 'multidata_2_id']].drop_duplicates()
 
     # add id multidata and means to counts input
