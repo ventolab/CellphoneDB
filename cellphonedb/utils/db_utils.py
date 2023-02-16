@@ -18,6 +18,8 @@ MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
                                 'transmembrane','secreted','peripheral','integrin','is_complex']
 INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input']
 PROTEIN_COLUMN_NAMES = ['uniprot_1','uniprot_2','uniprot_3','uniprot_4','uniprot_5']
+# This is used to indicate CellPhoneDB released data (as opposed to user-added data when they create their own CellPhoneDB file)
+CORE_CELLPHONEDB_DATA = "CellPhoneDBcore"
 
 def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
     """
@@ -163,7 +165,7 @@ def create_db(target_dir) -> None:
                      interaction_input=interaction_input, gene_synonyms_input=gene_synonyms_input)
 
     # Perform sanity tests on *_input files and report any issues to the user as warnings
-    sanity_test(dataDFs)
+    run_sanity_tests(dataDFs)
 
     # Collect protein data
     protein_db_df = dataDFs['protein_input'][['protein_name', 'tags', 'tags_reason', 'tags_description', 'uniprot']]
@@ -316,7 +318,7 @@ def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_
     dfs['gene_synonyms_input'] = file_utils.read_data_table_from_file(gene_synonyms_input)
     return dfs
 
-def sanity_test(dataDFs):
+def run_sanity_tests(dataDFs):
     data_errors_found = False
     protein_db_df = dataDFs['protein_input']
     complex_db_df = dataDFs['complex_input']
@@ -341,19 +343,32 @@ def sanity_test(dataDFs):
     # 3. Report complexes with (possibly) different names, but with the same uniprot
     # accession participants (though not necessarily in the same order - hence the use of set below)
     # NB. Use set below as we don't care about the order of participants when looking for duplicates
+    # NB. Report duplicate complexes _only if_ at least one duplicate's complex_db_df['version']
+    # does not start with CORE_CELLPHONEDB_DATA)
     participants_set_to_complex_names = {}
-    for row in complex_db_df[['complex_name'] + PROTEIN_COLUMN_NAMES].itertuples(index=False):
-        participants_set = frozenset([i for i in row[1:] if str(i) != 'nan'])
+    participants_set_to_data_sources = {}
+    for row in complex_db_df[['complex_name','version'] + PROTEIN_COLUMN_NAMES].itertuples(index=False):
+        participants_set = frozenset([i for i in row[2:] if str(i) != 'nan'])
         complex_name = row[0]
+        data_source = row[1]
+        m = re.search(r"^{}".format(CORE_CELLPHONEDB_DATA), data_source)
+        if m:
+            # Store in source only CORE_CELLPHONEDB_DATA (i.e. exclude any version information)
+            # Here we just need to know that this is the
+            data_source = m[0]
         if participants_set not in participants_set_to_complex_names:
             participants_set_to_complex_names[participants_set] = [complex_name]
+            participants_set_to_data_sources[participants_set] = set([data_source])
         else:
             participants_set_to_complex_names[participants_set].append(complex_name)
+            participants_set_to_data_sources[participants_set].add(data_source)
     complex_dups = ""
     for participants_set in participants_set_to_complex_names:
-        complex_names = participants_set_to_complex_names[participants_set]
-        if len(complex_names) > 1:
-            complex_dups += ", ".join(complex_names) + " : " + ", ".join(participants_set) + "\n"
+        data_sources = list(participants_set_to_data_sources[participants_set])
+        if (len(data_sources) > 1 or not data_sources or data_sources[0] != CORE_CELLPHONEDB_DATA):
+            complex_names = participants_set_to_complex_names[participants_set]
+            if len(complex_names) > 1:
+                complex_dups += ", ".join(complex_names) + " : " + ", ".join(participants_set) + "\n"
     if len(complex_dups) > 0:
         # data_errors_found = True
         print("WARNING: The following multiple complexes (left) appear to have the same composition (right):")
