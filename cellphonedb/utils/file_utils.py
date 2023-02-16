@@ -212,6 +212,75 @@ def save_dfs_as_tsv(out, suffix, analysis_name, name2df):
         df.to_csv(file_path, sep = '\t', index=False)
         print("Saved {} to {}".format(name, file_path))
 
+def _load_microenvs(microenvs_filepath: str, meta: pd.DataFrame) -> pd.DataFrame:
+    """Load microenvironment file
+
+    This method reads a microenvironment file into a DataFrame.
+    Runs validations to make sure the file has enough columns and
+    that all the cell types in the microenvironment file are included in metadata file.
+
+    Parameters
+    ----------
+    microenvs_filepath
+        Path to the microenvironments file.
+    meta
+        Meta DataFrame.
+
+    Returns
+    -------
+    pd.DataFrame
+        Microenvrionments as a DataFrame read fro the input file.
+    """
+    CELL_TYPE = "cell_type"
+    MICRO_ENVIRONMENT = "microenvironment"
+    microenvs = read_data_table_from_file(os.path.realpath(microenvs_filepath))
+    microenvs.drop_duplicates(inplace=True)
+    len_columns = len(microenvs.columns)
+    if len_columns < 2:
+        raise Exception(f"Missing columns in microenvironments: 2 required but {len_columns} provided")
+    elif len_columns > 2:
+        print(f"WARNING: Microenvironments file expects 2 columns and got {len_columns}. Dropping extra columns.")
+    microenvs = microenvs.iloc[:, 0:2]
+    if any(~microenvs.iloc[:, 0].isin(meta.iloc[:, 0])):
+        raise Exception("Some clusters/cell_types in microenvironments file are not present in metadata")
+    microenvs.columns = [CELL_TYPE, MICRO_ENVIRONMENT]
+    return microenvs
+
+def _load_degs(degs_filepath: str, meta: pd.DataFrame) -> pd.DataFrame:
+    """Load DEGs file
+
+    This method reads a DEGs file into a DataFrame. Runs validations
+    to make sure the file has enough columns and that all the clusters
+    in DEGs are included in meta.
+
+    Parameters
+    ----------
+    degs_filepath
+        Path to the DEGs file.
+    meta
+        Meta DataFrame.
+
+    Returns
+    -------
+    DataFrame
+        DEGs as a DataFrame with cluster and genes columns.
+    """
+    CLUSTER = "cluster"
+    GENE = "gene"
+    degs_filepath = os.path.realpath(degs_filepath)
+    degs = read_data_table_from_file(degs_filepath)
+    len_columns = len(degs.columns)
+    if len_columns<2:
+        raise Exception(f"Missing columns in DEGs: 2 required but {len_columns} provided")
+    elif len_columns>2:
+        print(f"WARNING: DEGs expects 2 columns and got {len_columns}. Dropping extra columns.")
+    degs = degs.iloc[:, 0:2]
+    if any(~degs.iloc[:,0].isin(meta.iloc[:,0])):
+        raise Exception("Some clusters/cell_types in DEGs are not present in metadata")
+    degs.columns = [CLUSTER,GENE]
+    degs.drop_duplicates(inplace=True)
+    return degs
+
 def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None, gene_synonym2gene_name=None, counts_data=None) \
         -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
@@ -257,13 +326,13 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
     # Ensure that counts values are of type float32, and that all cells in meta exist in counts
     counts = counts_preprocessors.counts_preprocessor(counts, meta)
     if microenvs_fp:
-        microenvs = read_data_table_from_file(microenvs_fp)
+        microenvs = _load_microenvs(microenvs_fp, meta)
         loaded_user_files.append(microenvs_fp)
     else:
         microenvs = pd.DataFrame()
 
     if degs_fp:
-        degs = read_data_table_from_file(degs_fp)
+        degs = _load_degs(degs_fp, meta)
         loaded_user_files.append(degs_fp)
     else:
         degs = pd.DataFrame()
