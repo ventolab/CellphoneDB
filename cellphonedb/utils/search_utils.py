@@ -204,3 +204,73 @@ def return_all_identifiers(genes: pd.DataFrame, interactions: pd.DataFrame) -> p
         values = pd.concat([values, interactions[col]], ignore_index=True)
     result = pd.DataFrame(data=values, columns=['value']).drop_duplicates()
     return result
+
+def search_analysis_results(
+        query_cell_types_1: list = None,
+        query_cell_types_2: list = None,
+        query_genes: list = None,
+        query_interactions: list = None,
+        significant_means: pd.DataFrame = None,
+        deconvoluted: pd.DataFrame = None,
+        separator: str = "|"
+) -> pd.DataFrame:
+    """
+    Searches results of either statistical or DEG analysis for relevant interactions
+    matching any of:
+        1. A gene in query_genes
+        2. A complex containing a gene in query_genes
+        3. An interaction name in query_interactions (e.g. 12oxoLeukotrieneB4_byPTGR1)
+    where at least one pair of cell types containing one cell type from query_cell_types_1
+    and one cell type from query_cell_types_2 has a significant mean.
+    NB. If all of query_cell_types_1, query_cell_types_2, query_genes and query_interactions are set to None,
+    then all relevant interactions are returned.
+
+    Parameters
+    ----------
+    query_cell_types_1: list
+        A list of cell types
+    query_cell_types_2: list
+        A list of cell types
+    query_genes: list
+        A list of gene names
+    query_interactions: list
+        A list of interactions
+    significant_means: pd.DataFrame
+    deconvoluted: pd.DataFrame
+        Files output by either (by the same) statistical or DEG analysis
+    separator: str
+        Separator used in cell type pair column names in significant_means dataFrame
+    Returns
+    -------
+    pd.DataFrame
+        Relevant interactions from significant_means that match query criteria
+    """
+    if significant_means is None or deconvoluted is None:
+        print("ERROR: Both significant_means and deconvoluted dataframes need to be provided")
+        return
+
+    # Collect all combinations of cell types (disregarding the order) from query_cell_types_1 and query_cell_types_2
+    cell_type_pairs = []
+    if query_cell_types_1 is not None and query_cell_types_2 is not None:
+        for ct in query_cell_types_1:
+            for ct1 in query_cell_types_2:
+                cell_type_pairs += ["{}|{}".format(ct, ct1), "{}|{}".format(ct1, ct)]
+
+    # Collect all interactions from query_genes and query_interactions
+    interactions = set([])
+    if query_genes:
+            interactions = interactions.union(frozenset(deconvoluted[deconvoluted['gene_name'].isin(query_genes)]['id_cp_interaction'].tolist()))
+    if query_interactions:
+        interactions = interactions.union(frozenset(significant_means[significant_means['interacting_pair'].isin(query_interactions)]['id_cp_interaction'].tolist()))
+    # Extract from significant_means interactions with at least one significant interaction for any of cell_type_pairs
+    if cell_type_pairs:
+        cols_filter = significant_means.columns[significant_means.columns.isin(cell_type_pairs)]
+    else:
+        # select all cell_type|cell_type columns
+        cols_filter = significant_means.filter(regex="\{}".format(separator)).columns
+    result_df = significant_means[significant_means[cols_filter].notna().any(axis=1)]
+
+    if interactions:
+        result_df = result_df[significant_means['id_cp_interaction'].isin(interactions)]
+
+    return result_df[['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b'] + cell_type_pairs]
