@@ -119,6 +119,16 @@ def generate_output(multidata_id, genes):
     # Expect only a single result
     return protein_data_list[0]
 
+def get_uniprot_url(uniprot_accessions) -> str:
+    url_prefix = "https://www.uniprot.org/uniprotkb?query="
+    url_query = ""
+    # (accession:Q15825)%20OR%20(accession:P43681)%20OR%20(accession:Q05901)
+    for acc in uniprot_accessions:
+        if url_query != "":
+            url_query += "%20OR%20"
+        url_query += "(accession:{})".format(acc)
+    return url_prefix + url_query
+
 def get_html_table(data, complex_name2proteins) -> str:
     """
     Parameters
@@ -147,7 +157,8 @@ def get_html_table(data, complex_name2proteins) -> str:
                 if field.startswith(COMPLEX_PFX):
                     name = field.split(":")[1]
                     complex_mouseover = "Contains proteins: " + ', '.join(complex_name2proteins[name])
-                    html += "<td style=\"text-align:left\"><span title=\"{}\">{}</span></td>".format(complex_mouseover, name)
+                    multi_protein_uniprot_url = get_uniprot_url(complex_name2proteins[name])
+                    html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" title=\"{}\" href=\"{}\">{}</a></td>".format(complex_mouseover, multi_protein_uniprot_url, name)
                 elif field.startswith(SIMPLE_PFX):
                     name = field.split(":")[1]
                     html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" href=\"https://www.uniprot.org/uniprotkb/{}/entry\">{}</a></td>" \
