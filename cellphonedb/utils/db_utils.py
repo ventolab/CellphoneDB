@@ -237,13 +237,14 @@ def create_db(target_dir) -> None:
     dbg(complex_db_df.info)
     # Next collect all complex_composition data into cc_list
     cc_list = []
+    pos = len(PROTEIN_COLUMN_NAMES)
     for r in complex_db_df[PROTEIN_COLUMN_NAMES + ['complex_multidata_id','total_protein']].values.tolist():
         for acc in filter(lambda x: type(x) == str, r):
             protein_multidata_id = \
                 multidata_db_df.loc[(multidata_db_df['is_complex'] == False) & (multidata_db_df['name'] == acc), ['id_multidata']] \
                     .iat[0,0]
-            complex_multidata_id = r[4]
-            total_protein = r[5]
+            complex_multidata_id = r[pos]
+            total_protein = r[pos+1]
             cc_list.append([complex_multidata_id, protein_multidata_id, total_protein])
 
     complex_composition_df = pd.DataFrame(cc_list, columns=['complex_multidata_id', 'protein_multidata_id', 'total_protein'])
@@ -353,8 +354,8 @@ def run_sanity_tests(dataDFs):
         data_source = row[1]
         m = re.search(r"^{}".format(CORE_CELLPHONEDB_DATA), data_source)
         if m:
-            # Store in source only CORE_CELLPHONEDB_DATA (i.e. exclude any version information)
-            # Here we just need to know that this is the
+            # Store in data_source only CORE_CELLPHONEDB_DATA (i.e. exclude any version information)
+            # Here we just need to know that this complex was added by the CellphoneDB team
             data_source = m[0]
         if participants_set not in participants_set_to_complex_names:
             participants_set_to_complex_names[participants_set] = [complex_name]
