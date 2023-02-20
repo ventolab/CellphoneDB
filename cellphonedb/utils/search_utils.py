@@ -249,12 +249,26 @@ def search_analysis_results(
         print("ERROR: Both significant_means and deconvoluted dataframes need to be provided")
         return
 
+    if query_cell_types_1 is None or query_cell_types_1 is None:
+        print ("ERROR: Both query_cell_types_1 and query_cell_types_1 need to be provided. " + \
+               "If you wish to search for all cell type combinations, set them both to \"All\"")
+
     # Collect all combinations of cell types (disregarding the order) from query_cell_types_1 and query_cell_types_2
+    if query_cell_types_1 == "All" or query_cell_types_2 == "All":
+        cols_filter = significant_means.filter(regex="\{}".format(separator)).columns
+        all_cts = set([])
+        for ct_pair in [i.split(separator) for i in cols_filter.tolist()]:
+            all_cts |= set(ct_pair)
+        all_cell_types = list(all_cts)
+        if query_cell_types_1 == "All":
+            query_cell_types_1 = all_cell_types
+        if query_cell_types_2 == "All":
+            query_cell_types_2 = all_cell_types
     cell_type_pairs = []
-    if query_cell_types_1 is not None and query_cell_types_2 is not None:
-        for ct in query_cell_types_1:
-            for ct1 in query_cell_types_2:
-                cell_type_pairs += ["{}|{}".format(ct, ct1), "{}|{}".format(ct1, ct)]
+    for ct in query_cell_types_1:
+        for ct1 in query_cell_types_2:
+            cell_type_pairs += ["{}|{}".format(ct, ct1), "{}|{}".format(ct1, ct)]
+    cols_filter = significant_means.columns[significant_means.columns.isin(cell_type_pairs)]
 
     # Collect all interactions from query_genes and query_interactions
     interactions = set([])
@@ -263,14 +277,9 @@ def search_analysis_results(
     if query_interactions:
         interactions = interactions.union(frozenset(significant_means[significant_means['interacting_pair'].isin(query_interactions)]['id_cp_interaction'].tolist()))
     # Extract from significant_means interactions with at least one significant interaction for any of cell_type_pairs
-    if cell_type_pairs:
-        cols_filter = significant_means.columns[significant_means.columns.isin(cell_type_pairs)]
-    else:
-        # select all cell_type|cell_type columns
-        cols_filter = significant_means.filter(regex="\{}".format(separator)).columns
     result_df = significant_means[significant_means[cols_filter].notna().any(axis=1)]
 
     if interactions:
         result_df = result_df[significant_means['id_cp_interaction'].isin(interactions)]
 
-    return result_df[['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b'] + cell_type_pairs]
+    return result_df[['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b'] + cols_filter.tolist()]
