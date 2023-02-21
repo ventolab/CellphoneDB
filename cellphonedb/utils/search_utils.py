@@ -7,6 +7,7 @@ import pandas as pd
 SIMPLE_PFX="simple:"
 COMPLEX_PFX = 'complex:'
 ENS_PFX = "ENS"
+INTERACTION_COLUMNS = ['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b']
 
 def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, complex_expanded, complex_composition):
     constituent_proteins = []
@@ -212,7 +213,8 @@ def search_analysis_results(
         query_interactions: list = None,
         significant_means: pd.DataFrame = None,
         deconvoluted: pd.DataFrame = None,
-        separator: str = "|"
+        separator: str = "|",
+        long_format: bool = False
 ) -> pd.DataFrame:
     """
     Searches results of either statistical or DEG analysis for relevant interactions
@@ -240,6 +242,8 @@ def search_analysis_results(
         Files output by either (by the same) statistical or DEG analysis
     separator: str
         Separator used in cell type pair column names in significant_means dataFrame
+    long_format: bool
+        Return the search result DataFrame in long format (while dropping rows with NaN in significant_mean column)
     Returns
     -------
     pd.DataFrame
@@ -276,10 +280,27 @@ def search_analysis_results(
             interactions = interactions.union(frozenset(deconvoluted[deconvoluted['gene_name'].isin(query_genes)]['id_cp_interaction'].tolist()))
     if query_interactions:
         interactions = interactions.union(frozenset(significant_means[significant_means['interacting_pair'].isin(query_interactions)]['id_cp_interaction'].tolist()))
-    # Extract from significant_means interactions with at least one significant interaction for any of cell_type_pairs
-    result_df = significant_means[significant_means[cols_filter].notna().any(axis=1)]
 
     if interactions:
-        result_df = result_df[significant_means['id_cp_interaction'].isin(interactions)]
+        result_df = significant_means[significant_means['id_cp_interaction'].isin(interactions)]
+    else:
+        result_df = significant_means
 
-    return result_df[['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b'] + cols_filter.tolist()]
+    # Filter out cell_type_pairs/columns in cols_filter for which no interaction in interactions set is significant
+    cols_filter = cols_filter[result_df[cols_filter].notna().any(axis=0)]
+
+    # Filter out interactions which are not significant in any cell_type_pair/column in cols_filter
+    result_df = result_df[result_df[cols_filter].notna().any(axis=1)]
+    # Select display columns
+    result_df = result_df[INTERACTION_COLUMNS + cols_filter.tolist()]
+
+    if long_format:
+        # Convert the results DataFrame from (default) wide to long format
+        result_df = pd.melt(result_df,
+                                 id_vars=result_df.columns[0:len(INTERACTION_COLUMNS)],
+                                 value_vars=result_df.columns[len(INTERACTION_COLUMNS):],
+                                 value_name='significant_mean',
+                                 var_name='interacting_cells') \
+            .dropna(subset=['significant_mean'])
+
+    return result_df
