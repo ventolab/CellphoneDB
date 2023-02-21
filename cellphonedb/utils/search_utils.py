@@ -267,7 +267,7 @@ def search_analysis_results(
     cell_type_pairs = []
     for ct in query_cell_types_1:
         for ct1 in query_cell_types_2:
-            cell_type_pairs += ["{}|{}".format(ct, ct1), "{}|{}".format(ct1, ct)]
+            cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
     cols_filter = significant_means.columns[significant_means.columns.isin(cell_type_pairs)]
 
     # Collect all interactions from query_genes and query_interactions
