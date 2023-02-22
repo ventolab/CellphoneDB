@@ -1,4 +1,5 @@
 pandas>=1.5.0
+scanpy>=1.9.1
 numpy>=1.21.6
 numpy-groupies>=0.9.15
 requests>=2.25
