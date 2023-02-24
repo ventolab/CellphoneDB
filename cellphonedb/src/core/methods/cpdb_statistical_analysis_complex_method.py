@@ -85,7 +85,6 @@ def call(meta: pd.DataFrame,
                                                                                    cluster_combinations,
                                                                                    complex_to_protein_row_ids,
                                                                                    real_mean_analysis,
-                                                                                   base_result,
                                                                                    threads,
                                                                                    separator)
 

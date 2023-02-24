@@ -463,7 +463,6 @@ def shuffled_analysis(iterations: int,
                       cluster_combinations: list,
                       complex_to_protein_ids: dict,
                       real_mean_analysis: pd.DataFrame,
-                      base_result: pd.DataFrame,
                       threads: int,
                       separator: str) -> list:
     """
@@ -471,9 +470,9 @@ def shuffled_analysis(iterations: int,
 
     Runs it in a multiple threads to run it faster
     """
+    results = []
     with Pool(processes=threads) as pool:
         statistical_analysis_thread = partial(_statistical_analysis,
-                                              base_result,
                                               cluster_combinations,
                                               counts,
                                               interactions,
@@ -481,12 +480,11 @@ def shuffled_analysis(iterations: int,
                                               complex_to_protein_ids,
                                               separator,
                                               real_mean_analysis)
-        results = tqdm(pool.imap(statistical_analysis_thread, range(iterations)), total=iterations)
-        tuple(results)  # fetch the lazy results
+        for result in pool.imap(statistical_analysis_thread, range(iterations)):
+            results.append(result)
     return results
 
-def _statistical_analysis(base_result,
-                          cluster_combinations,
+def _statistical_analysis(cluster_combinations,
                           counts,
                           interactions,
                           meta,
