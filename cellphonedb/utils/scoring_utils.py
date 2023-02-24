@@ -188,7 +188,7 @@ def heteromer_geometric_expression(matrix: pd.DataFrame, cpdb_file_path: str) ->
 
     return final_df
 
-def _get_lr_outer_long(matrix, cell_type_tuple):
+def _get_lr_outer_long(matrix, cpdb_set_all, cell_type_tuple):
     cell_A = cell_type_tuple[0]
     cell_B = cell_type_tuple[1]
     # outer product
@@ -198,28 +198,24 @@ def _get_lr_outer_long(matrix, cell_type_tuple):
                                      list(matrix[cell_B])),
                             index=matrix.index,
                             columns=matrix.index)
-
     upper_idx = np.triu(np.ones(lr_outer.shape)).astype(bool)
     upper_tri = lr_outer.where(upper_idx)
-
     lower_idx = np.tril(np.ones(lr_outer.shape)).astype(bool)
     lower_tri = lr_outer.where(lower_idx)
-
     # Upper triangle (mtx_up) represents communication between cell B to cell A
-    # Lower triangle (mtx_df) represents communication between cell A to cell B
+    # Lower triangle (mtx_dn) represents communication between cell A to cell B
     mtx_up = upper_tri.stack().reset_index()
     mtx_dn = lower_tri.stack().reset_index()
-
     mtx_up.columns = [cell_A, cell_B, 'Score']
     mtx_dn.columns = [cell_A, cell_B, 'Score']
-
     lr_outer_long = pd.concat([mtx_up, mtx_dn])
-    return (cell_type_tuple, lr_outer_long)
+    lr_list = list(lr_outer_long.iloc[:, 0] + '|' + lr_outer_long.iloc[:, 1])
+    idx_interactions = [i in cpdb_set_all for i in lr_list]
+    return (cell_type_tuple, lr_outer_long.loc[idx_interactions])
 
-def _get_score(idx_interactions, interactions_df, cell_type_tuple, lr_outer_long):
+def _get_score(interactions_df, lr_outer_long_filt, cell_type_tuple):
     cell_A = cell_type_tuple[0]
     cell_B = cell_type_tuple[1]
-    lr_outer_long_filt = lr_outer_long.loc[idx_interactions].copy()
 
     # Add interaction id
     lr_outer_sorted = ['-'.join(sorted([a, b])) for a, b in
@@ -255,6 +251,7 @@ def score_product(matrix: pd.DataFrame, cpdb_file_path: str, threads: int) -> di
         TODO
 
     """
+    print("Calculating scores for all interactions and cell types...")
     matrix = matrix.copy()
 
     interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
@@ -270,30 +267,21 @@ def score_product(matrix: pd.DataFrame, cpdb_file_path: str, threads: int) -> di
     # that are described in the cpdb interaction file
     cpdb_list_a = list(interactions_df['partner_a']+'|'+interactions_df['partner_b'])
     cpdb_list_b = list(interactions_df['partner_b']+'|'+interactions_df['partner_a'])
-    cpdb_list_all = cpdb_list_a + cpdb_list_b
+    cpdb_set_all = set(cpdb_list_a + cpdb_list_b)
 
     # Calculate all cell type combinations
     # Initialize score dictionary
     combinations_cell_types = list(combinations_with_replacement(matrix.columns, 2))
     score_dict = {}
 
-    t0 = time.time()
+    results = []
     with Pool(processes=threads) as pool:
-        _get_lr_outer_long_thread = partial(_get_lr_outer_long, matrix)
-        results = tqdm(pool.imap(_get_lr_outer_long_thread, combinations_cell_types),
-                       total=len(combinations_cell_types))
-        tuple(results)  # fetch the lazy results
-    print(time.time() - t0, " got lr_outer_longs")
+        _get_lr_outer_long_thread = partial(_get_lr_outer_long, matrix, cpdb_set_all)
+        for tp in pool.imap(_get_lr_outer_long_thread, combinations_cell_types):
+            results.append(tp)
 
-    cnt = 0
     for cell_type_tuple, lr_outer_long in results:
-        if cnt == 0:
-            print(cell_type_tuple + " : " + lr_outer_long)
-            lr_list = list(lr_outer_long.iloc[:, 0] + '|' + lr_outer_long.iloc[:, 1])
-            idx_interactions = [i in cpdb_list_all for i in lr_list]
-        tp = _get_score(idx_interactions, interactions_df, cell_type_tuple, lr_outer_long)
+        tp = _get_score(interactions_df, lr_outer_long, cell_type_tuple)
         score_dict[tp[0]] = tp[1]
-        cnt += 1
-
 
     return score_dict
