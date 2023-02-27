@@ -39,7 +39,7 @@ def filter_genes_cluster(
     # Cell types present in metadata
     cell_type_data = set(metadata[cell_column_name])
 
-    for cell_type in cell_type_data:
+    for cell_type in tqdm(cell_type_data):
         # Obtain the barcode of the cells annotated under cell_type
         idx = metadata[cell_column_name] == cell_type
         cell_barcode = list(metadata.index[idx])
@@ -80,7 +80,7 @@ def mean_expression_cluster(matrix: pd.DataFrame, metadata: pd.DataFrame, cell_c
     # Cell types present in Metadata
     cell_type_data = set(metadata[cell_column_name])
 
-    for cell_type in cell_type_data:
+    for cell_type in tqdm(cell_type_data):
         # Obtain the barcode of the cells annotated with cell_type
         idx = metadata[cell_column_name] == cell_type
         cell_barcode = list(metadata.index[idx])
@@ -277,7 +277,8 @@ def score_product(matrix: pd.DataFrame, cpdb_file_path: str, threads: int) -> di
     results = []
     with Pool(processes=threads) as pool:
         _get_lr_outer_long_thread = partial(_get_lr_outer_long, matrix, cpdb_set_all)
-        for tp in pool.imap(_get_lr_outer_long_thread, combinations_cell_types):
+        for tp in tqdm(pool.imap(_get_lr_outer_long_thread, combinations_cell_types),
+                       total=len(combinations_cell_types)):
             results.append(tp)
 
     for cell_type_tuple, lr_outer_long in results:
