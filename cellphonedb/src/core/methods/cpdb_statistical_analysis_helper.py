@@ -480,7 +480,8 @@ def shuffled_analysis(iterations: int,
                                               complex_to_protein_ids,
                                               separator,
                                               real_mean_analysis)
-        for result in pool.imap(statistical_analysis_thread, range(iterations)):
+        for result in tqdm(pool.imap(statistical_analysis_thread, range(iterations)),
+                                     total=iterations):
             results.append(result)
     return results
 
