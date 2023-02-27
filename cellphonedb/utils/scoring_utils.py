@@ -11,7 +11,7 @@ from tqdm.std import tqdm
 
 import time
 
-def filter_genes_cluster(
+def filter_genes_per_cell_type(
         matrix: pd.DataFrame,
         metadata: pd.DataFrame,
         min_pct_cell: float,
@@ -26,13 +26,13 @@ def filter_genes_cluster(
     matrix: Normalized gene expression matrix (genes x barcodes).
     metadata: Index contains the barcode id and a single column named 'cell_type' indicating the group/cell type which the barcode belongs to.
     min_pct_cell : Percentage of cells required to express a given gene.
-    cell_column_name: Name of column containing the cluster name
+    cell_column_name: Name of the column containing cell types
 
     Returns
     -------
     pd.DataFrame
-        matrix with expression of a gene for all cells set to 0 - if that gene is expressed in less than min_pct_cell
-
+        matrix with expression of a gene set to 0 for all cells - if that gene is expressed in less than
+        min_pct_cell of cells
     """
     matrix = matrix.copy()
 
@@ -50,7 +50,7 @@ def filter_genes_cluster(
         # List of genes lowly expressed
         gene_lowly_expr = list(gene_expr_pct.index[gene_expr_pct < min_pct_cell])
 
-        # Set to zero those genes that are expressed in a given cell type below the 
+        # Set expression to zero for genes expressed in a given cell type below the
         # user defined min_pct_cell
         matrix.loc[gene_lowly_expr, cell_barcode] = 0
 
@@ -58,7 +58,7 @@ def filter_genes_cluster(
     return matrix
 
 
-def mean_expression_cluster(matrix: pd.DataFrame, metadata: pd.DataFrame, cell_column_name: str) -> pd.DataFrame:
+def mean_expression_per_cell_type(matrix: pd.DataFrame, metadata: pd.DataFrame, cell_column_name: str) -> pd.DataFrame:
     """
     This functions calculates the mean expression of each gene per group/cell type.
 
@@ -66,7 +66,7 @@ def mean_expression_cluster(matrix: pd.DataFrame, metadata: pd.DataFrame, cell_c
     ----------
     matrix: Normalized gene expression matrix (genes x barcodes).
     metadata: Index contains the barcode id and a single column named 'cell_type' indicating the group/cell type which the barcode belongs to.
-    cell_column_name: Name of column containing the cluster name
+    cell_column_name: Name of the column containing cell types
 
     Returns
     -------
@@ -85,7 +85,7 @@ def mean_expression_cluster(matrix: pd.DataFrame, metadata: pd.DataFrame, cell_c
         idx = metadata[cell_column_name] == cell_type
         cell_barcode = list(metadata.index[idx])
 
-        # Calculate mean expression per cluster
+        # Calculate mean expression per cell type
         out_dict[cell_type] = matrix[cell_barcode].mean(axis=1)
 
     # Convert the dictionary to a dataframe
@@ -93,38 +93,13 @@ def mean_expression_cluster(matrix: pd.DataFrame, metadata: pd.DataFrame, cell_c
 
     return matrix_mean_expr
 
-
-def scale_expression(matrix: pd.DataFrame, upper_range: int) -> pd.DataFrame:
-    """
-    Scale (up to upper_range) the expression of genes across all cell types in matrix
-
-    Parameters
-    ----------
-    matrix: (genes x cell types) mean expression matrix
-    upper_range: 0-upper_range is the range to which the expression of genes should be scaled
-
-    Returns
-    -------
-    pd.DataFrame
-        (genes x cell types) in which, for each gene in a given cell type, the expression was scaled to 0-upper_range
-    """
-
-    # Transpose matrix to apply scaling per row (i.e. scale across cell types)
-    scaler = MinMaxScaler(feature_range=(0, upper_range)).fit(matrix.T)
-    matrix_scaled = scaler.transform(matrix.T).T
-
-    matrix_scaled = pd.DataFrame(matrix_scaled,
-                                 index=matrix.index,
-                                 columns=matrix.columns)
-    return matrix_scaled
-
 def _geometric_mean(x):
     sub_values = list(x)
     sub_prod = np.prod(sub_values)
     geom = np.power(sub_prod, 1 / len(sub_values))
     return (geom)
 
-def heteromer_geometric_expression(matrix: pd.DataFrame, cpdb_file_path: str) -> pd.DataFrame:
+def heteromer_geometric_expression_per_cell_type(matrix: pd.DataFrame, cpdb_file_path: str) -> pd.DataFrame:
     """
     Parameters
     ----------
@@ -136,7 +111,7 @@ def heteromer_geometric_expression(matrix: pd.DataFrame, cpdb_file_path: str) ->
     pd.DataFrame
         (genes/complexes by cell type) in which the expression of a complex in a given cell type is
         a geometric mean of expressions of its constituents. Note that the only complexes included
-        are the ones for which all the constituent genes are in matrix
+        are the ones for which all the constituent genes are present in matrix
     """
     interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
@@ -188,68 +163,90 @@ def heteromer_geometric_expression(matrix: pd.DataFrame, cpdb_file_path: str) ->
 
     return final_df
 
-def _get_lr_outer_long(matrix, cpdb_set_all, cell_type_tuple):
-    cell_A = cell_type_tuple[0]
-    cell_B = cell_type_tuple[1]
-    # outer product
-    # rows: first element outer function
-    # cols: second element outer function
-    lr_outer = pd.DataFrame(np.outer(list(matrix[cell_A]),
-                                     list(matrix[cell_B])),
+def scale_expression(matrix: pd.DataFrame, upper_range: int) -> pd.DataFrame:
+    """
+    Scale (up to upper_range) the expression of genes across all cell types in matrix
+
+    Parameters
+    ----------
+    matrix: (genes x cell types) mean expression matrix
+    upper_range: 0-upper_range is the range to which the expression of genes should be scaled
+
+    Returns
+    -------
+    pd.DataFrame
+        (genes x cell types) in which, for each gene in a given cell type, the expression was scaled to 0-upper_range
+    """
+
+    # Transpose matrix to apply scaling per row (i.e. scale across cell types)
+    scaler = MinMaxScaler(feature_range=(0, upper_range)).fit(matrix.T)
+    matrix_scaled = scaler.transform(matrix.T).T
+
+    matrix_scaled = pd.DataFrame(matrix_scaled,
+                                 index=matrix.index,
+                                 columns=matrix.columns)
+    return matrix_scaled
+
+def _get_lr_scores(matrix, cpdb_set_all_lrs, cell_type_tuple) -> dict:
+    cell_type_A = cell_type_tuple[0]
+    cell_type_B = cell_type_tuple[1]
+    # Each cell in lr_outer is an arithmetic product:
+    # gene in row's mean expression in cell_type_A and gene in column's mean expression in cell_type_B
+    lr_outer = pd.DataFrame(np.outer(list(matrix[cell_type_A]),
+                                     list(matrix[cell_type_B])),
                             index=matrix.index,
                             columns=matrix.index)
     upper_idx = np.triu(np.ones(lr_outer.shape)).astype(bool)
     upper_tri = lr_outer.where(upper_idx)
     lower_idx = np.tril(np.ones(lr_outer.shape)).astype(bool)
     lower_tri = lr_outer.where(lower_idx)
-    # Upper triangle (mtx_up) represents communication between cell B to cell A
-    # Lower triangle (mtx_dn) represents communication between cell A to cell B
+    # Upper triangle (mtx_up) represents communication between cell type B to cell type A
+    # Lower triangle (mtx_dn) represents communication between cell type A to cell type B
     mtx_up = upper_tri.stack().reset_index()
     mtx_dn = lower_tri.stack().reset_index()
-    mtx_up.columns = [cell_A, cell_B, 'Score']
-    mtx_dn.columns = [cell_A, cell_B, 'Score']
+    mtx_up.columns = [cell_type_A, cell_type_B, 'Score']
+    mtx_dn.columns = [cell_type_A, cell_type_B, 'Score']
     lr_outer_long = pd.concat([mtx_up, mtx_dn])
     lr_list = list(lr_outer_long.iloc[:, 0] + '|' + lr_outer_long.iloc[:, 1])
-    idx_interactions = [i in cpdb_set_all for i in lr_list]
-    return (cell_type_tuple, lr_outer_long.loc[idx_interactions])
+    # Filtering interactions to only those in CellphoneDB
+    idx_interactions = [i in cpdb_set_all_lrs for i in lr_list]
+    lr_outer_long_filtered = lr_outer_long.loc[idx_interactions]
+    return (cell_type_tuple, lr_outer_long_filtered)
 
-def _get_score(interactions_df, lr_outer_long_filt, cell_type_tuple):
-    cell_A = cell_type_tuple[0]
-    cell_B = cell_type_tuple[1]
+def _add_interaction_id(interactions_df, lr_outer_long_filtered, cell_type_tuple):
+    cell_type_A = cell_type_tuple[0]
+    cell_type_B = cell_type_tuple[1]
 
     # Add interaction id
     lr_outer_sorted = ['-'.join(sorted([a, b])) for a, b in
-                       zip(lr_outer_long_filt.iloc[:, 0], lr_outer_long_filt.iloc[:, 1])]
+                       zip(lr_outer_long_filtered.iloc[:, 0], lr_outer_long_filtered.iloc[:, 1])]
     cpdb_sorted = ['-'.join(sorted([a, b])) for a, b in zip(interactions_df['partner_a'], interactions_df['partner_b'])]
-
     dict_cpdb_id = dict(zip(cpdb_sorted, interactions_df['id_cp_interaction']))
-    lr_outer_long_filt['id_cp_interaction'] = [dict_cpdb_id[i] for i in lr_outer_sorted]
+    lr_outer_long_filtered['id_cp_interaction'] = [dict_cpdb_id[i] for i in lr_outer_sorted]
 
-    # assign cell names
-    # first column is the sender
-    # second column the receiver
-    # third column the score
-    lr_outer_long_filt.columns = [cell_A, cell_B, 'Score', 'id_cp_interaction']
-    lr_outer_long_filt = lr_outer_long_filt.reset_index(drop=True)
+    lr_outer_long_filtered.columns = [cell_type_A, cell_type_B, 'Score', 'id_cp_interaction']
+    lr_outer_long_filtered = lr_outer_long_filtered.reset_index(drop=True)
 
-    return ('|'.join(sorted([cell_A, cell_B])), lr_outer_long_filt)
+    return ('|'.join(sorted([cell_type_A, cell_type_B])), lr_outer_long_filtered)
 
 
 def score_product(matrix: pd.DataFrame, cpdb_file_path: str, threads: int) -> dict:
     """
-    TODO
+    For each interaction in CellphoneDB and a pair of cell types it calculates a score based on
+    an arithmetic product of expressions of its participants in matrix
+
     Parameters
     ----------
     matrix: (genes/complexes by cell type) mean scaled expression matrix,
-        where complex means are geometric means across their constituents/subunits
+        where complex means are geometric means across their constituents(=subunits)
     cpdb_file_path: A full path of CellphoneDB database file
     threads: Number of threads to be used for parallel processing
 
     Returns
     -------
     dict
-        TODO
-
+        Cell type pair identifier -> DataFrame containing the score annotated with each cell type and
+        CellphoneDB interaction id.
     """
     print("Calculating scores for all interactions and cell types...")
     matrix = matrix.copy()
@@ -263,11 +260,11 @@ def score_product(matrix: pd.DataFrame, cpdb_file_path: str, threads: int) -> di
     interactions_df.replace(to_replace=id2name, inplace=True)
     interactions_df.rename(columns={'multidata_1_id': 'partner_a', 'multidata_2_id': 'partner_b'}, inplace=True)
 
-    # Create lists of the interacting LR (and the reverse) to keep in the lr_outer_long only those entries
+    # Create lists of the interacting LR (and the reverse) to keep in lr_outer_long only those entries
     # that are described in the cpdb interaction file
     cpdb_list_a = list(interactions_df['partner_a']+'|'+interactions_df['partner_b'])
     cpdb_list_b = list(interactions_df['partner_b']+'|'+interactions_df['partner_a'])
-    cpdb_set_all = set(cpdb_list_a + cpdb_list_b)
+    cpdb_set_all_lrs = set(cpdb_list_a + cpdb_list_b)
 
     # Calculate all cell type combinations
     # Initialize score dictionary
@@ -276,13 +273,15 @@ def score_product(matrix: pd.DataFrame, cpdb_file_path: str, threads: int) -> di
 
     results = []
     with Pool(processes=threads) as pool:
-        _get_lr_outer_long_thread = partial(_get_lr_outer_long, matrix, cpdb_set_all)
-        for tp in tqdm(pool.imap(_get_lr_outer_long_thread, combinations_cell_types),
+        _get_lr_scores_thread = partial(_get_lr_scores, matrix, cpdb_set_all_lrs)
+        for tp in tqdm(pool.imap(_get_lr_scores_thread, combinations_cell_types),
                        total=len(combinations_cell_types)):
             results.append(tp)
 
-    for cell_type_tuple, lr_outer_long in results:
-        tp = _get_score(interactions_df, lr_outer_long, cell_type_tuple)
-        score_dict[tp[0]] = tp[1]
+    for cell_type_tuple, lr_scores_filtered in results:
+        tp = _add_interaction_id(interactions_df, lr_scores_filtered, cell_type_tuple)
+        ct_pair = tp[0]
+        df_interaction_scores = tp[1]
+        score_dict[ct_pair] = df_interaction_scores
 
     return score_dict
