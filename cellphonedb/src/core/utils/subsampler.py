@@ -43,10 +43,10 @@ class Subsampler(object):
             Sub-sampled counts using the parameters passed in __init__ method
 
         """
-        input_genes = counts.shape[1]
+        input_cells = counts.shape[1]
 
         if self.num_cells is None:
-            self.num_cells = int(input_genes / 3)
+            self.num_cells = int(input_cells / 3)
 
         core_logger.info('Subsampling {} to {}'.format(input_genes, self.num_cells))
 
