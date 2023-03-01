@@ -139,10 +139,12 @@ def heteromer_geometric_expression_per_cell_type(matrix: pd.DataFrame, cpdb_file
     complex_geom_mean = dict()
     for complex_id in complex_name_2_subunits:
 
-        subunits_list = complex_name_2_subunits[complex_id]
+        # set used below to eliminate duplicate gene names
+        # (in cases where the same gene appears more than once in genes table)
+        subunits_set = set(complex_name_2_subunits[complex_id])
 
         # Remove nan values from heteromers
-        subunits_list = [i for i in subunits_list if str(i) != 'nan']
+        subunits_list = [i for i in subunits_set if str(i) != 'nan']
 
         # Test if all the members of subunits_list are present in matrix
         # if true then calculate the geometric mean of the complex
@@ -196,17 +198,8 @@ def _get_lr_scores(matrix, cpdb_set_all_lrs, cell_type_tuple) -> dict:
                                      list(matrix[cell_type_B])),
                             index=matrix.index,
                             columns=matrix.index)
-    upper_idx = np.triu(np.ones(lr_outer.shape)).astype(bool)
-    upper_tri = lr_outer.where(upper_idx)
-    lower_idx = np.tril(np.ones(lr_outer.shape)).astype(bool)
-    lower_tri = lr_outer.where(lower_idx)
-    # Upper triangle (mtx_up) represents communication between cell type B to cell type A
-    # Lower triangle (mtx_dn) represents communication between cell type A to cell type B
-    mtx_up = upper_tri.stack().reset_index()
-    mtx_dn = lower_tri.stack().reset_index()
-    mtx_up.columns = [cell_type_A, cell_type_B, 'Score']
-    mtx_dn.columns = [cell_type_A, cell_type_B, 'Score']
-    lr_outer_long = pd.concat([mtx_up, mtx_dn])
+    lr_outer_long = lr_outer.stack().reset_index()
+    lr_outer_long.columns = [cell_type_A, cell_type_B, 'Score']
     lr_list = list(lr_outer_long.iloc[:, 0] + '|' + lr_outer_long.iloc[:, 1])
     # Filtering interactions to only those in CellphoneDB
     idx_interactions = [i in cpdb_set_all_lrs for i in lr_list]
