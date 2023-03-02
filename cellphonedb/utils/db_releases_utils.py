@@ -35,6 +35,7 @@ def get_remote_database_versions_html(include_file_browsing: bool = False, min_v
                     if include_file_browsing:
                         html += "<th {}>{}</th>".format(css_style, 'Select file to browse')
                     html += "</tr>"
+                    first_row = False
                 if min_version:
                     # Skip unless rel_version >= min_version
                     rel_tag = rel['tag_name']
@@ -50,7 +51,6 @@ def get_remote_database_versions_html(include_file_browsing: bool = False, min_v
                         html += "<li><a href=\"javascript:get_input_file_as_html_table(\'{}\',\'{}\');\">{}</a></li>".format(rel['tag_name'], file_name, file_name)
                     html += "</ul></td>"
                 html += "</tr>"
-                first_row = False
             html += "</table>"
             result['db_releases_html_table'] = html
             return result
