@@ -25,7 +25,7 @@ def call(
          result_precision: int = 3,
          debug: bool = False,
          output_suffix: str = None
-         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+         ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Non-statistical method for analysis
 
     This methods calculates the mean and percent for the cluster interactions
@@ -60,7 +60,6 @@ def call(
     -------
     Tuple
         - means_result
-        - significant_means
         - deconvoluted_result
     """
     core_logger.info(
@@ -161,9 +160,8 @@ def call(
 
     file_utils.save_dfs_as_tsv(output_path, output_suffix, "simple_analysis", \
                             {"means_result" : means_result, \
-                            "significant_means" : significant_means, \
                             "deconvoluted_result" : deconvoluted_result} )
-    return means_result, significant_means, deconvoluted_result
+    return means_result, deconvoluted_result
 
 
 def build_results(interactions: pd.DataFrame,
