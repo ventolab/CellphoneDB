@@ -297,7 +297,7 @@ def download_database(target_dir, cpdb_version):
     download_released_files(target_dir, cpdb_version, "cellphonedb.zip|_input|sources\/uniprot_synonyms")
 
 def download_released_files(target_dir, cpdb_version, regex):
-    r = urllib.request.urlopen('https://github.com/prete/cellphonedb-data/archive/refs/tags/{}.zip'.format(cpdb_version))
+    r = urllib.request.urlopen('https://github.com/ventolab/cellphonedb-data/archive/refs/tags/{}.zip'.format(cpdb_version))
     zipContent = ZipFile(io.BytesIO(r.read()))
     for fpath in zipContent.namelist():
         if re.search(regex, fpath):
