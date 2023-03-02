@@ -25,7 +25,7 @@ if __name__ == '__main__':
     elif arg == 's':
         search_utils.search('ENSG00000134780,integrin_a10b1_complex', cpdb_dir)
     elif arg == 'rel':
-        db_releases_utils.get_remote_database_versions_html()
+        db_releases_utils.get_remote_database_versions_html(True, 4.0)
     elif arg == 'te':
         # Run statistical and deg analyses for endometrium example - for the purpose of comparing
         # results to old CellphoneDB or ones after the new code optiisations

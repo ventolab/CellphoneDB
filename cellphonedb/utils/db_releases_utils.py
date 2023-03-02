@@ -2,7 +2,7 @@ from cellphonedb.src.exceptions.NoReleasesException import NoReleasesException
 from typing import Union
 import requests
 
-def get_remote_database_versions_html(include_file_browsing=False):
+def get_remote_database_versions_html(include_file_browsing: bool = False, min_version: float = 4.1):
     """Retrieve a html table containing CellphoneDB database versions and release dates.
 
         Parameters
@@ -11,6 +11,8 @@ def get_remote_database_versions_html(include_file_browsing=False):
             False by default; True when invoked by cellphonedb.org \
             website only - to allow the user to select and browse individual input files from \
             https://github.com/ventolab/cellphonedb-data.
+        min_version: float
+            If not None, the only versions returned should be >= min_version
 
         Returns
         -------
@@ -33,6 +35,13 @@ def get_remote_database_versions_html(include_file_browsing=False):
                     if include_file_browsing:
                         html += "<th {}>{}</th>".format(css_style, 'Select file to browse')
                     html += "</tr>"
+                    first_row = False
+                if min_version:
+                    # Skip unless rel_version >= min_version
+                    rel_tag = rel['tag_name']
+                    rel_version = float('.'.join(rel_tag.replace('v', '').split(".")[0:2]))
+                    if rel_version < min_version:
+                        continue
                 html += "<td {}><a class=\"teal-text\" href=\"{}\">{}</a></td>".format(css_style, rel['html_url'], rel['tag_name'])
                 html += "<td {}>{}</td>".format(css_style, rel['published_at'].split("T")[0])
                 if include_file_browsing:
@@ -42,7 +51,6 @@ def get_remote_database_versions_html(include_file_browsing=False):
                         html += "<li><a href=\"javascript:get_input_file_as_html_table(\'{}\',\'{}\');\">{}</a></li>".format(rel['tag_name'], file_name, file_name)
                     html += "</ul></td>"
                 html += "</tr>"
-                first_row = False
             html += "</table>"
             result['db_releases_html_table'] = html
             return result
