@@ -2,7 +2,7 @@ from cellphonedb.src.exceptions.NoReleasesException import NoReleasesException
 from typing import Union
 import requests
 
-def get_remote_database_versions_html(include_file_browsing: bool = False, min_version: float = None):
+def get_remote_database_versions_html(include_file_browsing: bool = False, min_version: float = 4.1):
     """Retrieve a html table containing CellphoneDB database versions and release dates.
 
         Parameters
