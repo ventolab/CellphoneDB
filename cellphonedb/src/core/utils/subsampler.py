@@ -48,7 +48,7 @@ class Subsampler(object):
         if self.num_cells is None:
             self.num_cells = int(input_cells / 3)
 
-        core_logger.info('Subsampling {} to {}'.format(input_genes, self.num_cells))
+        core_logger.info('Subsampling {} to {}'.format(input_cells, self.num_cells))
 
         counts_t = counts.T
 
@@ -68,6 +68,6 @@ class Subsampler(object):
                 core_logger.warning(str(e))
             return counts
 
-        core_logger.info('Done subsampling {} to {}'.format(input_genes, self.num_cells))
+        core_logger.info('Done subsampling {} to {}'.format(input_cells, self.num_cells))
 
         return x_matrix.T
