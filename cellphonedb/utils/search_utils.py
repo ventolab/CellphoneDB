@@ -74,11 +74,11 @@ def search(query_str: str = "",
     duration = time.time() - start
     dbg("Output for query '{}':".format(query_str))
     # Output header
-    results.append(['CellphoneDB interaction ', 'Partner A', 'Partner B', 'Gene name A', 'Gene name B', ' Ensembl ID A', 'Ensembl ID B', 'Annotation strategy'])
+    results.append(['CellphoneDB interaction ', 'Partner A', 'Partner B', 'Gene name A', 'Gene name B', ' Ensembl ID A', 'Ensembl ID B', 'Annotation strategy', 'Curator'])
     for multidata_id in multidata_ids:
          interactions_data_list = interactions[[ \
              'id_cp_interaction','multidata_1_id', 'multidata_2_id', \
-             'name_1', 'name_2','is_complex_1', 'is_complex_2', 'annotation_strategy']] \
+             'name_1', 'name_2','is_complex_1', 'is_complex_2', 'annotation_strategy','curator']] \
             [interactions[['multidata_1_id', 'multidata_2_id']].apply(lambda row: row.astype(int).eq(multidata_id).any(),
                                                                      axis=1)].values.tolist()
          for interaction in interactions_data_list:
@@ -106,7 +106,8 @@ def search(query_str: str = "",
                  data_2[0],
                  data_1[1],
                  data_2[1],
-                 interaction[7]
+                 interaction[7],
+                 interaction[8]
              ]
              results.append(output_row)
     dbg("Total search time: " + str(round(duration, 2)) + "s")
