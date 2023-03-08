@@ -6,11 +6,7 @@
 
 ## What is CellPhoneDB?
 
-<<<<<<< HEAD
-CellPhoneDB is a publicly available repository of curated receptors, ligands and their interactions in **HUMAN**. Subunit architecture is included for both ligands and receptors, representing heteromeric complexes accurately. This is crucial, as cell-cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB includes manually curated & reviewd molecular interactions with evidenced role in cellular communication, which combines with [existing datasets](docs/ppi-resources.md) that pertain to cellular communication. Databases from which CellPhoneDB gets information are: UniProt, Ensembl, PDB, the IMEx consortium, IUPHAR.
-=======
-CellPhoneDB is a publicly available repository of curated receptors, ligands and their interactions in **HUMAN**. Subunit architecture is included for both ligands and receptors, representing heteromeric complexes accurately. This is crucial, as cell-cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB includes manually curated & reviewd molecular interactions with evidenced role in cellular communication, which combines with [existing datasets](Docs/ppi-resources.md) that pertain to cellular communication. Databases from which CellphoneDB gets information are: UniProt, Ensembl, PDB, the IMEx consortium, IUPHAR.
->>>>>>> e3d1b4c6407e0e19388565eb97675aa576dcb0ab
+CellPhoneDB is a publicly available repository of curated receptors, ligands and their interactions in **HUMAN**. Subunit architecture is included for both ligands and receptors, representing heteromeric complexes accurately. This is crucial, as cell-cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB includes manually curated & reviewd molecular interactions with evidenced role in cellular communication.
 
 CellPhoneDB can be used to search for a particular ligand/receptor, or interrogate your own single-cell transcriptomics data (or even bulk transcriptomics data if your samples represent pure populations!). 
 
