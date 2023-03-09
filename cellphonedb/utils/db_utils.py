@@ -168,7 +168,7 @@ def create_db(target_dir) -> None:
     run_sanity_tests(dataDFs)
 
     # Collect protein data
-    protein_db_df = dataDFs['protein_input'][['protein_name', 'tags', 'tags_reason', 'tags_description', 'uniprot' \
+    protein_db_df = dataDFs['protein_input'][['protein_name', 'tags', 'tags_reason', 'tags_description', 'uniprot', \
                                               'transmembrane','peripheral','secreted','secreted_desc','receptor','integrin']]
     num_proteins = protein_db_df.shape[0]
     multidata_id_list_so_far = list(range(num_proteins))
