@@ -168,7 +168,8 @@ def create_db(target_dir) -> None:
     run_sanity_tests(dataDFs)
 
     # Collect protein data
-    protein_db_df = dataDFs['protein_input'][['protein_name', 'tags', 'tags_reason', 'tags_description', 'uniprot']]
+    protein_db_df = dataDFs['protein_input'][['protein_name', 'tags', 'tags_reason', 'tags_description', 'uniprot' \
+                                              'transmembrane','peripheral','secreted','secreted_desc','receptor','integrin']]
     num_proteins = protein_db_df.shape[0]
     multidata_id_list_so_far = list(range(num_proteins))
     protein_db_df.insert(0, 'id_protein', multidata_id_list_so_far, False)
@@ -199,7 +200,9 @@ def create_db(target_dir) -> None:
 
     # Collect complex data
     complex_db_df = dataDFs['complex_input'] \
-        [PROTEIN_COLUMN_NAMES + ['pdb_structure','pdb_id','stoichiometry','comments_complex']]
+        [PROTEIN_COLUMN_NAMES + ['pdb_structure','pdb_id','stoichiometry','comments_complex','transmembrane','secreted', \
+                                 'secreted_desc','receptor','integrin','other','other_desc','reactome_reaction', \
+                                 'reactome_complex','complexPortal_complex','rhea_reaction']]
     # Note that uniprot_* cols will be dropped after complex_composition_df has been constructed
     num_complexes = complex_db_df.shape[0]
     complex_db_df.insert(0, 'id_complex', list(range(num_complexes)), False)
@@ -270,7 +273,7 @@ def create_db(target_dir) -> None:
     dbg(interactions_aux_df.info)
     dbg(interactions_aux_df.columns)
     interactions_df = interactions_aux_df[['id_cp_interaction','id_multidata_x','id_multidata_y', \
-                                          'source','annotation_strategy', 'curator']].copy()
+                                          'source','annotation_strategy', 'curator','source','is_ppi']].copy()
     interactions_df.rename(columns={'id_multidata_x': 'multidata_1_id', 'id_multidata_y': 'multidata_2_id'}, inplace=True)
     interactions_df.insert(0, 'id_interaction', list(range(interactions_df.shape[0])), False)
     dbg(interactions_df.shape, interactions_df.index, interactions_df.columns)
