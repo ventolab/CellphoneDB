@@ -107,7 +107,9 @@ def search(query_str: str = "",
                  data_1[1],
                  data_2[1],
                  interaction[7],
-                 interaction[8]
+                 interaction[8],
+                 interaction[9],
+                 interaction[10]
              ]
              results.append(output_row)
     dbg("Total search time: " + str(round(duration, 2)) + "s")
