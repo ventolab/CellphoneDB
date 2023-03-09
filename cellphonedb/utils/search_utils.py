@@ -153,7 +153,7 @@ def get_html_table(data, complex_name2proteins) -> str:
         if first_row:
             html += "<thead>"
         html += "<tr>"
-        for field in row:
+        for field in [str(x) for x in row]:
             # NB. the two last elements of row contain the mouseover text containing the complex's constituent proteins
             if first_row:
                 html += "<th style=\"text-align:left\">{}</th>".format(field)
