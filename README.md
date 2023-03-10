@@ -7,17 +7,19 @@ CellPhoneDB is a publicly available repository of curated receptors, ligands and
 
 Subunit architecture is included for both ligands and receptors, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic CellPhoneDB includes only manually curated & reviewd molecular interactions with evidenced role in cellular communication.
 
-For more details on the analysis check the [documentation](https://cellphonedb.readthedocs.io/en/latest/#), our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB v3).
+For more details on the analysis check the [DOCUMENTATION](https://cellphonedb.readthedocs.io/en/latest/#). 
+
+Plase cite our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB >= v3.0).
 
 
 ## New in CellPhoneDB-data v4.1.0
 
-This release of CellphoneDB database integrates new manually reviewed interactions with evidenced roles in cell-cell communication together with existing datasets that pertain to cellular communication (such as Shilts *et al.* 2022 and Cranley and Kanemura *et al.* 2023). Recently, the database expanded to include non-protein molecules acting as ligands.
+This release of CellphoneDB database integrates new manually reviewed interactions with evidenced roles in cell-cell communication together with existing datasets that pertain to cellular communication (such as Shilts *et al.* 2022 and Kanemura *et al.* 2023). Recently, the database expanded to include non-protein molecules acting as ligands.
 
 1. CellPhoneDB has been implemented as a python package, improving its efficiency and adding new methods, such as the CellPhoneDB results query function.
-2. Manually curated more protein-protein interactions involved in cell-cell communication, with a special focus on proteins acting as heteromeric complexes. The new database includes more than 2,900 high-confidence interactions, including heteromeric complexes. In this version we haved added new G-protein-coupled receptors interactions from Cranley and Kanemura *et al.* 2023 and  Shilts *et al.* 2022.
+2. Manually curated more protein-protein interactions involved in cell-cell communication, with a special focus on proteins acting as heteromeric complexes [cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data). The new database includes more than [2,900 high-confidence interactions](https://www.cellphonedb.org/database.html), including heteromeric complexes. In this version we haved added new G-protein-coupled receptors interactions from Kanemura *et al.* 2023 and  Shilts *et al.* 2022.
 3. Interactions retrieved from external resources have been removed from this release to include high-confidence interactions only.
-4. Tutorials for the new CellPhoneDB implementation [here](notebooks) and [documentation](https://cellphonedb.readthedocs.io).
+4. [Tutorials](notebooks) for the new CellPhoneDB implementation.
 
 See [here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes) updates from previous releases.
 
