@@ -241,3 +241,14 @@ Do not change the name of the input files, otherwise CellPhoneDB will not recogn
 CellPhoneDB is an open-source project. If you are interested in contributing to this project, please let us know.
 
 You can check all project documentation in the [docs](https://cellphonedb.readthedocs.io/en/latest/#) section
+
+
+## Citing CellphoneDB
+
+**CellphoneDB v4**: Single-cell roadmap of human gonadal development. L Garcia-Alonso, V Lorenzi et al. 2022 Nature [link](https://www.nature.com/articles/s41586-022-04918-4)
+
+**CellphoneDB v3**: Mapping the temporal and spatial dynamics of the human endometrium in vivo and in vitro. L Garcia-Alonso, L-François Handfield, K Roberts, K Nikolakopoulou et al. Nature Genetics 2021 [link](https://www.nature.com/articles/s41588-021-00972-2)
+
+**CellPhoneDB**: Inferring cell-cell communication from combined expression of multi-subunit receptor-ligand complexes. Efremova M, Vento-Tormo M, Teichmann S, Vento-Tormo R. Nat Protoc. 2020 [link](https://www.nature.com/articles/s41596-020-0292-x)
+
+The first version of CellphoneDB was developed at the Teichmann Lab by Roser Vento-Tormo and Mirjana Efremova (CellphoneDB v1 and v2). Currently, it is being further developed and supported by the Vento-Tormo Lab (Wellcome Sanger Institute, Cambridge, UK; CellphoneDB ≥v3).
