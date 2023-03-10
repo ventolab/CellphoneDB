@@ -10,7 +10,7 @@ CellPhoneDB tool provides different methods to assess cellular crosstalk between
 ### Novel features in v4
 1) New python package that can be easily executed in Jupyter Notebook and Collabs. 
 2) A new method to ease the query of CellPhoneDB results.
-3) Tutorials to run CellPhoneDB. 
+3) Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
 4) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
 5) A new database ([cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of 2,923 interactions.
 
@@ -367,9 +367,10 @@ Release notes
 ============================================
 
 ### cellphonedb v4.1.0
-1) CellPhoneDB v4 is now available as python package that can be easily executed in Jupyter Notebook and Collabs. 
-2) New method to ease the query of CellPhoneDB results.
-3) Tutorials to run CellPhoneDB. 
+1) New python package that can be easily executed in Jupyter Notebook and Collabs. 
+2) A new method to ease the query of CellPhoneDB results.
+3) Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
+4) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
 
 ### cellphonedb-data v4.1.0
 1) New database (v4.1.0) with more manually curated interactions, making up to a total of 2,923 interactions.
