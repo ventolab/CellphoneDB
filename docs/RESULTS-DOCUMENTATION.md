@@ -399,6 +399,12 @@ Release notes
 1) Updated interactions involving WNT pathway.
 
 
+Tutorials
+============================================
+Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
+
+
+
 FAQs
 ============================================
 ### 1. What are the counts input files accepted? 
