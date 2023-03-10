@@ -3,7 +3,7 @@
 
 
 
-CellphoneDB-v4 Documentation
+Documentation
 ============================================
 CellPhoneDB tool provides different methods to assess cellular crosstalk between different cell types by leveraging our CellphoneDB database of interacting molecules with single-cell transcriptome data.
 
