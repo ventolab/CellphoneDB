@@ -21,7 +21,7 @@ This release of CellphoneDB database integrates new manually reviewed interactio
 3. Interactions retrieved from external resources have been removed from this release to include high-confidence interactions only.
 4. [Tutorials](notebooks) for the new CellPhoneDB implementation.
 
-See [here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes) updates from previous releases.
+See updates from [previous releases here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes).
 
 
 ## Installing CellPhoneDB 
