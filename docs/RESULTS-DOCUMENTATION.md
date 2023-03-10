@@ -266,10 +266,10 @@ In other words:
 
 
 
-Database
+Interactions database
 ============================================
 
-CellphoneDB has its own database of interactions, which can be found at https://github.com/ventolab/cellphonedb-data
+CellphoneDB has its own database of interactions called **CellphoneDB-data**, which can be found at https://github.com/ventolab/cellphonedb-data
 
 We also provide a web server where you can search and query these interactions at https://www.cellphonedb.org/
 
