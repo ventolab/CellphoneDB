@@ -156,7 +156,7 @@ To consider microenvironments in any of the methods, add:
 You can define microenvironments with prior knowledge, imaging or Visium analysis with [cell2location](https://cell2location.readthedocs.io/en/latest/notebooks/cell2location_short_demo_downstream.html#4.-Identify-groups-of-co-located-cell-types-using-matrix-factorisation).
 
 
-# INPUT files
+# Input files
 
 ## Counts file
 
@@ -189,7 +189,7 @@ You can define microenvironments with prior knowledge, imaging or Visium analysi
 
 > NOTE that the cell type/cluster name should match those in your `meta.txt`.  
 
-# OUTPUT files
+# Output files
 
 All files (except "deconvoluted.txt") follow the same structure: rows depict interacting proteins while columns represent interacting cell type pairs. 
 
@@ -282,7 +282,7 @@ In other words:
 
 
 
-Interactions database
+DATABASE of interactions
 ============================================
 
 CellphoneDB has its own database of interactions called **CellphoneDB-data**, which can be found at https://github.com/ventolab/cellphonedb-data
