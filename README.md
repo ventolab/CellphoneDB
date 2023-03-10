@@ -7,9 +7,8 @@ CellPhoneDB is a publicly available repository of curated receptors, ligands and
 
 Subunit architecture is included for both ligands and receptors, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic CellPhoneDB includes only manually curated & reviewd molecular interactions with evidenced role in cellular communication.
 
-
-
 For more details on the analysis check the [documentation](https://cellphonedb.readthedocs.io/en/latest/#), our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB v3).
+
 
 ## New in CellPhoneDB-data v4.1.0
 
@@ -20,7 +19,8 @@ This release of CellphoneDB database integrates new manually reviewed interactio
 3. Interactions retrieved from external resources have been removed from this release to include high-confidence interactions only.
 4. Tutorials for the new CellPhoneDB implementation [here](notebooks) and [documentation](https://cellphonedb.readthedocs.io).
 
-See [here](previous_releases.md) updates from previous releases.
+See [here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes) updates from previous releases.
+
 
 ## Installing CellPhoneDB 
 NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
