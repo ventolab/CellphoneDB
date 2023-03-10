@@ -401,7 +401,7 @@ Release notes
 
 Tutorials
 ============================================
-Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
+Tutorials to run CellPhoneDB are available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks)
 
 
 
