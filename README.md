@@ -9,7 +9,7 @@ Subunit architecture is included for both ligands and receptors, representing he
 
 For more details on the analysis check the [DOCUMENTATION](https://cellphonedb.readthedocs.io/en/latest/#). 
 
-Plase cite our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB >= v3.0).
+Please cite our protocols paper [Efremova et al 2020](https://www.nature.com/articles/s41596-020-0292-x) or [Garcia-Alonso et al](https://www.nature.com/articles/s41588-021-00972-2) (for CellphoneDB >= v3.0).
 
 
 ## New in CellPhoneDB-data v4.1.0
