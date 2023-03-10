@@ -285,11 +285,13 @@ In other words:
 DATABASE of interactions
 ============================================
 
-CellphoneDB has its own database of interactions called **CellphoneDB-data**, which can be found at https://github.com/ventolab/cellphonedb-data
+CellphoneDB has its own database of interactions called **CellphoneDB-data**, which can be found at https://github.com/ventolab/cellphonedb-data CellphoneDB database (aka cellphonedb-data) is a **manually curated** repository of receptors, ligands and their interactions.  
 
-We also provide a web server where you can search and query these interactions at https://www.cellphonedb.org/
 
-All ligand–receptor interactions are **manually curated by us** by reviewing UniProt descriptions and PubMed information on membrane receptors. Cytokine and chemokine interactions were annotated following the International Union of Pharmacology annotation. The interactions of other groups of cell-surface proteins were manually reviewed, including the TGF family, integrins, lymphocyte receptors, semaphorins, ephrins, Notch and TNF receptors. The bibliography used to annotate the interaction is stored in "source". ‘Uniprot’ indicates that the interaction has been annotated using UniProt descriptions.
+## Key features of CellphoneDB
+- Subunit architecture is included for both ligands and receptors, representing **heteromeric complexes** accurately. 
+This is crucial, as cell-cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. 
+- Includes interactions involving **non-peptidic molecules** (i.e., not encoded by a gene) acting as ligands. Examples of these include steroid hormones (e.g., estrogen). To do so, we have reconstructed the biosynthetic pathways and used the last representative enzyme as a proxy of ligand abundance. We retrieve this information by manually reviewing and curating relevant literature and peer-reviewed pathway resources such as REACTOME. We include more than 200 interactions involving non-peptidic ligands!
 
 
 ## Database design: input files
