@@ -453,3 +453,17 @@ The datasets that are generated are increasing in the number of sequenced cells 
 
 ### 6. What is the meaning of “Rank” in the “significant_means.txt” output file? 
 The rank is calculated by counting the significant p-values per interaction pair (per row) and dividing with the total number of cluster-cluster comparisons. The idea is to prioritise interactions that are highly specific, that is they have only one or few significant p-values and to have on the bottom of the list the interactions that are present everywhere or not present anywhere at all.
+
+
+Citing
+============================================
+
+If you use CellphoneDB or CellphoneDB-data, please cite our papers:
+
+**CellphoneDB v4**: Single-cell roadmap of human gonadal development. L Garcia-Alonso, V Lorenzi et al. 2022 Nature [link](https://www.nature.com/articles/s41586-022-04918-4)
+
+**CellphoneDB v3**: Mapping the temporal and spatial dynamics of the human endometrium in vivo and in vitro. L Garcia-Alonso, L-François Handfield, K Roberts, K Nikolakopoulou et al. Nature Genetics 2021 [link](https://www.nature.com/articles/s41588-021-00972-2)
+
+**CellPhoneDB**: Inferring cell-cell communication from combined expression of multi-subunit receptor-ligand complexes. Efremova M, Vento-Tormo M, Teichmann S, Vento-Tormo R. Nat Protoc. 2020 [link](https://www.nature.com/articles/s41596-020-0292-x)
+
+The first version of CellphoneDB was developed at the Teichmann Lab by Roser Vento-Tormo and Mirjana Efremova (CellphoneDB v1 and v2). Currently, it is being further developed and supported by the Vento-Tormo Lab (Wellcome Sanger Institute, Cambridge, UK; CellphoneDB ≥v3).
