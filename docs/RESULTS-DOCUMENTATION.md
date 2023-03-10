@@ -361,6 +361,17 @@ Do you want to contribute  our curation effort?
 Users can submit their lists using the Python package version of CellphoneDB, and then send them via <contact@cellphonedb.org> or a pull request to the CellphoneDB data [repository](https://github.com/ventolab/CellphoneDB-data).
 
 
+Plotting results
+============================================
+
+Currently CellPhoneDB relies on external plotting implementations to represent the results. Examples are provided in the [tutorials](notebooks).
+
+We recommend using tools such as the ktplots:
+[@zktuong](https://github.com/zktuong):
+- [ktplots](https://www.github.com/zktuong/ktplots/) (R)
+- [ktplotspy](https://www.github.com/zktuong/ktplotspy/) (python)
+
+Or general tools such seaborn or ggplot.
 
 
 Release notes
