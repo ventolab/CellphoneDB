@@ -15,6 +15,22 @@ CellPhoneDB tool provides different methods to assess cellular crosstalk between
 5) A new database ([cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of 2,923 interactions.
 
 
+# Installation
+
+We highly recommend using an isolated python environment (as described in steps 1 and 2) using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or [virtualenv](https://docs.python.org/3/library/venv.html) but you could of course omit these steps and install via `pip` immediately.
+
+1. Create python=>3.8 environment
+- Using conda: `conda create -n cpdb python=3.8`
+- Using virtualenv: `python -m venv cpdb`
+
+2. Activate environment
+- Using conda: `source activate cpdb`
+- Using virtualenv: `source cpdb/bin/activate`
+
+3. Install CellPhoneDB `pip install cellphonedb`
+
+> NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
+
 
 # Analysis & Methods
 There are three ways of running CellphoneDB, each producing a specific output:
