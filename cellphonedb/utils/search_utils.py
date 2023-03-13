@@ -8,7 +8,10 @@ SIMPLE_PFX="simple:"
 COMPLEX_PFX = 'complex:'
 ENS_PFX = "ENS"
 INTERACTION_COLUMNS = ['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b']
-
+EXTERNAL_RESOURCE2URI = {'Reactome reaction' : 'https://reactome.org/content/detail',
+                         'Reactome complex' : 'https://reactome.org/content/detail',
+                         'ComplexPortal complex' : 'https://www.ebi.ac.uk/complexportal/complex',
+                         'Rhea reaction' : 'https://www.rhea-db.org/rhea'}
 def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, complex_expanded, complex_composition):
     constituent_proteins = []
     if complex_name not in complex_name2proteins:
@@ -20,7 +23,7 @@ def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, co
         complex_name2proteins[complex_name] = constituent_proteins
 
 def search(query_str: str = "",
-           cpdb_file_path: str = None)->(list, map):
+           cpdb_file_path: str = None)->(list, map, map, map, map):
     """
     Searches CellphoneDB interactions for genes/proteins/complexes in query_str
 
@@ -44,6 +47,8 @@ def search(query_str: str = "",
     interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
+    protein2Info, complex2Info, resource2Complex2Acc = \
+        db_utils.get_protein_and_complex_data_for_web(cpdb_file_path)
 
     complex_name2proteins = {}
     # Assemble a list of multidata_ids to search interactions DF with
@@ -113,7 +118,7 @@ def search(query_str: str = "",
              ]
              results.append(output_row)
     dbg("Total search time: " + str(round(duration, 2)) + "s")
-    return results, complex_name2proteins
+    return results, complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc
 
 
 def generate_output(multidata_id, genes):
@@ -133,7 +138,8 @@ def get_uniprot_url(uniprot_accessions) -> str:
         url_query += "(accession:{})".format(acc)
     return url_prefix + url_query
 
-def get_html_table(data, complex_name2proteins) -> str:
+def get_html_table(data, complex_name2proteins, \
+                   protein2Info, complex2Info, resource2Complex2Acc) -> str:
     """
     Parameters
     ----------
@@ -141,6 +147,16 @@ def get_html_table(data, complex_name2proteins) -> str:
         A list of sub-lists, where each sub-list represents details of a single interaction
     complex_name2proteins: map
         For all complexes that participate in the interactions found, a mapping to their constituent proteins
+    protein2Info: map
+        A mapping between a protein and the list of its details (e.g. 'transmembrane') to be displayed in
+        the sidebar when the user clicks in a protein accession in the search results table
+    protein2Info: map
+        A mapping between a protein and the list of its details (e.g. 'transmembrane') to be displayed in
+        the sidebar when the user clicks in a protein accession in the search results table
+    resource2Complex2Acc: map
+        A mapping between a external resource name (a key in EXTERNAL_RESOURCE2URI) and
+        a map between a complex name and its corresponding accession in that external resource
+
     Returns
     -------
     str
@@ -160,13 +176,44 @@ def get_html_table(data, complex_name2proteins) -> str:
             else:
                 if field.startswith(COMPLEX_PFX):
                     name = field.split(":")[1]
-                    complex_mouseover = "Contains proteins: " + ', '.join(complex_name2proteins[name])
+                    constituent_proteins = ', '.join(complex_name2proteins[name])
+                    complex_mouseover = "Contains proteins: {}".format(constituent_proteins)
                     multi_protein_uniprot_url = get_uniprot_url(complex_name2proteins[name])
-                    html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" title=\"{}\" href=\"{}\">{}</a></td>".format(complex_mouseover, multi_protein_uniprot_url, name)
+                    external_resource_links = ""
+                    for res in EXTERNAL_RESOURCE2URI:
+                        if res in resource2Complex2Acc:
+                            if name in resource2Complex2Acc[res]:
+                                acc =  resource2Complex2Acc[res][name]
+                                resLookupId = acc.replace("RHEA:","")
+                                external_resource_links += "<li><a href=\"{}/{}\" target=\"blank\"><i class=\"material-icons waves-effect\">insert_link</i>{}</a></li>" \
+                                    .format(EXTERNAL_RESOURCE2URI[res], resLookupId, acc)
+                    complexInformation = ""
+                    for item in complex2Info[name]:
+                        complexInformation += "<li><a>{}</a></li>".format(item)
+                    html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' title=\"{}\" href=\"#\">{}</a>" + \
+                    "<ul id=\"sidenav_{}\" class=\"sidenav\">" + \
+                    "<li><a class=\"subheader\">{}</a></li>"+ \
+                    "<li><a href=\"{}\" target=\"blank\"><i class=\"material-icons waves-effect\">insert_link</i>{}</a></li>" + \
+                    "{}" + \
+                    "<li><div class=\"divider\"></div></li>" + \
+                    "<li><a class=\"subheader\">Complex Information</a></li>" + \
+                    "{}" + \
+                    "</ul>" + \
+                    "</td> ").format(name, complex_mouseover, name, name, name, multi_protein_uniprot_url, constituent_proteins, external_resource_links, complexInformation)
                 elif field.startswith(SIMPLE_PFX):
                     name = field.split(":")[1]
-                    html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" href=\"https://www.uniprot.org/uniprotkb/{}/entry\">{}</a></td>" \
-                        .format(name, name)
+                    proteinInformation = ""
+                    for item in protein2Info[name]:
+                        proteinInformation += "<li><a>{}</a></li>".format(item)
+                    html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' href=\"#\">{}</a>" + \
+                    "<ul id=\"sidenav_{}\" class=\"sidenav\">" + \
+                    "<li><a class=\"subheader\">{}</a></li>"+ \
+                    "<li><a href=\"https://www.uniprot.org/uniprotkb/{}/entry\" target=\"blank\"><i class=\"material-icons waves-effect\">insert_link</i>UniProt</a></li>" + \
+                    "<li><div class=\"divider\"></div></li>" + \
+                    "<li><a class=\"subheader\">Protein Information</a></li>" + \
+                    "{}" + \
+                    "</ul>" + \
+                    "</td>").format(name, name, name, name, name, proteinInformation)
                 elif field.startswith(ENS_PFX):
                     html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" href=\"https://www.ensembl.org/id/{}\">{}</a></td>" \
                         .format(field, field)
