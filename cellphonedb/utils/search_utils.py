@@ -12,6 +12,13 @@ EXTERNAL_RESOURCE2URI = {'Reactome reaction' : 'https://reactome.org/content/det
                          'Reactome complex' : 'https://reactome.org/content/detail',
                          'ComplexPortal complex' : 'https://www.ebi.ac.uk/complexportal/complex',
                          'Rhea reaction' : 'https://www.rhea-db.org/rhea'}
+EXTERNAL_RESOURCE2FONT_ICON = {
+                         'Reactome reaction' : '<i class=\"material-icons waves-effect\">swap_horiz</i>',
+                         'Reactome complex' : '<i class=\"material-icons waves-effect tiny center\">group_work</i>',
+                         'ComplexPortal complex' : '<i class=\"material-icons waves-effect tiny center\">group_work</i>',
+                         'Rhea reaction' : '<i class=\"material-icons waves-effect\">swap_horiz</i>'}
+TEAL_COLOUR_STYLE = "style=\"color: #009688 !important;\""
+
 def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, complex_expanded, complex_composition):
     constituent_proteins = []
     if complex_name not in complex_name2proteins:
@@ -185,21 +192,21 @@ def get_html_table(data, complex_name2proteins, \
                             if name in resource2Complex2Acc[res]:
                                 acc =  resource2Complex2Acc[res][name]
                                 resLookupId = acc.replace("RHEA:","")
-                                external_resource_links += "<li><a href=\"{}/{}\" target=\"blank\"><i class=\"material-icons waves-effect\">insert_link</i>{}</a></li>" \
-                                    .format(EXTERNAL_RESOURCE2URI[res], resLookupId, acc)
+                                external_resource_links += "<li><a href=\"{}/{}\" target=\"blank\" {}>{}{}</a></li>" \
+                                    .format(EXTERNAL_RESOURCE2URI[res], resLookupId, TEAL_COLOUR_STYLE, EXTERNAL_RESOURCE2FONT_ICON[res], acc)
                     complexInformation = ""
                     for item in complex2Info[name]:
                         complexInformation += "<li><a>{}</a></li>".format(item)
                     html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' title=\"{}\" href=\"#\">{}</a>" + \
                     "<ul id=\"sidenav_{}\" class=\"sidenav\">" + \
                     "<li><a class=\"subheader\">{}</a></li>"+ \
-                    "<li><a href=\"{}\" target=\"blank\"><i class=\"material-icons waves-effect\">insert_link</i>{}</a></li>" + \
+                    "<li><a href=\"{}\" target=\"blank\" {}><i class=\"material-icons waves-effect\">insert_link</i>{}</a></li>" + \
                     "{}" + \
                     "<li><div class=\"divider\"></div></li>" + \
                     "<li><a class=\"subheader\">Complex Information</a></li>" + \
                     "{}" + \
                     "</ul>" + \
-                    "</td> ").format(name, complex_mouseover, name, name, name, multi_protein_uniprot_url, constituent_proteins, external_resource_links, complexInformation)
+                    "</td> ").format(name, complex_mouseover, name, name, name, multi_protein_uniprot_url, TEAL_COLOUR_STYLE, constituent_proteins, external_resource_links, complexInformation)
                 elif field.startswith(SIMPLE_PFX):
                     name = field.split(":")[1]
                     proteinInformation = ""
@@ -208,12 +215,12 @@ def get_html_table(data, complex_name2proteins, \
                     html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' href=\"#\">{}</a>" + \
                     "<ul id=\"sidenav_{}\" class=\"sidenav\">" + \
                     "<li><a class=\"subheader\">{}</a></li>"+ \
-                    "<li><a href=\"https://www.uniprot.org/uniprotkb/{}/entry\" target=\"blank\"><i class=\"material-icons waves-effect\">insert_link</i>UniProt</a></li>" + \
+                    "<li><a href=\"https://www.uniprot.org/uniprotkb/{}/entry\" target=\"blank\" {}><i class=\"material-icons waves-effect\">insert_link</i>{}</a></li>" + \
                     "<li><div class=\"divider\"></div></li>" + \
                     "<li><a class=\"subheader\">Protein Information</a></li>" + \
                     "{}" + \
                     "</ul>" + \
-                    "</td>").format(name, name, name, name, name, proteinInformation)
+                    "</td>").format(name, name, name, name, name, TEAL_COLOUR_STYLE, name, proteinInformation)
                 elif field.startswith(ENS_PFX):
                     html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" href=\"https://www.ensembl.org/id/{}\">{}</a></td>" \
                         .format(field, field)
