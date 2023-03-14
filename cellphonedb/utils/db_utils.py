@@ -34,7 +34,8 @@ def get_protein_and_complex_data_for_web(cpdb_file_path) -> Tuple[dict, dict, di
     cpxTable = dbTableDFs['complex_table']
 
     for col in set(PROTEIN_INFO_FIELDS_FOR_WEB + COMPLEX_INFO_FIELDS_FOR_WEB):
-        mtTable.loc[mtTable[col] == True, col] = col
+        # TODO datasome: Deal with other, other_desc logic
+        mtTable.loc[mtTable[col] == True, col] = col.capitalize()
         mtTable.loc[mtTable[col] == False, col] = np.nan
     mtp = mtTable[mtTable['is_complex'] == False]
     mtc = mtTable[mtTable['is_complex'] == True]
