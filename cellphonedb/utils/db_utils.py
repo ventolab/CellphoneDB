@@ -27,11 +27,12 @@ PROTEIN_COLUMN_NAMES = ['uniprot_1','uniprot_2','uniprot_3','uniprot_4','uniprot
 # This is used to indicate CellPhoneDB released data (as opposed to user-added data when they create their own CellPhoneDB file)
 CORE_CELLPHONEDB_DATA = "CellPhoneDBcore"
 
-def get_protein_and_complex_data_for_web(cpdb_file_path) -> Tuple[dict, dict, dict]:
+def get_protein_and_complex_data_for_web(cpdb_file_path) -> Tuple[dict, dict, dict, dict]:
     # Extract csv files from db_files_path/cellphonedb.zip into dbTableDFs
     dbTableDFs = extract_dataframes_from_db(cpdb_file_path)
     mtTable = dbTableDFs['multidata_table'].copy()
     cpxTable = dbTableDFs['complex_table']
+    proteinTable = dbTableDFs['protein_table']
 
     for col in set(PROTEIN_INFO_FIELDS_FOR_WEB + COMPLEX_INFO_FIELDS_FOR_WEB):
         mtTable.loc[mtTable[col] == True, col] = col.capitalize()
@@ -41,6 +42,9 @@ def get_protein_and_complex_data_for_web(cpdb_file_path) -> Tuple[dict, dict, di
             mtTable[col] = mtTable[col].str.replace("_"," ").str.capitalize()
 
     mtp = mtTable[mtTable['is_complex'] == False]
+    aux = pd.merge(mtp, proteinTable, left_on='id_multidata', right_on='protein_multidata_id')
+    proteinAcc2Name = dict(zip(aux['name'], aux['protein_name']))
+
     mtc = mtTable[mtTable['is_complex'] == True]
 
     aux = dict(zip(mtp['name'], mtp[PROTEIN_INFO_FIELDS_FOR_WEB].values))
@@ -54,7 +58,7 @@ def get_protein_and_complex_data_for_web(cpdb_file_path) -> Tuple[dict, dict, di
         aux1 = aux.loc[pd.notna(aux[col])]
         resource2Complex2Acc[col.replace("_"," ").capitalize()] = dict(zip(aux1['name'], aux1[col]))
 
-    return protein2Info, complex2Info, resource2Complex2Acc
+    return protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name
 
 def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
     """

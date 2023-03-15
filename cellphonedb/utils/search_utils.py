@@ -12,8 +12,8 @@ EXTERNAL_RESOURCE2URI = {'Reactome reaction' : 'https://reactome.org/content/det
                          'Reactome complex' : 'https://reactome.org/content/detail',
                          'ComplexPortal complex' : 'https://www.ebi.ac.uk/complexportal/complex',
                          'Rhea reaction' : 'https://www.rhea-db.org/rhea'}
-SIDENAV_A_STYLE = "style=\"color: #009688; padding-left: 60px; !important; \""
-SIDENAV_PROPERTY_STYLE = "style=\"padding-left: 60px; !important; \""
+SIDENAV_PROPERTY_STYLE = "style=\"padding-left: 60px; font-size: 14px; margin: 20px 0px !important; \""
+SIDENAV_A_STYLE = "style=\"padding-left: 60px; font-size: 14px; margin: 20px 0px !important;\""
 
 def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, complex_expanded, complex_composition):
     constituent_proteins = []
@@ -50,7 +50,7 @@ def search(query_str: str = "",
     interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
-    protein2Info, complex2Info, resource2Complex2Acc = \
+    protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name = \
         db_utils.get_protein_and_complex_data_for_web(cpdb_file_path)
 
     complex_name2proteins = {}
@@ -121,7 +121,7 @@ def search(query_str: str = "",
              ]
              results.append(output_row)
     dbg("Total search time: " + str(round(duration, 2)) + "s")
-    return results, complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc
+    return results, complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name
 
 
 def generate_output(multidata_id, genes):
@@ -142,7 +142,7 @@ def get_uniprot_url(uniprot_accessions) -> str:
     return url_prefix + url_query
 
 def get_html_table(data, complex_name2proteins, \
-                   protein2Info, complex2Info, resource2Complex2Acc) -> str:
+                   protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name) -> str:
     """
     Parameters
     ----------
@@ -189,18 +189,18 @@ def get_html_table(data, complex_name2proteins, \
                             if name in resource2Complex2Acc[res]:
                                 acc =  resource2Complex2Acc[res][name]
                                 res_lookup_id = acc.replace("RHEA:","")
-                                external_resource_links += "<li><a href=\"{}/{}\" target=\"blank\" {}>{} {}</a></li>" \
+                                external_resource_links += "<a class=\"teal-text\" href=\"{}/{}\" target=\"blank\" {}>{} {}</a><br>" \
                                     .format(EXTERNAL_RESOURCE2URI[res], res_lookup_id, SIDENAV_A_STYLE, resource_label, acc)
                     complexInformation = ""
                     for item in complex2Info[name]:
-                        complexInformation += "<li><a {}>{}</a></li> ".format(SIDENAV_PROPERTY_STYLE, item)
+                        complexInformation += "<a {}>{}</a><br> ".format(SIDENAV_PROPERTY_STYLE, item)
                     html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' title=\"{}\" href=\"#\">{}</a>" + \
                     "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" + \
                     "<li><a class=\"subheader\">Complex Information</a></li>"+ \
-                    "<li><a {}><b>{}</b></a></li>"+
+                    "<a {}><b>{}</b></a>"+
                     "<li><div class=\"divider\"></div></li>" + \
                     "<li><a class=\"subheader black-text\">Members</a></li>" + \
-                    "<li><a href=\"{}\" target=\"blank\" {}>{} (see in UniProt)</a></li>" + \
+                    "<a class=\"teal-text\" href=\"{}\" target=\"blank\" {}>{} (see in UniProt)</a>" + \
                     "<li><div class=\"divider\"></div></li>" + \
                     "<li><a class=\"subheader black-text\">Properties</li>" + \
                     "{}" + \
@@ -213,16 +213,20 @@ def get_html_table(data, complex_name2proteins, \
                     name = field.split(":")[1]
                     proteinInformation = ""
                     for item in protein2Info[name]:
-                        proteinInformation += "<li><a {}>{}</a></li>".format(SIDENAV_PROPERTY_STYLE, item)
+                        proteinInformation += "<a {}>{}</a><br>".format(SIDENAV_PROPERTY_STYLE, item)
+                    if name in proteinAcc2Name:
+                        proteinName = proteinAcc2Name[name]
+                    else:
+                        proteinName = ""
                     html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' href=\"#\">{}</a>" + \
                     "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" + \
                     "<li><a class=\"subheader\">Protein Information</a></li>"+ \
-                    "<li><a href=\"https://www.uniprot.org/uniprotkb/{}/entry\" target=\"blank\" {}><b>{}</b> (See in UniProt)</a></li>" + \
+                    "<a href=\"https://www.uniprot.org/uniprotkb/{}/entry\" class=\"teal-text\" target=\"blank\" {}><b>{}</b> (See in UniProt)</a><br><a {}>{}</a>" + \
                     "<li><div class=\"divider\"></div></li>" + \
                     "<li><a class=\"subheader black-text\">Properties</li>" + \
                     "{}" + \
                     "</ul>" + \
-                    "</td>").format(name, name, name, name, SIDENAV_A_STYLE, name, proteinInformation)
+                    "</td>").format(name, name, name, name, SIDENAV_A_STYLE, name, SIDENAV_A_STYLE, proteinName, proteinInformation)
                 elif field.startswith(ENS_PFX):
                     html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" href=\"https://www.ensembl.org/id/{}\">{}</a></td>" \
                         .format(field, field)
