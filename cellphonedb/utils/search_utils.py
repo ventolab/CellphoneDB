@@ -197,7 +197,7 @@ def get_html_table(data, complex_name2proteins, \
                     html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' title=\"{}\" href=\"#\">{}</a>" + \
                     "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" + \
                     "<li><a class=\"subheader\">Complex Information</a></li>"+ \
-                    "<li><a><b>{}</b></a></li>"+
+                    "<li><a {}><b>{}</b></a></li>"+
                     "<li><div class=\"divider\"></div></li>" + \
                     "<li><a class=\"subheader black-text\">Members</a></li>" + \
                     "<li><a href=\"{}\" target=\"blank\" {}>{} (see in UniProt)</a></li>" + \
@@ -208,7 +208,7 @@ def get_html_table(data, complex_name2proteins, \
                     "<li><a class=\"subheader black-text\">Cross References</li>" + \
                     "{}" + \
                     "</ul>" + \
-                    "</td> ").format(name, complex_mouseover, name, name, name, multi_protein_uniprot_url, SIDENAV_A_STYLE, constituent_proteins, complexInformation, external_resource_links)
+                    "</td> ").format(name, complex_mouseover, name, name, SIDENAV_PROPERTY_STYLE, name, multi_protein_uniprot_url, SIDENAV_A_STYLE, constituent_proteins, complexInformation, external_resource_links)
                 elif field.startswith(SIMPLE_PFX):
                     name = field.split(":")[1]
                     proteinInformation = ""

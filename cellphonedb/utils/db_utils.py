@@ -17,8 +17,8 @@ from cellphonedb.src.core.exceptions.DatabaseCreationException import DatabaseCr
 MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
                                 'transmembrane','secreted','peripheral','integrin','is_complex']
 
-PROTEIN_INFO_FIELDS_FOR_WEB = ['transmembrane','secreted','secreted_desc','receptor','integrin','other','other_desc']
-COMPLEX_INFO_FIELDS_FOR_WEB = ['transmembrane','peripheral','secreted','receptor','integrin']
+PROTEIN_INFO_FIELDS_FOR_WEB = ['transmembrane','secreted','secreted_desc','receptor','integrin','other_desc']
+COMPLEX_INFO_FIELDS_FOR_WEB = ['transmembrane','peripheral','secreted', 'secreted_desc','receptor','integrin', 'other_desc']
 COMPLEX_CROSSREFERENCE_FIELDS_FOR_WEB = ['reactome_reaction', 'reactome_complex', 'complexPortal_complex',
                                          'rhea_reaction']
 
@@ -34,9 +34,12 @@ def get_protein_and_complex_data_for_web(cpdb_file_path) -> Tuple[dict, dict, di
     cpxTable = dbTableDFs['complex_table']
 
     for col in set(PROTEIN_INFO_FIELDS_FOR_WEB + COMPLEX_INFO_FIELDS_FOR_WEB):
-        # TODO datasome: Deal with other, other_desc logic
         mtTable.loc[mtTable[col] == True, col] = col.capitalize()
         mtTable.loc[mtTable[col] == False, col] = np.nan
+        if col in ['other_desc']:
+            # Sanitize values for displaying to the user
+            mtTable[col] = mtTable[col].str.replace("_"," ").str.capitalize()
+
     mtp = mtTable[mtTable['is_complex'] == False]
     mtc = mtTable[mtTable['is_complex'] == True]
 
