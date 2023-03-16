@@ -16,10 +16,49 @@ from cellphonedb.src.core.exceptions.DatabaseCreationException import DatabaseCr
 
 MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
                                 'transmembrane','secreted','peripheral','integrin','is_complex']
+
+PROTEIN_INFO_FIELDS_FOR_WEB = ['transmembrane','secreted','secreted_desc','receptor','integrin','other_desc']
+COMPLEX_INFO_FIELDS_FOR_WEB = ['transmembrane','peripheral','secreted', 'secreted_desc','receptor','integrin', 'other_desc']
+COMPLEX_CROSSREFERENCE_FIELDS_FOR_WEB = ['reactome_reaction', 'reactome_complex', 'complexPortal_complex',
+                                         'rhea_reaction']
+
 INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input']
 PROTEIN_COLUMN_NAMES = ['uniprot_1','uniprot_2','uniprot_3','uniprot_4','uniprot_5']
 # This is used to indicate CellPhoneDB released data (as opposed to user-added data when they create their own CellPhoneDB file)
 CORE_CELLPHONEDB_DATA = "CellPhoneDBcore"
+
+def get_protein_and_complex_data_for_web(cpdb_file_path) -> Tuple[dict, dict, dict, dict]:
+    # Extract csv files from db_files_path/cellphonedb.zip into dbTableDFs
+    dbTableDFs = extract_dataframes_from_db(cpdb_file_path)
+    mtTable = dbTableDFs['multidata_table'].copy()
+    cpxTable = dbTableDFs['complex_table']
+    proteinTable = dbTableDFs['protein_table']
+
+    for col in set(PROTEIN_INFO_FIELDS_FOR_WEB + COMPLEX_INFO_FIELDS_FOR_WEB):
+        mtTable.loc[mtTable[col] == True, col] = col.capitalize()
+        mtTable.loc[mtTable[col] == False, col] = np.nan
+        if col in ['other_desc']:
+            # Sanitize values for displaying to the user
+            mtTable[col] = mtTable[col].str.replace("_"," ").str.capitalize()
+
+    mtp = mtTable[mtTable['is_complex'] == False]
+    aux = pd.merge(mtp, proteinTable, left_on='id_multidata', right_on='protein_multidata_id')
+    proteinAcc2Name = dict(zip(aux['name'], aux['protein_name']))
+
+    mtc = mtTable[mtTable['is_complex'] == True]
+
+    aux = dict(zip(mtp['name'], mtp[PROTEIN_INFO_FIELDS_FOR_WEB].values))
+    protein2Info = {k: [x for x in aux[k] if str(x) != 'nan'] for k in aux}
+    aux = dict(zip(mtc['name'], mtc[COMPLEX_INFO_FIELDS_FOR_WEB].values))
+    complex2Info = {k: [x for x in aux[k] if str(x) != 'nan'] for k in aux}
+
+    aux = pd.merge(mtc, cpxTable, left_on='id_multidata', right_on='complex_multidata_id')
+    resource2Complex2Acc = {}
+    for col in COMPLEX_CROSSREFERENCE_FIELDS_FOR_WEB:
+        aux1 = aux.loc[pd.notna(aux[col])]
+        resource2Complex2Acc[col.replace("_"," ").capitalize()] = dict(zip(aux1['name'], aux1[col]))
+
+    return protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name
 
 def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
     """
@@ -199,7 +238,8 @@ def create_db(target_dir) -> None:
 
     # Collect complex data
     complex_db_df = dataDFs['complex_input'] \
-        [PROTEIN_COLUMN_NAMES + ['pdb_structure','pdb_id','stoichiometry','comments_complex']]
+        [PROTEIN_COLUMN_NAMES + ['pdb_structure','pdb_id','stoichiometry','comments_complex', \
+                                 'reactome_reaction', 'reactome_complex','complexPortal_complex','rhea_reaction']]
     # Note that uniprot_* cols will be dropped after complex_composition_df has been constructed
     num_complexes = complex_db_df.shape[0]
     complex_db_df.insert(0, 'id_complex', list(range(num_complexes)), False)
@@ -270,7 +310,7 @@ def create_db(target_dir) -> None:
     dbg(interactions_aux_df.info)
     dbg(interactions_aux_df.columns)
     interactions_df = interactions_aux_df[['id_cp_interaction','id_multidata_x','id_multidata_y', \
-                                          'source','annotation_strategy']].copy()
+                                          'source','annotation_strategy','curator','is_ppi']].copy()
     interactions_df.rename(columns={'id_multidata_x': 'multidata_1_id', 'id_multidata_y': 'multidata_2_id'}, inplace=True)
     interactions_df.insert(0, 'id_interaction', list(range(interactions_df.shape[0])), False)
     dbg(interactions_df.shape, interactions_df.index, interactions_df.columns)
