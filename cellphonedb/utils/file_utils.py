@@ -4,6 +4,8 @@ import pickle
 from typing import TextIO, Optional, Tuple
 import csv
 import scipy.io
+import io
+import zipfile
 from anndata import read_h5ad, AnnData
 import pandas as pd
 
@@ -211,6 +213,21 @@ def save_dfs_as_tsv(out, suffix, analysis_name, name2df):
         file_path = os.path.join(out, "{}_{}_{}.{}".format(analysis_name, name, suffix, "txt"))
         df.to_csv(file_path, sep = '\t', index=False)
         print("Saved {} to {}".format(name, file_path))
+
+def save_scored_interactions_as_zip(out, suffix, analysis_name, interaction_scores_dict):
+    name = "interaction_scores"
+    if suffix is None:
+        suffix = get_timestamp_suffix()
+    os.makedirs(out, exist_ok=True)
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "a",
+                         zipfile.ZIP_DEFLATED, False) as zip_file:
+        for ctPair, df in interaction_scores_dict.items():
+            zip_file.writestr('{}.csv'.format(ctPair), df.to_csv(index=False, sep=',').encode('utf-8'))
+    file_path = os.path.join(out, '{}_{}_{}.{}'.format(analysis_name, name, suffix, "zip"))
+    with open(file_path, 'wb') as f:
+        f.write(zip_buffer.getvalue())
+    print("Saved {} to {}".format(name, file_path))
 
 def _load_microenvs(microenvs_filepath: str, meta: pd.DataFrame) -> pd.DataFrame:
     """Load microenvironment file

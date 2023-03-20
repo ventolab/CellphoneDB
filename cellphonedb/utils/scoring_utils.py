@@ -4,6 +4,7 @@ from cellphonedb.utils import db_utils
 from scipy.stats.mstats import gmean
 from sklearn.preprocessing import MinMaxScaler
 from itertools import combinations_with_replacement
+from cellphonedb.src.core.core_logger import core_logger
 
 from functools import partial
 from multiprocessing.pool import Pool
@@ -34,6 +35,7 @@ def filter_genes_per_cell_type(
         matrix with expression of a gene set to 0 for all cells - if that gene is expressed in less than
         min_pct_cell of cells
     """
+    core_logger.info("Scoring interactions: Filtering genes per cell type..")
     matrix = matrix.copy()
 
     # Cell types present in metadata
@@ -74,6 +76,7 @@ def mean_expression_per_cell_type(matrix: pd.DataFrame, metadata: pd.DataFrame, 
         (genes x cell types) containing mean expression of a gene in a given cell type
 
     """
+    core_logger.info("Scoring interactions: Calculating mean expression of each gene per group/cell type..")
     matrix = matrix.copy()
     out_dict = {}
 
@@ -99,7 +102,12 @@ def _geometric_mean(x):
     geom = np.power(sub_prod, 1 / len(sub_values))
     return (geom)
 
-def heteromer_geometric_expression_per_cell_type(matrix: pd.DataFrame, cpdb_file_path: str) -> pd.DataFrame:
+def heteromer_geometric_expression_per_cell_type(
+        matrix: pd.DataFrame,
+        counts_data: str,
+        genes: pd.DataFrame,
+        complex_composition: pd.DataFrame,
+        complex_expanded: pd.DataFrame) -> pd.DataFrame:
     """
     Parameters
     ----------
@@ -113,24 +121,16 @@ def heteromer_geometric_expression_per_cell_type(matrix: pd.DataFrame, cpdb_file
         a geometric mean of expressions of its constituents. Note that the only complexes included
         are the ones for which all the constituent genes are present in matrix
     """
-    interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
-        db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     matrix = matrix.copy()
-
-    # Subset the mean expression matrix to keep only the genes in CellphoneDB
-    print(matrix.shape)
-    idx = [gene in list(genes['gene_name']) for gene in matrix.index]
-    matrix = matrix.loc[idx]
-    print(matrix.shape)
 
     # Map complex name to its constituents/subunits
     complex_composition = pd.merge(complex_composition,
                                    complex_expanded[['complex_multidata_id', 'name']], on='complex_multidata_id')
     complex_composition = pd.merge(complex_composition, \
-                                   genes[['gene_name', 'protein_id']], left_on='protein_multidata_id',
+                                   genes[[counts_data, 'protein_id']], left_on='protein_multidata_id',
                                    right_on='protein_id')
-    d = complex_composition.groupby('name')['gene_name'].apply(list).reset_index(name='subunits')
+    d = complex_composition.groupby('name')[counts_data].apply(list).reset_index(name='subunits')
     complex_name_2_subunits = dict(zip(d['name'], d['subunits']))
 
     # Iterate over the complexes to calculate the geometric mean of expressions of their constituents
@@ -223,7 +223,12 @@ def _add_interaction_id(interactions_df, lr_outer_long_filtered, cell_type_tuple
     return ('|'.join(sorted([cell_type_A, cell_type_B])), lr_outer_long_filtered)
 
 
-def score_product(matrix: pd.DataFrame, cpdb_file_path: str, threads: int) -> dict:
+def score_product(matrix: pd.DataFrame,
+                  counts_data: str,
+                  genes: pd.DataFrame,
+                  complex_expanded: pd.DataFrame,
+                  interactions: pd.DataFrame,
+                  threads: int) -> dict:
     """
     For each interaction in CellphoneDB and a pair of cell types it calculates a score based on
     an arithmetic product of expressions of its participants in matrix
@@ -241,13 +246,10 @@ def score_product(matrix: pd.DataFrame, cpdb_file_path: str, threads: int) -> di
         Cell type pair identifier -> DataFrame containing the score annotated with each cell type and
         CellphoneDB interaction id.
     """
-    print("Calculating scores for all interactions and cell types...")
+    core_logger.info("Scoring interactions: Calculating scores for all interactions and cell types..")
     matrix = matrix.copy()
 
-    interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
-        db_utils.get_interactions_genes_complex(cpdb_file_path)
-
-    id2name = dict(zip(genes.protein_id, genes.gene_name))
+    id2name = dict(zip(genes.protein_id, genes[counts_data]))
     id2name = id2name | dict(zip(complex_expanded.complex_multidata_id, complex_expanded.name))
     interactions_df = interactions[['id_cp_interaction', 'multidata_1_id', 'multidata_2_id']].copy()
     interactions_df.replace(to_replace=id2name, inplace=True)
@@ -264,6 +266,12 @@ def score_product(matrix: pd.DataFrame, cpdb_file_path: str, threads: int) -> di
     combinations_cell_types = list(combinations_with_replacement(matrix.columns, 2))
     score_dict = {}
 
+    # Replace multidata_id index with gene_name index
+    matrix = matrix.reset_index()
+    matrix['id_multidata'].replace(to_replace=id2name, inplace=True)
+    matrix.set_index('id_multidata', inplace=True)
+    matrix.index.name = None
+
     results = []
     with Pool(processes=threads) as pool:
         _get_lr_scores_thread = partial(_get_lr_scores, matrix, cpdb_set_all_lrs)
@@ -278,3 +286,45 @@ def score_product(matrix: pd.DataFrame, cpdb_file_path: str, threads: int) -> di
         score_dict[ct_pair] = df_interaction_scores
 
     return score_dict
+
+# For each interaction in CellphoneDB and a pair of cell types it calculates a score based on
+# an arithmetic product of expressions of its participants in counts matrix
+def score_interactions_based_on_participant_expressions_product(
+        cpdb_file_path: str,
+        counts: pd.DataFrame,
+        counts_data: str,
+        metadata: pd.DataFrame,
+        threshold: float,
+        cell_type_col_name: str) -> pd.DataFrame:
+
+    # Get DB files
+    interactions, genes, complex_composition, complex_expanded, _ = \
+        db_utils.get_interactions_genes_complex(cpdb_file_path)
+
+    # Step 1: Filter genes expressed in less than min_pct_cell of cells in a given cell type.
+    cpdb_f = filter_genes_per_cell_type(matrix=counts,
+                                        metadata=metadata,
+                                        min_pct_cell=threshold,
+                                        cell_column_name=cell_type_col_name)
+    # Step 2: Calculate the gene's mean expression per cell type
+    cpdb_fm = mean_expression_per_cell_type(matrix=cpdb_f,
+                                            metadata=metadata,
+                                            cell_column_name=cell_type_col_name)
+
+    # Step 3: Calculate geometric expression mean per heteromer
+    cpdb_fmsh = heteromer_geometric_expression_per_cell_type(matrix = cpdb_fm,
+                                                             counts_data = counts_data,
+                                                             genes = genes,
+                                                             complex_composition = complex_composition,
+                                                             complex_expanded = complex_expanded)
+    # Step 4: Scale the gene's mean expression across cell types.
+    cpdb_fms = scale_expression(cpdb_fmsh,
+                                upper_range=10)
+    # Step 5: calculate the ligand-receptor score.
+    cpdb_scoring = score_product(matrix=cpdb_fms,
+                                counts_data=counts_data,
+                                genes=genes,
+                                complex_expanded=complex_expanded,
+                                interactions=interactions,
+                                threads=4)
+    return cpdb_scoring
