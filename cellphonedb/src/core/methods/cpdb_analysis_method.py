@@ -26,7 +26,8 @@ def call(
          result_precision: int = 3,
          debug: bool = False,
          output_suffix: str = None,
-         score_interactions: bool = False
+         score_interactions: bool = False,
+         threads: int = 4
          ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Non-statistical method for analysis
 
@@ -57,12 +58,16 @@ def call(
         Storge intermediate data as pickle file (debug_intermediate.pkl).
     output_suffix: str, optional
         Suffix to append to the result file's name (if not provided, timestamp will be used)
-
+    score_interactions: bool
+        If True, CellphoneDB interactions will be scored per cell type pair, and returned in interaction_scores_dict
+    threads: int
+        Number of threads to be used when scoring interactions
     Returns
     -------
     Tuple
         - means_result
         - deconvoluted_result
+        - interaction_scores_dict
     """
     core_logger.info(
         '[Non Statistical Method] Threshold:{} Precision:{}'.format(threshold,
@@ -161,7 +166,7 @@ def call(
 
     if score_interactions:
         interaction_scores_dict = scoring_utils.score_interactions_based_on_participant_expressions_product(
-            cpdb_file_path, counts.copy(), counts_data, meta, threshold, "cell_type")
+            cpdb_file_path, counts.copy(), counts_data, meta, threshold, "cell_type", threads)
         # Save interaction_scores_dict to csv
         file_utils.save_scored_interactions_as_zip(output_path, output_suffix, "simple_analysis", interaction_scores_dict)
     else:

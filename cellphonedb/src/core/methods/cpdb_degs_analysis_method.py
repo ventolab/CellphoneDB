@@ -9,7 +9,7 @@ from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFo
 from cellphonedb.src.core.exceptions.MissingRequiredArgumentsException import MissingRequiredArgumentsException
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper, cpdb_statistical_analysis_complex_method
 from cellphonedb.src.core.models.complex import complex_helper
-from cellphonedb.utils import db_utils, file_utils
+from cellphonedb.utils import db_utils, file_utils, scoring_utils
 
 def call(cpdb_file_path: str = None,
          meta_file_path: str = None,
@@ -22,7 +22,9 @@ def call(cpdb_file_path: str = None,
          threshold: float = 0.1,
          result_precision: int = 3,
          debug: bool = False,
-         output_suffix: str = None
+         output_suffix: str = None,
+         score_interactions: bool = False,
+         threads: int = 4
          ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Differentially Expressed Genes (DEGs) analysis
 
@@ -59,6 +61,10 @@ def call(cpdb_file_path: str = None,
         Storge intermediate data as pickle file (debug_intermediate.pkl).
     output_suffix: str, optional
         Suffix to append to the result file's name (if not provided, timestamp will be used)
+    score_interactions: bool
+        If True, CellphoneDB interactions will be scored per cell type pair, and returned in interaction_scores_dict
+    threads: int
+        Number of threads to be used when scoring interactions
 
     Return
     -------
@@ -67,6 +73,7 @@ def call(cpdb_file_path: str = None,
          - means_result
          - relevant_interactions_result
          - significant_means
+         - interaction_scores_dict
     """
     core_logger.info(
         '[Cluster DEGs Analysis] '
@@ -207,12 +214,20 @@ DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
 
+    if score_interactions:
+        interaction_scores_dict = scoring_utils.score_interactions_based_on_participant_expressions_product(
+            cpdb_file_path, counts.copy(), counts_data, meta, threshold, "cell_type", threads)
+        # Save interaction_scores_dict to csv
+        file_utils.save_scored_interactions_as_zip(output_path, output_suffix, "simple_analysis", interaction_scores_dict)
+    else:
+        interaction_scores_dict = {}
+
     file_utils.save_dfs_as_tsv(output_path, output_suffix, "degs_analysis", \
                             {"deconvoluted_result" : deconvoluted_result, \
                             "means_result" : means_result, \
                             "relevant_interactions_result" : relevant_interactions_result, \
                             "significant_means" : significant_means} )
-    return deconvoluted_result, means_result, relevant_interactions_result, significant_means
+    return deconvoluted_result, means_result, relevant_interactions_result, significant_means, interaction_scores_dict
 
 
 def build_results(interactions: pd.DataFrame,

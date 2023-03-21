@@ -3,7 +3,7 @@ import pandas as pd
 
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
 from cellphonedb.src.core.exceptions.MissingRequiredArgumentsException import MissingRequiredArgumentsException
-from cellphonedb.utils import db_utils, file_utils
+from cellphonedb.utils import db_utils, file_utils, scoring_utils
 from cellphonedb.src.core.utils import subsampler
 
 def call(cpdb_file_path: str = None,
@@ -25,6 +25,7 @@ def call(cpdb_file_path: str = None,
          separator: str = '|',
          debug: bool = False,
          output_suffix: str = None,
+         score_interactions: bool = False
          ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Statistical method for analysis
 
@@ -51,7 +52,8 @@ def call(cpdb_file_path: str = None,
      threshold: float
          Percentage of cells expressing the specific ligand/receptor [0.0 - 1.0]
      threads: int
-        Number of threads to be used during the shuffling of clusters/cell types across cells
+        Number of threads to be used during the shuffling of clusters/cell types across cells, and in scoring interactions -
+        if score_interactions argument was set to True
      debug_seed: int
         This parameter is used for testing only (and only in single-threaded mode
         only - see: https://stackoverflow.com/questions/21494489/what-does-numpy-random-seed0-do).
@@ -74,7 +76,8 @@ def call(cpdb_file_path: str = None,
          Storge intermediate data as pickle file (debug_intermediate.pkl).
      output_suffix: str, optional
          Suffix to append to the result file's name (if not provided, timestamp will be used)
-
+    score_interactions: bool
+        If True, CellphoneDB interactions will be scored per cell type pair, and returned in interaction_scores_dict
      Returns
      -------
      Tuple
@@ -82,6 +85,7 @@ def call(cpdb_file_path: str = None,
          - means_result
          - significant_means
          - deconvoluted_result
+         - interaction_scores_dict
      """
 
     # Report error unless the required arguments have been provided
@@ -129,10 +133,18 @@ def call(cpdb_file_path: str = None,
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
 
+    if score_interactions:
+        interaction_scores_dict = scoring_utils.score_interactions_based_on_participant_expressions_product(
+            cpdb_file_path, counts.copy(), counts_data, meta, threshold, "cell_type", threads)
+        # Save interaction_scores_dict to csv
+        file_utils.save_scored_interactions_as_zip(output_path, output_suffix, "simple_analysis", interaction_scores_dict)
+    else:
+        interaction_scores_dict = {}
+
     file_utils.save_dfs_as_tsv(output_path, output_suffix, "statistical_analysis", \
                             {"deconvoluted" : deconvoluted, \
                             "means" : means, \
                             "pvalues" : pvalues, \
                             "significant_means" : significant_means} )
 
-    return deconvoluted, means, pvalues, significant_means
+    return deconvoluted, means, pvalues, significant_means, interaction_scores_dict

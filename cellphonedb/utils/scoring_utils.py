@@ -107,12 +107,17 @@ def heteromer_geometric_expression_per_cell_type(
         counts_data: str,
         genes: pd.DataFrame,
         complex_composition: pd.DataFrame,
-        complex_expanded: pd.DataFrame) -> pd.DataFrame:
+        complex_expanded: pd.DataFrame,
+        id2name: dict) -> pd.DataFrame:
     """
     Parameters
     ----------
     matrix: (genes x cell types) mean scaled expression matrix
-    cpdb_file_path: A full path of CellphoneDB database file
+    counts_data: Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
+    genes: CellphoneDB genes table
+    complex_composition: CellphoneDB complex_composition table
+    complex_expanded: CellphoneDB complex_expanded table
+    id2name: A mapping between multidata_id and genes[counts_data]
 
     Returns
     -------
@@ -123,6 +128,18 @@ def heteromer_geometric_expression_per_cell_type(
     """
 
     matrix = matrix.copy()
+
+    # If the existing index does not contain genes[counts_data], replace it with index containing genes[counts_data] -
+    if matrix.index.intersection(genes[counts_data]).empty:
+        index_name = matrix.index.name
+        matrix = matrix.reset_index()
+        matrix[index_name].replace(to_replace=id2name, inplace=True)
+        matrix.set_index(index_name, inplace=True)
+        matrix.index.name = None
+
+    # Subset the mean expression matrix to keep only the genes in CellphoneDB
+    idx = [gene in list(genes[counts_data]) for gene in matrix.index]
+    matrix = matrix.loc[idx]
 
     # Map complex name to its constituents/subunits
     complex_composition = pd.merge(complex_composition,
@@ -228,6 +245,7 @@ def score_product(matrix: pd.DataFrame,
                   genes: pd.DataFrame,
                   complex_expanded: pd.DataFrame,
                   interactions: pd.DataFrame,
+                  id2name: dict,
                   threads: int) -> dict:
     """
     For each interaction in CellphoneDB and a pair of cell types it calculates a score based on
@@ -237,7 +255,11 @@ def score_product(matrix: pd.DataFrame,
     ----------
     matrix: (genes/complexes by cell type) mean scaled expression matrix,
         where complex means are geometric means across their constituents(=subunits)
-    cpdb_file_path: A full path of CellphoneDB database file
+    counts_data: Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
+    genes: CellphoneDB genes table
+    complex_expanded: CellphoneDB complex_expanded table
+    interactions: CellphoneDB interactions table
+    id2name: A mapping between multidata_id and genes[counts_data]
     threads: Number of threads to be used for parallel processing
 
     Returns
@@ -249,8 +271,6 @@ def score_product(matrix: pd.DataFrame,
     core_logger.info("Scoring interactions: Calculating scores for all interactions and cell types..")
     matrix = matrix.copy()
 
-    id2name = dict(zip(genes.protein_id, genes[counts_data]))
-    id2name = id2name | dict(zip(complex_expanded.complex_multidata_id, complex_expanded.name))
     interactions_df = interactions[['id_cp_interaction', 'multidata_1_id', 'multidata_2_id']].copy()
     interactions_df.replace(to_replace=id2name, inplace=True)
     interactions_df.rename(columns={'multidata_1_id': 'partner_a', 'multidata_2_id': 'partner_b'}, inplace=True)
@@ -265,12 +285,6 @@ def score_product(matrix: pd.DataFrame,
     # Initialize score dictionary
     combinations_cell_types = list(combinations_with_replacement(matrix.columns, 2))
     score_dict = {}
-
-    # Replace multidata_id index with gene_name index
-    matrix = matrix.reset_index()
-    matrix['id_multidata'].replace(to_replace=id2name, inplace=True)
-    matrix.set_index('id_multidata', inplace=True)
-    matrix.index.name = None
 
     results = []
     with Pool(processes=threads) as pool:
@@ -295,17 +309,23 @@ def score_interactions_based_on_participant_expressions_product(
         counts_data: str,
         metadata: pd.DataFrame,
         threshold: float,
-        cell_type_col_name: str) -> pd.DataFrame:
+        cell_type_col_name: str,
+        threads: int) -> pd.DataFrame:
 
     # Get DB files
     interactions, genes, complex_composition, complex_expanded, _ = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
+
+    #  Get mapping between multidata_id and genes[counts_data]
+    id2name = dict(zip(genes.protein_id, genes[counts_data]))
+    id2name = id2name | dict(zip(complex_expanded.complex_multidata_id, complex_expanded.name))
 
     # Step 1: Filter genes expressed in less than min_pct_cell of cells in a given cell type.
     cpdb_f = filter_genes_per_cell_type(matrix=counts,
                                         metadata=metadata,
                                         min_pct_cell=threshold,
                                         cell_column_name=cell_type_col_name)
+
     # Step 2: Calculate the gene's mean expression per cell type
     cpdb_fm = mean_expression_per_cell_type(matrix=cpdb_f,
                                             metadata=metadata,
@@ -316,15 +336,19 @@ def score_interactions_based_on_participant_expressions_product(
                                                              counts_data = counts_data,
                                                              genes = genes,
                                                              complex_composition = complex_composition,
-                                                             complex_expanded = complex_expanded)
+                                                             complex_expanded = complex_expanded,
+                                                             id2name = id2name)
+
     # Step 4: Scale the gene's mean expression across cell types.
     cpdb_fms = scale_expression(cpdb_fmsh,
                                 upper_range=10)
+
     # Step 5: calculate the ligand-receptor score.
     cpdb_scoring = score_product(matrix=cpdb_fms,
                                 counts_data=counts_data,
                                 genes=genes,
                                 complex_expanded=complex_expanded,
                                 interactions=interactions,
-                                threads=4)
+                                id2name=id2name,
+                                threads=threads)
     return cpdb_scoring
