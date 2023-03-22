@@ -78,10 +78,6 @@ def call(cpdb_file_path: str = None,
     core_logger.info(
         '[Cluster DEGs Analysis] '
         'Threshold:{} Precision:{}'.format(threshold, result_precision))
-    core_logger.warning("""
-***********************************
-DEGs ANALYSIS IS AN EXPERIMENTAL METHOD STILL UNDER DEVELOPMENT!
-***********************************""")
 
     # Report error unless the required arguments have been provided
     required_arguments = [cpdb_file_path, meta_file_path, counts_file_path, degs_file_path, counts_data, output_path]
