@@ -245,6 +245,7 @@ You can check all project documentation in the [docs](https://cellphonedb.readth
 
 ## Citing CellphoneDB
 
+
 **CellphoneDB v4**: Single-cell roadmap of human gonadal development. L Garcia-Alonso, V Lorenzi et al. 2022 Nature [link](https://www.nature.com/articles/s41586-022-04918-4)
 
 **CellphoneDB v3**: Mapping the temporal and spatial dynamics of the human endometrium in vivo and in vitro. L Garcia-Alonso, L-François Handfield, K Roberts, K Nikolakopoulou et al. Nature Genetics 2021 [link](https://www.nature.com/articles/s41588-021-00972-2)
