@@ -254,4 +254,4 @@ You can check all project documentation in the [docs](https://cellphonedb.readth
 
 **CellPhoneDB v1 original**: Single-cell reconstruction of the early maternal-fetal interface in humans. Vento-Tormo R, Efremova M, et al., Nature. 2018 [link](https://www.nature.com/articles/s41586-018-0698-6)
 
-The first version of CellphoneDB was developed at the [Teichmann Lab](http://www.teichlab.org/) by Roser Vento-Tormo and Mirjana Efremova at the Wellcome Sanger Institute (Cambridge, UK). Currently, it is being further developed and supported by the [Vento-Tormo Lab](https://ventolab.org/) (CellphoneDB ≥v3).
+The first version of CellphoneDB was originally developed at the [Teichmann Lab](http://www.teichlab.org/) by Roser Vento-Tormo and Mirjana Efremova at the Wellcome Sanger Institute (Cambridge, UK). Currently, it is being further developed and supported by the [Vento-Tormo Lab](https://ventolab.org/) (CellphoneDB ≥v3).
