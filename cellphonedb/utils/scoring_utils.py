@@ -241,9 +241,6 @@ def _add_interaction_id(interactions_df, lr_outer_long_filtered, cell_type_tuple
 
 
 def score_product(matrix: pd.DataFrame,
-                  counts_data: str,
-                  genes: pd.DataFrame,
-                  complex_expanded: pd.DataFrame,
                   interactions: pd.DataFrame,
                   id2name: dict,
                   threads: int) -> dict:
@@ -345,9 +342,6 @@ def score_interactions_based_on_participant_expressions_product(
 
     # Step 5: calculate the ligand-receptor score.
     cpdb_scoring = score_product(matrix=cpdb_fms,
-                                counts_data=counts_data,
-                                genes=genes,
-                                complex_expanded=complex_expanded,
                                 interactions=interactions,
                                 id2name=id2name,
                                 threads=threads)
