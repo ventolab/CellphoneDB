@@ -462,7 +462,7 @@ The rank is calculated by counting the significant p-values per interaction pair
 Citing
 ============================================
 
-The first version of CellphoneDB was originally developed at the [Teichmann Lab](http://www.teichlab.org/) by Roser Vento-Tormo and Mirjana Efremova at the Wellcome Sanger Institute (Cambridge, UK). Currently, it is being further developed and supported by the [Vento-Tormo Lab](https://ventolab.org/) (CellphoneDB ≥v3).
+The first version of CellphoneDB was originally developed at the [Teichmann Lab](http://www.teichlab.org/) in the Wellcome Sanger Institute (Cambridge, UK) by Roser Vento-Tormo and Mirjana Efremova. Currently, it is being further developed and supported by the [Vento-Tormo Lab](https://ventolab.org/) (CellphoneDB ≥v3).
 
 If you use CellphoneDB or CellphoneDB-data, please cite our papers:
 
