@@ -165,17 +165,15 @@ def call(
     significant_means.sort_values('rank', inplace=True)
 
     if score_interactions:
-        interaction_scores_dict = scoring_utils.score_interactions_based_on_participant_expressions_product(
-            cpdb_file_path, counts.copy(), counts_data, meta, threshold, "cell_type", threads)
-        # Save interaction_scores_dict to csv
-        file_utils.save_scored_interactions_as_zip(output_path, output_suffix, "simple_analysis", interaction_scores_dict)
+        interaction_scores = scoring_utils.score_interactions_based_on_participant_expressions_product(
+            cpdb_file_path, counts.copy(), means_result.copy(), separator, counts_data, meta, threshold, "cell_type", threads)
     else:
-        interaction_scores_dict = {}
+        interaction_scores = pd.DataFrame
 
     file_utils.save_dfs_as_tsv(output_path, output_suffix, "simple_analysis",
-                               {"means_result" : means_result, "deconvoluted_result" : deconvoluted_result})
-
-    return means_result, deconvoluted_result, interaction_scores_dict
+                               {"means_result" : means_result, "deconvoluted_result" : deconvoluted_result,
+                                "interaction_scores" : interaction_scores})
+    return means_result, deconvoluted_result, interaction_scores
 
 
 def build_results(interactions: pd.DataFrame,

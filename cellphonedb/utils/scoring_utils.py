@@ -206,42 +206,28 @@ def scale_expression(matrix: pd.DataFrame, upper_range: int) -> pd.DataFrame:
                                  columns=matrix.columns)
     return matrix_scaled
 
-def _get_lr_scores(matrix, cpdb_set_all_lrs, cell_type_tuple) -> dict:
-    cell_type_A = cell_type_tuple[0]
-    cell_type_B = cell_type_tuple[1]
+def _get_lr_scores(matrix, cpdb_set_all_lrs, separator, cell_type_pair) -> dict:
+    cell_type_A = cell_type_pair.split(separator)[0]
+    cell_type_B = cell_type_pair.split(separator)[1]
     # Each cell in lr_outer is an arithmetic product:
     # gene in row's mean expression in cell_type_A and gene in column's mean expression in cell_type_B
     lr_outer = pd.DataFrame(np.outer(list(matrix[cell_type_A]),
                                      list(matrix[cell_type_B])),
                             index=matrix.index,
                             columns=matrix.index)
-    lr_outer_long = lr_outer.stack().reset_index()
-    lr_outer_long.columns = [cell_type_A, cell_type_B, 'Score']
-    lr_list = list(lr_outer_long.iloc[:, 0] + '|' + lr_outer_long.iloc[:, 1])
+    df = lr_outer.stack().reset_index()
+    lr_outer_long = pd.DataFrame({
+        'interacting_pair' : df.iloc[:, 0] + "_" + df.iloc[:, 1],
+        "score" : df.iloc[:, 2]})
     # Filtering interactions to only those in CellphoneDB
-    idx_interactions = [i in cpdb_set_all_lrs for i in lr_list]
+    idx_interactions = [i in cpdb_set_all_lrs for i in lr_outer_long['interacting_pair'].values]
     lr_outer_long_filtered = lr_outer_long.loc[idx_interactions]
-    return (cell_type_tuple, lr_outer_long_filtered)
-
-def _add_interaction_id(interactions_df, lr_outer_long_filtered, cell_type_tuple):
-    cell_type_A = cell_type_tuple[0]
-    cell_type_B = cell_type_tuple[1]
-
-    # Add interaction id
-    lr_outer_sorted = ['-'.join(sorted([a, b])) for a, b in
-                       zip(lr_outer_long_filtered.iloc[:, 0], lr_outer_long_filtered.iloc[:, 1])]
-    cpdb_sorted = ['-'.join(sorted([a, b])) for a, b in zip(interactions_df['partner_a'], interactions_df['partner_b'])]
-    dict_cpdb_id = dict(zip(cpdb_sorted, interactions_df['id_cp_interaction']))
-    lr_outer_long_filtered['id_cp_interaction'] = [dict_cpdb_id[i] for i in lr_outer_sorted]
-
-    lr_outer_long_filtered.columns = [cell_type_A, cell_type_B, 'Score', 'id_cp_interaction']
-    lr_outer_long_filtered = lr_outer_long_filtered.reset_index(drop=True)
-
-    return ('|'.join(sorted([cell_type_A, cell_type_B])), lr_outer_long_filtered)
-
+    return (cell_type_pair, lr_outer_long_filtered)
 
 def score_product(matrix: pd.DataFrame,
                   interactions: pd.DataFrame,
+                  means: pd.DataFrame,
+                  separator: str,
                   id2name: dict,
                   threads: int) -> dict:
     """
@@ -256,6 +242,8 @@ def score_product(matrix: pd.DataFrame,
     genes: CellphoneDB genes table
     complex_expanded: CellphoneDB complex_expanded table
     interactions: CellphoneDB interactions table
+    means: A copy of one of the result DataFrames of CellphoneDB that interaction scores will be populated into
+    separator: separator character used in cell type pairs
     id2name: A mapping between multidata_id and genes[counts_data]
     threads: Number of threads to be used for parallel processing
 
@@ -265,8 +253,11 @@ def score_product(matrix: pd.DataFrame,
         Cell type pair identifier -> DataFrame containing the score annotated with each cell type and
         CellphoneDB interaction id.
     """
+
     core_logger.info("Scoring interactions: Calculating scores for all interactions and cell types..")
     matrix = matrix.copy()
+    # All means in interaction_scores will be overwritten with scores
+    interaction_scores = means
 
     interactions_df = interactions[['id_cp_interaction', 'multidata_1_id', 'multidata_2_id']].copy()
     interactions_df.replace(to_replace=id2name, inplace=True)
@@ -274,35 +265,32 @@ def score_product(matrix: pd.DataFrame,
 
     # Create lists of the interacting LR (and the reverse) to keep in lr_outer_long only those entries
     # that are described in the cpdb interaction file
-    cpdb_list_a = list(interactions_df['partner_a']+'|'+interactions_df['partner_b'])
-    cpdb_list_b = list(interactions_df['partner_b']+'|'+interactions_df['partner_a'])
+    cpdb_list_a = list(interactions_df['partner_a']+'_'+interactions_df['partner_b'])
+    cpdb_list_b = list(interactions_df['partner_b']+'_'+interactions_df['partner_a'])
     cpdb_set_all_lrs = set(cpdb_list_a + cpdb_list_b)
 
-    # Calculate all cell type combinations
-    # Initialize score dictionary
-    combinations_cell_types = list(combinations_with_replacement(matrix.columns, 2))
-    score_dict = {}
-
+    cell_type_pairs = [c for c in interaction_scores.columns if separator in c]
     results = []
+
     with Pool(processes=threads) as pool:
-        _get_lr_scores_thread = partial(_get_lr_scores, matrix, cpdb_set_all_lrs)
-        for tp in tqdm(pool.imap(_get_lr_scores_thread, combinations_cell_types),
-                       total=len(combinations_cell_types)):
+        _get_lr_scores_thread = partial(_get_lr_scores, matrix, cpdb_set_all_lrs, separator)
+        for tp in tqdm(pool.imap(_get_lr_scores_thread, cell_type_pairs),
+                       total=len(cell_type_pairs)):
             results.append(tp)
 
-    for cell_type_tuple, lr_scores_filtered in results:
-        tp = _add_interaction_id(interactions_df, lr_scores_filtered, cell_type_tuple)
-        ct_pair = tp[0]
-        df_interaction_scores = tp[1]
-        score_dict[ct_pair] = df_interaction_scores
+    for ct_pair, lr_scores_filtered in results:
+        interacting_pair2score = dict(zip(lr_scores_filtered['interacting_pair'],lr_scores_filtered['score']))
+        interaction_scores[ct_pair] = [interacting_pair2score[id] for id in interaction_scores['interacting_pair']]
 
-    return score_dict
+    return interaction_scores
 
 # For each interaction in CellphoneDB and a pair of cell types it calculates a score based on
 # an arithmetic product of expressions of its participants in counts matrix
 def score_interactions_based_on_participant_expressions_product(
         cpdb_file_path: str,
         counts: pd.DataFrame,
+        means: pd.DataFrame,
+        separator: str,
         counts_data: str,
         metadata: pd.DataFrame,
         threshold: float,
@@ -341,8 +329,10 @@ def score_interactions_based_on_participant_expressions_product(
                                 upper_range=10)
 
     # Step 5: calculate the ligand-receptor score.
-    cpdb_scoring = score_product(matrix=cpdb_fms,
+    interaction_scores = score_product(matrix=cpdb_fms,
+                                means=means,
+                                separator=separator,
                                 interactions=interactions,
                                 id2name=id2name,
                                 threads=threads)
-    return cpdb_scoring
+    return interaction_scores
