@@ -198,7 +198,7 @@ def scale_expression(matrix: pd.DataFrame, upper_range: int) -> pd.DataFrame:
     """
 
     # Transpose matrix to apply scaling per row (i.e. scale across cell types)
-    scaler = MinMaxScaler(feature_range=(0, upper_range)).fit(matrix.T)
+    scaler = MinMaxScaler(feature_range = (0, upper_range), clip = True).fit(matrix.T)
     matrix_scaled = scaler.transform(matrix.T).T
 
     matrix_scaled = pd.DataFrame(matrix_scaled,
