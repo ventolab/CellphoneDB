@@ -215,6 +215,8 @@ def _get_lr_scores(matrix, cpdb_set_all_lrs, separator, cell_type_pair) -> dict:
                                      list(matrix[cell_type_B])),
                             index=matrix.index,
                             columns=matrix.index)
+    # Round scores to 3 decimal places
+    lr_outer = np.around(lr_outer,3)
     df = lr_outer.stack().reset_index()
     lr_outer_long = pd.DataFrame({
         'interacting_pair' : df.iloc[:, 0] + "_" + df.iloc[:, 1],
