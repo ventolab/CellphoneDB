@@ -201,7 +201,7 @@ def get_counts_meta_adata(counts_fp, meta_fp) -> AnnData:
     return adata
 
 def get_timestamp_suffix():
-    return datetime.now().strftime("%m_%d_%Y_%H:%M:%S")
+    return datetime.now().strftime("%m_%d_%Y_%H%M%S")
 
 def save_dfs_as_tsv(out, suffix, analysis_name, name2df):
     if suffix is None:
