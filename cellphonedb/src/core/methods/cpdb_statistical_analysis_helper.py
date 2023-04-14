@@ -468,21 +468,41 @@ def shuffled_analysis(iterations: int,
     """
     Shuffles meta and calculates the means for each and saves it in a list.
 
-    Runs it in a multiple threads to run it faster
+    If threads > 1, runs it in a multiple threads to run it faster
     """
     results = []
-    with Pool(processes=threads) as pool:
-        statistical_analysis_thread = partial(_statistical_analysis,
-                                              cluster_combinations,
-                                              counts,
-                                              interactions,
-                                              meta,
-                                              complex_to_protein_ids,
-                                              separator,
-                                              real_mean_analysis)
-        for result in tqdm(pool.imap(statistical_analysis_thread, range(iterations)),
-                                     total=iterations):
+    if threads == 1:
+        # NB. At the time of writing, our parallelisation method does not work when Python is called
+        # via Reticulate from R Studio on Windows. The only option then is to run with threads set to 1.
+        # See: https://github.com/ventolab/CellphoneDB/issues/102
+        progress_step = round(iterations / 100, 0)
+        for i in range(iterations):
+            result = _statistical_analysis(cluster_combinations,
+                                           counts,
+                                           interactions,
+                                           meta,
+                                           complex_to_protein_ids,
+                                           separator,
+                                           real_mean_analysis,
+                                           i)
+
+            if i % progress_step == 0:
+                # Poor man's progress reporting
+                print("{}%".format(round(i / progress_step), 0), end=' ')
             results.append(result)
+    else:
+        with Pool(processes=threads) as pool:
+            statistical_analysis_thread = partial(_statistical_analysis,
+                                                  cluster_combinations,
+                                                  counts,
+                                                  interactions,
+                                                  meta,
+                                                  complex_to_protein_ids,
+                                                  separator,
+                                                  real_mean_analysis)
+            for result in tqdm(pool.imap(statistical_analysis_thread, range(iterations)),
+                                         total=iterations):
+                results.append(result)
     return results
 
 def _statistical_analysis(cluster_combinations,

@@ -316,7 +316,7 @@ def search_analysis_results(
         print("ERROR: Both significant_means and deconvoluted dataframes need to be provided")
         return
 
-    if query_cell_types_1 is None or query_cell_types_1 is None:
+    if query_cell_types_1 is None or query_cell_types_2 is None:
         print ("ERROR: Both query_cell_types_1 and query_cell_types_1 need to be provided. " + \
                "If you wish to search for all cell type combinations, set them both to \"All\"")
 
