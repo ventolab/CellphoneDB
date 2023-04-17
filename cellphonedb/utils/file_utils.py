@@ -311,7 +311,7 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
     """
     loaded_user_files=[]
     # Read user files
-    print("Reading user files...")
+    print("Reading user files...", flush=True)
     counts = read_data_table_from_file(counts_fp, index_column_first=True)
 
     # N.B. The functionality below has been switched off for the time being, on Kevin's request
