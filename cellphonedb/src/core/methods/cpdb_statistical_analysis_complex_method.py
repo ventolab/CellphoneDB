@@ -4,7 +4,6 @@ import numpy as np
 import pickle
 from cellphonedb.src.core.core_logger import core_logger
 from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
-from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFound
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper
 from cellphonedb.src.core.models.complex import complex_helper
 
@@ -54,7 +53,8 @@ def call(meta: pd.DataFrame,
                                                     complex_compositions)
 
     if interactions_filtered.empty:
-        raise NoInteractionsFound()
+        core_logger.info('No CellphoneDB interactions found in this input.')
+        return pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
 
     meta = meta.loc[counts.columns]
 
