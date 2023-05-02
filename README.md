@@ -24,24 +24,28 @@ See updates from [previous releases here](https://github.com/ventolab/CellphoneD
 
 
 ## Installing CellPhoneDB 
-NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
 We highly recommend using an isolated python environment (as described in steps 1 and 2) using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or [virtualenv](https://docs.python.org/3/library/venv.html) but you could of course omit these steps and install via `pip` immediately.
 
 1. Create python=>3.8 environment
-- Using conda: `conda create -n cpdb python=3.8`
-- Using virtualenv: `python -m venv cpdb`
+   - Using conda: `conda create -n cpdb python=3.8`
+   - Using virtualenv: `python -m venv cpdb`
 
 2. Activate environment
-- Using conda: `source activate cpdb`
-- Using virtualenv: `source cpdb/bin/activate`
+   - Using conda: `source activate cpdb`
+   - Using virtualenv: `source cpdb/bin/activate`
 
 3. Install CellPhoneDB `pip install cellphonedb`
 
-4. To use CellPhoneDB on your Jupyter notebooks, run the following commands inside your environment.
-- Install the ipython kernel: `pip install -U ipykernel`.
-- Add the environment as a jupyter kernel: `python -m ipykernel install --user --name 'cpdb'`.
-- Open/Start Jupyter and select the created kernel.
+4. Set up the kernel for the Jupyter notebooks.
+   - Install the ipython kernel: `pip install -U ipykernel`.
+   - Add the environment as a jupyter kernel: `python -m ipykernel install --user --name 'cpdb'`.
+   - Open/Start Jupyter and select the created kernel.
+
+5. Download the database.
+   - Follow this [tutorial](https://github.com/ventolab/CellphoneDB/blob/master/notebooks/T00_DownloadDB.ipynb).
+
+NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
 ## Running CellPhoneDB Methods
 
