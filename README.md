@@ -3,9 +3,9 @@
 
 ## What is CellPhoneDB?
 
-CellPhoneDB is a publicly available repository of curated receptors, ligands and their interactions in **HUMAN** paired with a tool to interrogate your own single-cell transcriptomics data (or even bulk transcriptomics data if your samples represent pure populations!). 
+CellPhoneDB is a publicly available repository of **HUMAN** curated receptors, ligands and their interactions paired with a tool to interrogate your own single-cell transcriptomics data (or even bulk transcriptomics data if your samples represent pure populations!). 
 
-> A distictive feature of CellPhoneDB is that the subunit architecture of either ligands and receptors is taken into accounts, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic CellPhoneDB includes only manually curated & reviewd molecular interactions with evidenced role in cellular communication.
+> A distictive feature of CellPhoneDB is that the subunit architecture of either ligands and receptors is taken into account, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic CellPhoneDB includes only manually curated & reviewd molecular interactions with evidenced role in cellular communication.
 
 For more details on using CellPhoneDB for scRNA-seq data analysis, check the [DOCUMENTATION](https://cellphonedb.readthedocs.io/en/latest/#). 
 
@@ -15,13 +15,10 @@ For more details on using CellPhoneDB for scRNA-seq data analysis, check the [DO
 2) A new method to ease the query of CellPhoneDB results.
 3) Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
 4) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
-5) A new database ([cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of 2,923 interactions.
-- This release of CellphoneDB database integrates new manually reviewed interactions with evidenced roles in cell-cell communication together with existing datasets that pertain to cellular communication (such as Shilts *et al.* 2022 and Kanemura *et al.* 2023). Recently, the database expanded to include non-protein molecules acting as ligands.
-
-1. CellPhoneDB has been implemented as a python package, improving its efficiency and adding new methods, such as the CellPhoneDB results query function.
-2. Manually curated more protein-protein interactions involved in cell-cell communication, with a special focus on proteins acting as heteromeric complexes [cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data). The new database includes more than [2,900 high-confidence interactions](https://www.cellphonedb.org/database.html), including heteromeric complexes. In this version we haved added new G-protein-coupled receptors interactions from Kanemura *et al.* 2023 and  Shilts *et al.* 2022.
-3. Interactions retrieved from external resources have been removed from this release to include high-confidence interactions only.
-4. [Tutorials](notebooks) for the new CellPhoneDB implementation.
+5) A new database ([cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of ~3,000 interactions. This release of CellphoneDB database has three main changes:
+    - Integrates new manually reviewed interactions with evidenced roles in cell-cell communication. 
+    - Includes non-protein molecules acting as ligands.
+    - CellphoneDB does not longer imports interactions from external resources. This is to avoid the inclusion of low-confidence interactions.
 
 See updates from [previous releases here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes).
 
