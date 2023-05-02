@@ -39,6 +39,9 @@ We highly recommend using an isolated python environment (as described in steps 
 
 3. Install CellPhoneDB `pip install cellphonedb`
 
+4. If you want to use CellPhoneDB on your notebooks, run the following commands inside your environment.
+- Install the ipython kernels: `pip install -U ipykernel`.
+- Add kernel to notebooks: `python -m ipykernel install --user --name 'cpdb'`.
 
 ## Running CellPhoneDB Methods
 
