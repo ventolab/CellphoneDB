@@ -194,8 +194,8 @@ Currently CellPhoneDB relies on external plotting implementations to represent t
 
 Currently we recommend using tools such as: seaborn, ggplot or a more specific and tailored implementation as the ktplots:
 [@zktuong](https://github.com/zktuong):
-- [ktplots](https://www.github.com/zktuong/ktplots/) (R)
-- [ktplotspy](https://www.github.com/zktuong/ktplotspy/) (python)
+- [ktplots](https://www.github.com/zktuong/ktplots/) (R; preferred)
+- [ktplotspy](https://www.github.com/zktuong/ktplotspy/) (python; under development)
 
 
 ## Using different database versions
