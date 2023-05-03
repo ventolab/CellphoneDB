@@ -210,9 +210,10 @@ def save_dfs_as_tsv(out, suffix, analysis_name, name2df):
         suffix = get_timestamp_suffix()
     os.makedirs(out, exist_ok=True)
     for name, df in name2df.items():
-        file_path = os.path.join(out, "{}_{}_{}.{}".format(analysis_name, name, suffix, "txt"))
-        df.to_csv(file_path, sep = '\t', index=False)
-        print("Saved {} to {}".format(name, file_path))
+        if not df.empty:
+            file_path = os.path.join(out, "{}_{}_{}.{}".format(analysis_name, name, suffix, "txt"))
+            df.to_csv(file_path, sep = '\t', index=False)
+            print("Saved {} to {}".format(name, file_path))
 
 def save_scored_interactions_as_zip(out, suffix, analysis_name, interaction_scores_dict):
     name = "interaction_scores"
