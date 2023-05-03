@@ -217,13 +217,13 @@ def call(cpdb_file_path: str = None,
     else:
         interaction_scores = pd.DataFrame
 
-    file_utils.save_dfs_as_tsv(output_path, output_suffix, "degs_analysis", \
-                            {"deconvoluted_result" : deconvoluted_result, \
-                             "deconvoluted_percents": deconvoluted_percents, \
-                             "means_result" : means_result, \
-                             "relevant_interactions_result" : relevant_interactions_result, \
+    file_utils.save_dfs_as_tsv(output_path, output_suffix, "degs_analysis",
+                            {"deconvoluted_result" : deconvoluted_result,
+                             "deconvoluted_percents": deconvoluted_percents,
+                             "means_result" : means_result,
+                             "relevant_interactions_result" : relevant_interactions_result,
                              "significant_means" : significant_means,
-                             "interaction_scores" : interaction_scores} )
+                             "interaction_scores" : interaction_scores})
     return deconvoluted_result, deconvoluted_percents, means_result, relevant_interactions_result, significant_means, interaction_scores
 
 

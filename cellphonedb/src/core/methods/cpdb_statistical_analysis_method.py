@@ -140,11 +140,11 @@ def call(cpdb_file_path: str = None,
     else:
         interaction_scores = pd.DataFrame
 
-    file_utils.save_dfs_as_tsv(output_path, output_suffix, "statistical_analysis", \
-                            {"deconvoluted" : deconvoluted, \
-                             "deconvoluted_percents": deconvoluted_percents, \
-                             "means" : means, \
-                             "pvalues" : pvalues, \
+    file_utils.save_dfs_as_tsv(output_path, output_suffix, "statistical_analysis",
+                            {"deconvoluted" : deconvoluted,
+                             "deconvoluted_percents": deconvoluted_percents,
+                             "means" : means,
+                             "pvalues" : pvalues,
                              "significant_means" : significant_means,
-                             "interaction_scores" : interaction_scores} )
+                             "interaction_scores" : interaction_scores})
     return deconvoluted, deconvoluted_percents, means, pvalues, significant_means, interaction_scores
