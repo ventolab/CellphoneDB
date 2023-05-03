@@ -106,7 +106,6 @@ def call(
                                                                complex_to_protein_row_ids,
                                                                skip_percent=False)
     core_logger.info('Running Real Analysis')
-
     cluster_interactions = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'], microenvs)
 
     base_result = cpdb_statistical_analysis_helper.build_result_matrix(interactions_filtered,
@@ -140,13 +139,14 @@ def call(
                 "mean_analysis": mean_analysis,
                 "percent_analysis": percent_analysis}, fh)
 
-    means_result, significant_means, deconvoluted_result = build_results(
+    means_result, significant_means, deconvoluted_result, deconvoluted_percents = build_results(
         interactions_filtered,
         interactions,
         counts_relations,
         mean_analysis,
         percent_analysis,
         clusters['means'],
+        clusters['percents'],
         complex_composition_filtered,
         counts,
         genes,
@@ -160,8 +160,9 @@ def call(
 
     file_utils.save_dfs_as_tsv(output_path, output_suffix, "simple_analysis", \
                             {"means_result" : means_result, \
-                            "deconvoluted_result" : deconvoluted_result} )
-    return means_result, deconvoluted_result
+                             "deconvoluted_result" : deconvoluted_result, \
+                             "deconvoluted_percents" : deconvoluted_percents} )
+    return means_result, deconvoluted_result, deconvoluted_percents
 
 
 def build_results(interactions: pd.DataFrame,
@@ -170,11 +171,12 @@ def build_results(interactions: pd.DataFrame,
                   mean_analysis: pd.DataFrame,
                   percent_analysis: pd.DataFrame,
                   clusters_means: pd.DataFrame,
+                  clusters_percents: pd.DataFrame,
                   complex_compositions: pd.DataFrame,
                   counts: pd.DataFrame,
                   genes: pd.DataFrame,
                   result_precision: int,
-                  counts_data: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+                  counts_data: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Sets the results data structure from method generated data. 
     
@@ -249,6 +251,8 @@ def build_results(interactions: pd.DataFrame,
     # Round result decimals
     for key, cluster_means in clusters_means.items():
         clusters_means[key] = cluster_means.round(result_precision)
+    for key, cluster_percents in clusters_percents.items():
+        clusters_percents[key] = cluster_percents.round(result_precision)
 
     # Document 2
     means_result = pd.concat([interactions_data_result, mean_analysis], axis=1, join='inner', sort=False)
@@ -256,17 +260,17 @@ def build_results(interactions: pd.DataFrame,
     # Document 3
     significant_means_result = pd.concat([interactions_data_result, significant_mean_rank, significant_means], axis=1,
                                          join='inner', sort=False)
-
     # Document 5
-    deconvoluted_result = cpdb_statistical_analysis_complex_method.deconvoluted_complex_result_build(
+    deconvoluted_result, deconvoluted_percents = cpdb_statistical_analysis_complex_method.deconvoluted_complex_result_build(
         clusters_means,
+        clusters_percents,
         interactions,
         complex_compositions,
         counts,
         genes,
         counts_data)
 
-    return means_result, significant_means_result, deconvoluted_result
+    return means_result, significant_means_result, deconvoluted_result, deconvoluted_percents
 
 
 def deconvoluted_complex_result_build(clusters_means: dict, interactions: pd.DataFrame,

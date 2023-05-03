@@ -21,7 +21,7 @@ def call(cpdb_file_path: str = None,
          result_precision: int = 3,
          debug: bool = False,
          output_suffix: str = None
-         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Differentially Expressed Genes (DEGs) analysis
 
     This analysis bypass previous statistical analysis where mean's pvalues are
@@ -103,7 +103,7 @@ def call(cpdb_file_path: str = None,
 
     if interactions_filtered.empty:
         core_logger.info('No CellphoneDB interactions found in this input.')
-        return pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
+        return pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
 
     meta = meta.loc[counts.columns]
 
@@ -184,13 +184,14 @@ def call(cpdb_file_path: str = None,
                 "relevant_interactions": relevant_interactions}, fh)
 
     core_logger.debug('Building results')
-    relevant_interactions_result, means_result, significant_means, deconvoluted_result = build_results(
+    relevant_interactions_result, means_result, significant_means, deconvoluted_result, deconvoluted_percents = build_results(
         interactions_filtered,
         interactions,
         counts_relations,
         real_mean_analysis,
         relevant_interactions,
         clusters['means'],
+        clusters['percents'],
         complex_composition_filtered,
         counts,
         genes,
@@ -204,10 +205,11 @@ def call(cpdb_file_path: str = None,
 
     file_utils.save_dfs_as_tsv(output_path, output_suffix, "degs_analysis", \
                             {"deconvoluted_result" : deconvoluted_result, \
-                            "means_result" : means_result, \
-                            "relevant_interactions_result" : relevant_interactions_result, \
-                            "significant_means" : significant_means} )
-    return deconvoluted_result, means_result, relevant_interactions_result, significant_means
+                             "deconvoluted_percents": deconvoluted_percents, \
+                             "means_result" : means_result, \
+                             "relevant_interactions_result" : relevant_interactions_result, \
+                             "significant_means" : significant_means} )
+    return deconvoluted_result, deconvoluted_percents, means_result, relevant_interactions_result, significant_means
 
 
 def build_results(interactions: pd.DataFrame,
@@ -216,6 +218,7 @@ def build_results(interactions: pd.DataFrame,
                   real_mean_analysis: pd.DataFrame,
                   relevant_interactions: pd.DataFrame,
                   clusters_means: pd.DataFrame,
+                  clusters_percents: pd.DataFrame,
                   complex_compositions: pd.DataFrame,
                   counts: pd.DataFrame,
                   genes: pd.DataFrame,
@@ -286,6 +289,8 @@ def build_results(interactions: pd.DataFrame,
     # Round result decimals
     for key, cluster_means in clusters_means.items():
         clusters_means[key] = cluster_means.round(result_precision)
+    for key, cluster_percents in clusters_percents.items():
+        clusters_percents[key] = cluster_percents.round(result_precision)
 
     # Document 1: relevant_intearcitons.txt
     # drop irrelevant interactions (all zeros)
@@ -307,7 +312,8 @@ def build_results(interactions: pd.DataFrame,
         [interactions_data_result, significant_mean_rank, significant_means], axis=1,join='inner', sort=False)
 
     # Document 4: deconvoluted.txt
-    deconvoluted_result = cpdb_statistical_analysis_complex_method.deconvoluted_complex_result_build(clusters_means,
+    deconvoluted_result, deconvoluted_percents = cpdb_statistical_analysis_complex_method.deconvoluted_complex_result_build(clusters_means,
+                                                            clusters_percents,
                                                             interactions,
                                                             complex_compositions,
                                                             counts,
@@ -315,7 +321,7 @@ def build_results(interactions: pd.DataFrame,
                                                             counts_data)
     
 
-    return relevant_interactions_result, means_result, significant_means_result, deconvoluted_result
+    return relevant_interactions_result, means_result, significant_means_result, deconvoluted_result, deconvoluted_percents
 
 def build_degs_matrix(degs: pd.DataFrame,
                       genes: pd.DataFrame,

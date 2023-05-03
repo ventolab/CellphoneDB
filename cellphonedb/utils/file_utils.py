@@ -275,7 +275,7 @@ def _load_degs(degs_filepath: str, meta: pd.DataFrame) -> pd.DataFrame:
     elif len_columns>2:
         print(f"WARNING: DEGs expects 2 columns and got {len_columns}. Dropping extra columns.")
     degs = degs.iloc[:, 0:2]
-    if any(~degs.iloc[:,0].isin(meta.iloc[:,0])):
+    if any(~degs.iloc[:,1].isin(meta.iloc[:,0])):
         raise Exception("Some clusters/cell_types in DEGs are not present in metadata")
     degs.columns = [CLUSTER,GENE]
     degs.drop_duplicates(inplace=True)
