@@ -3,42 +3,49 @@
 
 ## What is CellPhoneDB?
 
-CellPhoneDB is a publicly available repository of curated receptors, ligands and their interactions in **HUMAN**. CellPhoneDB can be used to search for a particular ligand/receptor, or interrogate your own single-cell transcriptomics data (or even bulk transcriptomics data if your samples represent pure populations!). 
+CellPhoneDB is a publicly available repository of **HUMAN** curated receptors, ligands and their interactions paired with a tool to interrogate your own single-cell transcriptomics data (or even bulk transcriptomics data if your samples represent pure populations!). 
 
-Subunit architecture is included for both ligands and receptors, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic CellPhoneDB includes only manually curated & reviewd molecular interactions with evidenced role in cellular communication.
+> A distictive feature of CellPhoneDB is that the subunit architecture of either ligands and receptors is taken into account, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic CellPhoneDB includes only manually curated & reviewd molecular interactions with evidenced role in cellular communication.
 
-For more details on the analysis check the [DOCUMENTATION](https://cellphonedb.readthedocs.io/en/latest/#). 
-
-Please cite our papers [Vento-Tormo R, Efremova M, et al., 2018](https://www.nature.com/articles/s41596-020-0292-x) (original CellphoneDB) or [Garcia-Alonso et al., 2021](https://www.nature.com/articles/s41586-018-0698-6) (for CellphoneDB method 3).
+For more details on using CellPhoneDB for scRNA-seq data analysis, check the [DOCUMENTATION](https://cellphonedb.readthedocs.io/en/latest/#). 
 
 
-## New in CellPhoneDB-data v4.1.0
-
-This release of CellphoneDB database integrates new manually reviewed interactions with evidenced roles in cell-cell communication together with existing datasets that pertain to cellular communication (such as Shilts *et al.* 2022 and Kanemura *et al.* 2023). Recently, the database expanded to include non-protein molecules acting as ligands.
-
-1. CellPhoneDB has been implemented as a python package, improving its efficiency and adding new methods, such as the CellPhoneDB results query function.
-2. Manually curated more protein-protein interactions involved in cell-cell communication, with a special focus on proteins acting as heteromeric complexes [cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data). The new database includes more than [2,900 high-confidence interactions](https://www.cellphonedb.org/database.html), including heteromeric complexes. In this version we haved added new G-protein-coupled receptors interactions from Kanemura *et al.* 2023 and  Shilts *et al.* 2022.
-3. Interactions retrieved from external resources have been removed from this release to include high-confidence interactions only.
-4. [Tutorials](notebooks) for the new CellPhoneDB implementation.
+## Novel features in v4
+1) New python package that can be easily executed in Jupyter Notebook and Collabs. 
+2) A new method to ease the query of CellPhoneDB results.
+3) Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
+4) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
+5) A new database ([cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of ~3,000 interactions. This release of CellphoneDB database has three main changes:
+    - Integrates new manually reviewed interactions with evidenced roles in cell-cell communication. 
+    - Includes non-protein molecules acting as ligands.
+    - CellphoneDB does not longer imports interactions from external resources. This is to avoid the inclusion of low-confidence interactions.
 
 See updates from [previous releases here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes).
 
 
 ## Installing CellPhoneDB 
-NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
 We highly recommend using an isolated python environment (as described in steps 1 and 2) using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or [virtualenv](https://docs.python.org/3/library/venv.html) but you could of course omit these steps and install via `pip` immediately.
 
 1. Create python=>3.8 environment
-- Using conda: `conda create -n cpdb python=3.8`
-- Using virtualenv: `python -m venv cpdb`
+   - Using conda: `conda create -n cpdb python=3.8`
+   - Using virtualenv: `python -m venv cpdb`
 
 2. Activate environment
-- Using conda: `source activate cpdb`
-- Using virtualenv: `source cpdb/bin/activate`
+   - Using conda: `source activate cpdb`
+   - Using virtualenv: `source cpdb/bin/activate`
 
 3. Install CellPhoneDB `pip install cellphonedb`
 
+4. Set up the kernel for the Jupyter notebooks.
+   - Install the ipython kernel: `pip install -U ipykernel`.
+   - Add the environment as a jupyter kernel: `python -m ipykernel install --user --name 'cpdb'`.
+   - Open/Start Jupyter and select the created kernel.
+
+5. Download the database.
+   - Follow this [tutorial](https://github.com/ventolab/CellphoneDB/blob/master/notebooks/T00_DownloadDB.ipynb).
+
+NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
 ## Running CellPhoneDB Methods
 
@@ -191,8 +198,8 @@ Currently CellPhoneDB relies on external plotting implementations to represent t
 
 Currently we recommend using tools such as: seaborn, ggplot or a more specific and tailored implementation as the ktplots:
 [@zktuong](https://github.com/zktuong):
-- [ktplots](https://www.github.com/zktuong/ktplots/) (R)
-- [ktplotspy](https://www.github.com/zktuong/ktplotspy/) (python)
+- [ktplots](https://www.github.com/zktuong/ktplots/) (R; preferred)
+- [ktplotspy](https://www.github.com/zktuong/ktplotspy/) (python; under development)
 
 
 ## Using different database versions
