@@ -26,7 +26,7 @@ def call(cpdb_file_path: str = None,
          debug: bool = False,
          output_suffix: str = None,
          score_interactions: bool = False
-         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Statistical method for analysis
 
      This methods calculates the mean and percent for the cluster interactions
@@ -81,11 +81,12 @@ def call(cpdb_file_path: str = None,
      Returns
      -------
      Tuple
+         - deconvoluted
+         - deconvoluted_percents,
+         - means
          - pvalues
-         - means_result
          - significant_means
-         - deconvoluted_result
-         - interaction_scores_dict
+         - interaction_scores
      """
 
     # Report error unless the required arguments have been provided
@@ -108,7 +109,7 @@ def call(cpdb_file_path: str = None,
         ss = subsampler.Subsampler(log=subsampling_log, num_pc=subsampling_num_pc, num_cells=subsampling_num_cells, verbose=False, debug_seed=None)
         counts = ss.subsample(counts)
 
-    pvalues, means, significant_means, deconvoluted = \
+    pvalues, means, significant_means, deconvoluted, deconvoluted_percents = \
         cpdb_statistical_analysis_complex_method.call(meta.copy(),
                                                       counts.copy(),
                                                       counts_data,
@@ -141,8 +142,9 @@ def call(cpdb_file_path: str = None,
 
     file_utils.save_dfs_as_tsv(output_path, output_suffix, "statistical_analysis", \
                             {"deconvoluted" : deconvoluted, \
-                            "means" : means, \
-                            "pvalues" : pvalues, \
-                            "significant_means" : significant_means,
-                            "interaction_scores" : interaction_scores} )
-    return deconvoluted, means, pvalues, significant_means, interaction_scores
+                             "deconvoluted_percents": deconvoluted_percents, \
+                             "means" : means, \
+                             "pvalues" : pvalues, \
+                             "significant_means" : significant_means,
+                             "interaction_scores" : interaction_scores} )
+    return deconvoluted, deconvoluted_percents, means, pvalues, significant_means, interaction_scores

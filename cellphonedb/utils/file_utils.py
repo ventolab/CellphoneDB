@@ -203,7 +203,7 @@ def get_counts_meta_adata(counts_fp, meta_fp) -> AnnData:
     return adata
 
 def get_timestamp_suffix():
-    return datetime.now().strftime("%m_%d_%Y_%H:%M:%S")
+    return datetime.now().strftime("%m_%d_%Y_%H%M%S")
 
 def save_dfs_as_tsv(out, suffix, analysis_name, name2df):
     if suffix is None:
@@ -292,7 +292,7 @@ def _load_degs(degs_filepath: str, meta: pd.DataFrame) -> pd.DataFrame:
     elif len_columns>2:
         print(f"WARNING: DEGs expects 2 columns and got {len_columns}. Dropping extra columns.")
     degs = degs.iloc[:, 0:2]
-    if any(~degs.iloc[:,0].isin(meta.iloc[:,0])):
+    if any(~degs.iloc[:,1].isin(meta.iloc[:,0])):
         raise Exception("Some clusters/cell_types in DEGs are not present in metadata")
     degs.columns = [CLUSTER,GENE]
     degs.drop_duplicates(inplace=True)
@@ -328,7 +328,7 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
     """
     loaded_user_files=[]
     # Read user files
-    print("Reading user files...")
+    print("Reading user files...", flush=True)
     counts = read_data_table_from_file(counts_fp, index_column_first=True)
 
     # N.B. The functionality below has been switched off for the time being, on Kevin's request

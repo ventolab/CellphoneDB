@@ -4,7 +4,6 @@ import numpy as np
 import pickle
 from cellphonedb.src.core.core_logger import core_logger
 from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
-from cellphonedb.src.core.exceptions.NoInteractionsFound import NoInteractionsFound
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper
 from cellphonedb.src.core.models.complex import complex_helper
 
@@ -25,7 +24,7 @@ def call(meta: pd.DataFrame,
          result_precision: int = 3,
          debug: bool = False,
          output_path: str = '',
-         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     core_logger.info(
         '[Cluster Statistical Analysis] '
         'Threshold:{} Iterations:{} Debug-seed:{} Threads:{} Precision:{}'.format(threshold,
@@ -54,7 +53,8 @@ def call(meta: pd.DataFrame,
                                                     complex_compositions)
 
     if interactions_filtered.empty:
-        raise NoInteractionsFound()
+        core_logger.info('No CellphoneDB interactions found in this input.')
+        return pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
 
     meta = meta.loc[counts.columns]
 
@@ -114,13 +114,14 @@ def call(meta: pd.DataFrame,
                 "statistical_mean_analysis": statistical_mean_analysis,
                 "result_percent": result_percent}, fh)
 
-    pvalues_result, means_result, significant_means, deconvoluted_result = build_results(
+    pvalues_result, means_result, significant_means, deconvoluted_result, deconvoluted_percents = build_results(
         interactions_filtered,
         interactions,
         counts_relations,
         real_mean_analysis,
         result_percent,
         clusters['means'],
+        clusters['percents'],
         complex_composition_filtered,
         counts,
         genes,
@@ -128,7 +129,7 @@ def call(meta: pd.DataFrame,
         pvalue,
         counts_data
     )
-    return pvalues_result, means_result, significant_means, deconvoluted_result
+    return pvalues_result, means_result, significant_means, deconvoluted_result, deconvoluted_percents
 
 
 def build_results(interactions: pd.DataFrame,
@@ -137,6 +138,7 @@ def build_results(interactions: pd.DataFrame,
                   real_mean_analysis: pd.DataFrame,
                   result_percent: pd.DataFrame,
                   clusters_means: pd.DataFrame,
+                  clusters_percents: pd.DataFrame,
                   complex_compositions: pd.DataFrame,
                   counts: pd.DataFrame,
                   genes: pd.DataFrame,
@@ -180,7 +182,6 @@ def build_results(interactions: pd.DataFrame,
 
     gene_columns = ['{}_{}'.format(counts_data, suffix) for suffix in ('1', '2')]
     gene_renames = {column: 'gene_{}'.format(suffix) for column, suffix in zip(gene_columns, ['a', 'b'])}
-
     # Remove useless columns
     interactions_data_result = pd.DataFrame(
         interactions[['id_cp_interaction', 'partner_a', 'partner_b', 'receptor_1', 'receptor_2', *gene_columns,
@@ -190,7 +191,6 @@ def build_results(interactions: pd.DataFrame,
 
     interactions_data_result['secreted'] = (interactions['secreted_1'] | interactions['secreted_2'])
     interactions_data_result['is_integrin'] = (interactions['integrin_1'] | interactions['integrin_2'])
-
     interactions_data_result.rename(
         columns={**gene_renames, 'receptor_1': 'receptor_a', 'receptor_2': 'receptor_b'},
         inplace=True)
@@ -202,13 +202,14 @@ def build_results(interactions: pd.DataFrame,
                      'receptor_a', 'receptor_b', 'annotation_strategy', 'is_integrin']
 
     interactions_data_result = interactions_data_result[means_columns]
-
     real_mean_analysis = real_mean_analysis.round(result_precision)
     significant_means = significant_means.round(result_precision)
 
     # Round result decimals
     for key, cluster_means in clusters_means.items():
         clusters_means[key] = cluster_means.round(result_precision)
+    for key, cluster_percents in clusters_percents.items():
+        clusters_percents[key] = cluster_percents.round(result_precision)
 
     # Document 1
     pvalues_result = pd.concat([interactions_data_result, result_percent], axis=1, join='inner', sort=False)
@@ -221,22 +222,24 @@ def build_results(interactions: pd.DataFrame,
                                          join='inner', sort=False)
 
     # Document 5
-    deconvoluted_result = deconvoluted_complex_result_build(clusters_means,
+    deconvoluted_result, deconvoluted_percents = deconvoluted_complex_result_build(clusters_means,
+                                                            clusters_percents,
                                                             interactions,
                                                             complex_compositions,
                                                             counts,
                                                             genes,
                                                             counts_data)
 
-    return pvalues_result, means_result, significant_means_result, deconvoluted_result
+    return pvalues_result, means_result, significant_means_result, deconvoluted_result, deconvoluted_percents
 
 
 def deconvoluted_complex_result_build(clusters_means: pd.DataFrame,
+                                      clusters_percents: pd.DataFrame,
                                       interactions: pd.DataFrame,
                                       complex_compositions: pd.DataFrame,
                                       counts: pd.DataFrame,
                                       genes: pd.DataFrame,
-                                      counts_data: str) -> pd.DataFrame:
+                                      counts_data: str) -> (pd.DataFrame, pd.DataFrame):
     genes_counts = list(counts.index)
     genes_filtered = genes[genes['id_multidata'].apply(lambda gene: gene in genes_counts)]
 
@@ -267,11 +270,16 @@ def deconvoluted_complex_result_build(clusters_means: pd.DataFrame,
 
     deconvoluted_result = deconvoluted_result[deconvoluted_columns]
     deconvoluted_result.rename({'name': 'uniprot'}, axis=1, inplace=True)
+    deconvoluted_result4pcts = deconvoluted_result.copy(deep=True)
     deconvoluted_result = pd.concat([deconvoluted_result, clusters_means.reindex(deconvoluted_result.index)], axis=1, join='inner', sort=False)
+    deconvoluted_percents = pd.concat([deconvoluted_result4pcts, clusters_percents.reindex(deconvoluted_result4pcts.index)], axis=1, join='inner', sort=False)
+
     deconvoluted_result.set_index('gene', inplace=True, drop=True)
     deconvoluted_result.drop_duplicates(inplace=True)
+    deconvoluted_percents.set_index('gene', inplace=True, drop=True)
+    deconvoluted_percents.drop_duplicates(inplace=True)
 
-    return deconvoluted_result
+    return deconvoluted_result, deconvoluted_percents
 
 
 def deconvolute_interaction_component(interactions, suffix, counts_data):
