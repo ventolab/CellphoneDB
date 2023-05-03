@@ -4,3 +4,4 @@ cellphonedb/out
 __pycache__
 out
 docs/api/_build
+.DS_Store
