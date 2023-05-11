@@ -27,7 +27,7 @@ def call(
          output_suffix: str = None,
          score_interactions: bool = False,
          threads: int = 4
-         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+         ) -> dict:
     """Non-statistical method for analysis
 
     This methods calculates the mean and percent for the cluster interactions
@@ -63,12 +63,13 @@ def call(
         Number of threads to be used when scoring interactions
     Returns
     -------
-    Tuple
+    Dict with the following keys:
         - means_result
         - deconvoluted_result
         - deconvoluted_percents
         - interaction_scores_dict
     """
+    analysis_result = {}
     core_logger.info(
         '[Non Statistical Method] Threshold:{} Precision:{}'.format(threshold,
                                                                     result_precision))
@@ -166,18 +167,17 @@ def call(
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
 
+    analysis_result['means_result'] = means_result
+    analysis_result['deconvoluted_result'] = deconvoluted_result
+    analysis_result['deconvoluted_percents'] = deconvoluted_percents
+
     if score_interactions:
         interaction_scores = scoring_utils.score_interactions_based_on_participant_expressions_product(
             cpdb_file_path, counts.copy(), means_result.copy(), separator, counts_data, meta, threshold, "cell_type", threads)
-    else:
-        interaction_scores = pd.DataFrame
+        analysis_result['interaction_scores'] = interaction_scores
 
-    file_utils.save_dfs_as_tsv(output_path, output_suffix, "simple_analysis",
-                               {"means_result" : means_result,
-                                "deconvoluted_result" : deconvoluted_result,
-                                "deconvoluted_percents": deconvoluted_percents,
-                                "interaction_scores" : interaction_scores})
-    return means_result, deconvoluted_result, deconvoluted_percents, interaction_scores
+    file_utils.save_dfs_as_tsv(output_path, output_suffix, "simple_analysis", analysis_result)
+    return analysis_result
 
 
 def build_results(interactions: pd.DataFrame,

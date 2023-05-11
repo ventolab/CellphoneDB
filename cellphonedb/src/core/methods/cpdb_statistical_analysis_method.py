@@ -26,7 +26,7 @@ def call(cpdb_file_path: str = None,
          debug: bool = False,
          output_suffix: str = None,
          score_interactions: bool = False
-         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+         ) -> dict:
     """Statistical method for analysis
 
      This methods calculates the mean and percent for the cluster interactions
@@ -80,7 +80,7 @@ def call(cpdb_file_path: str = None,
         If True, CellphoneDB interactions will be scored per cell type pair, and returned in interaction_scores_dict
      Returns
      -------
-     Tuple
+     Dict with the following keys:
          - deconvoluted
          - deconvoluted_percents,
          - means
@@ -88,7 +88,7 @@ def call(cpdb_file_path: str = None,
          - significant_means
          - interaction_scores
      """
-
+    analysis_result = {}
     # Report error unless the required arguments have been provided
     required_arguments = [cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path]
     if None in required_arguments or '' in required_arguments:
@@ -134,17 +134,17 @@ def call(cpdb_file_path: str = None,
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
 
+    analysis_result['deconvoluted'] = deconvoluted
+    analysis_result['deconvoluted_percents'] = deconvoluted_percents
+    analysis_result['means'] = means
+    analysis_result['pvalues'] = pvalues
+    analysis_result['significant_means'] = significant_means
+
     if score_interactions:
         interaction_scores = scoring_utils.score_interactions_based_on_participant_expressions_product(
             cpdb_file_path, counts.copy(), means.copy(), separator, counts_data, meta, threshold, "cell_type", threads)
-    else:
-        interaction_scores = pd.DataFrame
+        analysis_result['interaction_scores'] = interaction_scores
 
-    file_utils.save_dfs_as_tsv(output_path, output_suffix, "statistical_analysis",
-                            {"deconvoluted" : deconvoluted,
-                             "deconvoluted_percents": deconvoluted_percents,
-                             "means" : means,
-                             "pvalues" : pvalues,
-                             "significant_means" : significant_means,
-                             "interaction_scores" : interaction_scores})
-    return deconvoluted, deconvoluted_percents, means, pvalues, significant_means, interaction_scores
+    file_utils.save_dfs_as_tsv(output_path, output_suffix, "statistical_analysis", analysis_result)
+
+    return analysis_result
