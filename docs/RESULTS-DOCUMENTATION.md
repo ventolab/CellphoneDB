@@ -19,8 +19,8 @@ CellPhoneDB tool provides different methods to assess cellular crosstalk between
 
 We highly recommend using an isolated python environment (as described in steps 1 and 2) using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) or [virtualenv](https://docs.python.org/3/library/venv.html) but you could of course omit these steps and install via `pip` immediately.
 
-1. Create python=>3.8 environment
-   - Using conda: `conda create -n cpdb python=3.8`
+1. Create python=>3.9 environment
+   - Using conda: `conda create -n cpdb python=3.9`
    - Using virtualenv: `python -m venv cpdb`
 
 2. Activate environment
@@ -37,7 +37,7 @@ We highly recommend using an isolated python environment (as described in steps 
 5. Download the database.
    - Follow this [tutorial](https://github.com/ventolab/CellphoneDB/blob/master/notebooks/T00_DownloadDB.ipynb).
 
-> NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
+> NOTE: Works with Python v3.9 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
 
 # Analysis & Methods

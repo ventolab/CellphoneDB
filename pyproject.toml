@@ -9,7 +9,6 @@ classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Science/Research",
   "Natural Language :: English",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Operating System :: MacOS :: MacOS X",
@@ -30,7 +29,7 @@ version = "4.0.0"
 exclude = ["example_data*"] 
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.9"
 black = {version = ">=22.3", optional = true}
 isort = {version = ">=5.7", optional = true}
 pandas = ">=1.5.0"
