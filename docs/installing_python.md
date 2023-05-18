@@ -1,7 +1,7 @@
 Install Python and Jupyter Notebook
 -----------------------------------
 
-It is assumed that you have Python (version >= 3.9) and Jupyter notebook installed on your computer.
+It is assumed that you have Python (version >= 3.8) and Jupyter notebook installed on your computer.
 If not, you can:
 - Install Python following instructions on ```https://docs.conda.io/en/latest/miniconda.html```, and then 
 - Run ```pip3 install notebook``` in order to install Jupyter notebook.
