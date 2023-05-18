@@ -5,6 +5,7 @@ from scipy.stats.mstats import gmean
 from sklearn.preprocessing import MinMaxScaler
 from itertools import combinations_with_replacement
 from cellphonedb.src.core.core_logger import core_logger
+from collections import ChainMap
 
 from functools import partial
 from multiprocessing.pool import Pool
@@ -304,8 +305,9 @@ def score_interactions_based_on_participant_expressions_product(
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     #  Get mapping between multidata_id and genes[counts_data]
-    id2name = dict(zip(genes.protein_id, genes[counts_data]))
-    id2name = id2name | dict(zip(complex_expanded.complex_multidata_id, complex_expanded.name))
+    id2name = dict(ChainMap( \
+        dict(zip(genes.protein_id, genes[counts_data])), \
+        dict(zip(complex_expanded.complex_multidata_id, complex_expanded.name))))
 
     # Step 1: Filter genes expressed in less than min_pct_cell of cells in a given cell type.
     cpdb_f = filter_genes_per_cell_type(matrix=counts,
