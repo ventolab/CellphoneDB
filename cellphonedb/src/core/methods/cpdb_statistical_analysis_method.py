@@ -104,6 +104,9 @@ def call(cpdb_file_path: str = None,
         counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, \
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
+    # Note that for consistency with the other analysis methods, interaction scoring is done on all cells
+    # whether subsampling takes place or not
+    counts4scoring = counts.copy()
     # Subsample counts data, if required
     if subsampling:
         ss = subsampler.Subsampler(log=subsampling_log, num_pc=subsampling_num_pc, num_cells=subsampling_num_cells, verbose=False, debug_seed=None)
@@ -142,7 +145,7 @@ def call(cpdb_file_path: str = None,
 
     if score_interactions:
         interaction_scores = scoring_utils.score_interactions_based_on_participant_expressions_product(
-            cpdb_file_path, counts.copy(), means.copy(), separator, counts_data, meta, threshold, "cell_type", threads)
+            cpdb_file_path, counts4scoring, means.copy(), separator, counts_data, meta, threshold, "cell_type", threads)
         analysis_result['interaction_scores'] = interaction_scores
 
     file_utils.save_dfs_as_tsv(output_path, output_suffix, "statistical_analysis", analysis_result)
