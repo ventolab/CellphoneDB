@@ -3,8 +3,8 @@ scanpy>=1.9.1
 numpy>=1.21.6
 numpy-groupies>=0.9.15
 requests>=2.25
-scikit-learn==0.24
-geosketch==1.2
+scikit-learn>=v1.2.2
+geosketch>=1.2
 anndata>=0.8
 ktplotspy>=0.1.4
 tqdm>=4.3,<5.0
