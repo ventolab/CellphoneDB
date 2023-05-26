@@ -114,7 +114,7 @@ def call(cpdb_file_path: str = None,
 
     pvalues, means, significant_means, deconvoluted, deconvoluted_percents = \
         cpdb_statistical_analysis_complex_method.call(meta.copy(),
-                                                      counts.copy(),
+                                                      counts,
                                                       counts_data,
                                                       interactions,
                                                       genes,

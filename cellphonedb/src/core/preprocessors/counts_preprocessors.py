@@ -34,5 +34,5 @@ def counts_preprocessor(counts: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFram
                                    "Maybe incorrect file format")
 
     if np.any(~counts.columns.isin(meta.index)):
-        counts = counts.loc[:, counts.columns.isin(meta.index)].copy()
+        counts = counts.loc[:, counts.columns.isin(meta.index)]
     return counts
