@@ -202,6 +202,21 @@ def get_counts_meta_adata(counts_fp, meta_fp) -> AnnData:
 
     return adata
 
+def estimate_memory_for_analyses(meta_fp, subsampling=False, scoring=False, num_cores=1):
+    raw_meta = read_data_table_from_file(meta_fp, index_column_first=False)
+    num_cells = raw_meta.shape[0]
+    if scoring:
+        statistical_analysis_mem = num_cells * 0.5 + num_cores * 1024 * 1.5
+    else:
+        if subsampling:
+            statistical_analysis_mem = num_cells * 0.5
+        else:
+            statistical_analysis_mem = 0.3 * num_cells + num_cores * 1024 * 0.5
+    statistical_analysis_mem_in_gb = round(statistical_analysis_mem/1024, 0)
+    basic_deg_analysis_mem_in_gb = round(0.3 * num_cells / 1024, 0)
+    print("Basic or DEG analysis: " + str(basic_deg_analysis_mem_in_gb) + " GB")
+    print("Statistical analysis: " + str(statistical_analysis_mem_in_gb) + " GB")
+
 def get_timestamp_suffix():
     return datetime.now().strftime("%m_%d_%Y_%H%M%S")
 
