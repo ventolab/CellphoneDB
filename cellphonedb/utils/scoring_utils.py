@@ -301,7 +301,7 @@ def score_interactions_based_on_participant_expressions_product(
         threads: int) -> pd.DataFrame:
 
     # Get DB files
-    interactions, genes, complex_composition, complex_expanded, _ = \
+    interactions, genes, complex_composition, complex_expanded, _, _ = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     #  Get mapping between multidata_id and genes[counts_data]

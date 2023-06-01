@@ -12,6 +12,7 @@ def call(cpdb_file_path: str = None,
          counts_data: str = None,
          output_path: str = None,
          microenvs_file_path: str = None,
+         active_tfs_file_path: str = None,
          iterations: int = 1000,
          threshold: float = 0.1,
          threads: int = 4,
@@ -29,7 +30,7 @@ def call(cpdb_file_path: str = None,
          ) -> dict:
     """Statistical method for analysis
 
-     This methods calculates the mean and percent for the cluster interactions
+     This method calculates the mean and percent for the cluster interactions
      and for each gene interaction. No shuffling nor DEGs are involved.
 
      Parameters
@@ -46,6 +47,8 @@ def call(cpdb_file_path: str = None,
         Output path used to store the analysis results (and to store intermediate files when debugging)
      microenvs_file_path: str, optional
          Path to Micro-environment file. Its content is used to limit cluster interactions
+     active_tfs_file_path: str, optional
+         Path to active TFs. Its content is used to limit cluster interactions.
      iterations: int
         Number of times cell type labels will be shuffled across cells in order to
         determine statistically significant ligand/receptor expression means.
@@ -88,7 +91,6 @@ def call(cpdb_file_path: str = None,
          - significant_means
          - interaction_scores
      """
-    analysis_result = {}
     # Report error unless the required arguments have been provided
     required_arguments = [cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path]
     if None in required_arguments or '' in required_arguments:
@@ -96,12 +98,13 @@ def call(cpdb_file_path: str = None,
         "cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path"))
 
     # Load into memory CellphoneDB data
-    interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
+    interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name, receptor2tfs = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     # Load user files into memory
-    counts, meta, microenvs, degs = file_utils.get_user_files( \
+    counts, meta, microenvs, degs, active_tf2cell_types = file_utils.get_user_files( \
         counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, \
+        active_tfs_fp = active_tfs_file_path, \
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
     # Note that for consistency with the other analysis methods, interaction scoring is done on all cells
@@ -112,15 +115,16 @@ def call(cpdb_file_path: str = None,
         ss = subsampler.Subsampler(log=subsampling_log, num_pc=subsampling_num_pc, num_cells=subsampling_num_cells, verbose=False, debug_seed=None)
         counts = ss.subsample(counts)
 
-    pvalues, means, significant_means, deconvoluted, deconvoluted_percents = \
-        cpdb_statistical_analysis_complex_method.call(meta.copy(),
+    analysis_result = cpdb_statistical_analysis_complex_method.call(meta.copy(),
                                                       counts,
                                                       counts_data,
+                                                      active_tf2cell_types,
                                                       interactions,
                                                       genes,
                                                       complex_expanded,
                                                       complex_composition,
                                                       microenvs,
+                                                      receptor2tfs,
                                                       pvalue,
                                                       separator,
                                                       iterations,
@@ -132,16 +136,10 @@ def call(cpdb_file_path: str = None,
                                                       output_path
                                                       )
 
-
+    significant_means = analysis_result['significant_means']
     max_rank = significant_means['rank'].max()
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
-
-    analysis_result['deconvoluted'] = deconvoluted
-    analysis_result['deconvoluted_percents'] = deconvoluted_percents
-    analysis_result['means'] = means
-    analysis_result['pvalues'] = pvalues
-    analysis_result['significant_means'] = significant_means
 
     if score_interactions:
         interaction_scores = scoring_utils.score_interactions_based_on_participant_expressions_product(

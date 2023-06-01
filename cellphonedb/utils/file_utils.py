@@ -262,7 +262,7 @@ def _load_microenvs(microenvs_filepath: str, meta: pd.DataFrame) -> pd.DataFrame
     Returns
     -------
     pd.DataFrame
-        Microenvrionments as a DataFrame read fro the input file.
+        Microenvironments as a DataFrame read from the input file.
     """
     CELL_TYPE = "cell_type"
     MICRO_ENVIRONMENT = "microenvironment"
@@ -278,6 +278,45 @@ def _load_microenvs(microenvs_filepath: str, meta: pd.DataFrame) -> pd.DataFrame
         raise Exception("Some clusters/cell_types in microenvironments file are not present in metadata")
     microenvs.columns = [CELL_TYPE, MICRO_ENVIRONMENT]
     return microenvs
+
+def _load_active_tfs(active_tfs_filepath: str, meta: pd.DataFrame) -> dict:
+    """Load Active TFs file
+
+    This method reads an Active TFs file into a DataFrame.
+    Runs validations to make sure the file has enough columns and
+    that all the cell types in the active TFs file are included in metadata file.
+
+    Parameters
+    ----------
+    active_tfs_fi
+        Path to the active TFs file.
+    meta
+        Meta DataFrame.
+
+    Returns
+    -------
+    pd.DataFrame
+        Active TFs per cell type as a DataFrame read from the input file.
+    """
+    active_tfs = read_data_table_from_file(os.path.realpath(active_tfs_filepath))
+    active_tfs.drop_duplicates(inplace=True)
+    len_columns = len(active_tfs.columns)
+    if len_columns < 2:
+        raise Exception(f"Missing columns in Active TFs file: 2 required but {len_columns} provided")
+    elif len_columns > 2:
+        print(f"WARNING: Active TFs file expects 2 columns and got {len_columns}. Dropping extra columns.")
+    active_tfs = active_tfs.iloc[:, 0:2]
+    rows_filter = ~active_tfs.iloc[:, 0].isin(meta.iloc[:, 0])
+    if any(rows_filter):
+        print("WARNING: The following clusters/cell_types in Active TFs file are not present in metadata:")
+        print("\n".join(set(active_tfs[rows_filter].iloc[:, 0].tolist())))
+
+    # Convert DataFrame to dict
+    active_tf2cell_types = {}
+    for cell_type, tf in active_tfs.values:
+         active_tf2cell_types.update({tf: active_tf2cell_types.get(tf, []) + [cell_type]})
+
+    return active_tf2cell_types
 
 def _load_degs(degs_filepath: str, meta: pd.DataFrame) -> pd.DataFrame:
     """Load DEGs file
@@ -314,8 +353,9 @@ def _load_degs(degs_filepath: str, meta: pd.DataFrame) -> pd.DataFrame:
     degs.drop_duplicates(inplace=True)
     return degs
 
-def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None, gene_synonym2gene_name=None, counts_data=None) \
-        -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None, active_tfs_fp=None, \
+                   gene_synonym2gene_name=None, counts_data=None) \
+        -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
     """
 
     Parameters
@@ -340,6 +380,7 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
         - meta: pd.DataFrame
         - microenvs: pd.DataFrame
         - degs: pd.DataFrame
+        - active_tf2cell_types: dict
 
     """
     loaded_user_files=[]
@@ -364,6 +405,12 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
     else:
         microenvs = pd.DataFrame()
 
+    if active_tfs_fp:
+        active_tf2cell_types = _load_active_tfs(active_tfs_fp, meta)
+        loaded_user_files.append(active_tfs_fp)
+    else:
+        active_tf2cell_types = {}
+
     if degs_fp:
         degs = _load_degs(degs_fp, meta)
         loaded_user_files.append(degs_fp)
@@ -374,4 +421,4 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
     for fn in loaded_user_files:
         print(fn)
 
-    return counts, meta, microenvs, degs
+    return counts, meta, microenvs, degs, active_tf2cell_types

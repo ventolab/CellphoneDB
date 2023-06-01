@@ -31,7 +31,7 @@ if __name__ == '__main__':
         # results to old CellphoneDB or ones after the new code optiisations
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'examples')
         dbversion = "v4.0.0"
-        interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
+        interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name, receptor2tfs = \
             db_utils.get_interactions_genes_complex(cpdb_file_path)
         adata = file_utils.read_h5ad(os.path.join(root_dir, 'endometrium_example_counts.h5ad'))
         counts = adata.to_df().T
@@ -89,7 +89,7 @@ if __name__ == '__main__':
         # Run statistical and deg analyses for ovarian example - for the purpose of comparing results to old CellphoneDB
         root_dir = os.path.join(CPDB_ROOT, 'tests', 'data', 'bug_2_ovary')
         dbversion = "v4.0.0"
-        interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
+        interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name, receptor2tfs = \
             db_utils.get_interactions_genes_complex(cpdb_file_path)
         adata = file_utils.read_h5ad(os.path.join(root_dir, 'granulosa_normloqTransformed.h5ad'))
         counts = adata.to_df().T

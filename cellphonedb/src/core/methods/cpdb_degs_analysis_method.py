@@ -8,6 +8,7 @@ from cellphonedb.src.core.exceptions.MissingRequiredArgumentsException import Mi
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper, cpdb_statistical_analysis_complex_method
 from cellphonedb.src.core.models.complex import complex_helper
 from cellphonedb.utils import db_utils, file_utils, scoring_utils
+from cellphonedb.src.core.utils import cellsign
 
 def call(cpdb_file_path: str = None,
          meta_file_path: str = None,
@@ -16,6 +17,7 @@ def call(cpdb_file_path: str = None,
          counts_data: str = None,
          output_path: str = None,
          microenvs_file_path: str = None,
+         active_tfs_file_path: str = None,
          separator: str = "|",
          threshold: float = 0.1,
          result_precision: int = 3,
@@ -49,6 +51,8 @@ def call(cpdb_file_path: str = None,
         Output path used to store the analysis results (and to store intermediate files when debugging)
     microenvs_file_path: str, optional
         Path to Micro-environment file. Its content is used to limit cluster interactions
+    active_tfs_file_path: str, optional
+         Path to active TFs. Its content is used to limit cluster interactions.
     separator: str, optional
         Separator for pairs of genes (gene1|gene2) and clusters (cluster1|cluster2).
     threshold: float, optional
@@ -86,12 +90,13 @@ def call(cpdb_file_path: str = None,
         "cpdb_file_path, meta_file_path, counts_file_path, degs_file_path, counts_data, output_path"))
 
     # Load into memory CellphoneDB data
-    interactions, genes, complex_compositions, complexes, gene_synonym2gene_name = \
+    interactions, genes, complex_compositions, complexes, gene_synonym2gene_name, receptor2tfs = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     # Load user files into memory
-    counts, meta, microenvs, degs = file_utils.get_user_files( \
+    counts, meta, microenvs, degs, active_tf2cell_types = file_utils.get_user_files( \
         counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, degs_fp=degs_file_path, \
+        active_tfs_fp=active_tfs_file_path, \
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
     # get reduced interactions (drop duplicates)
@@ -112,7 +117,7 @@ def call(cpdb_file_path: str = None,
 
     if interactions_filtered.empty:
         core_logger.info('No CellphoneDB interactions found in this input.')
-        return pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
+        return analysis_result
 
     meta = meta.loc[counts.columns]
 
@@ -193,7 +198,8 @@ def call(cpdb_file_path: str = None,
                 "relevant_interactions": relevant_interactions}, fh)
 
     core_logger.debug('Building results')
-    relevant_interactions_result, means_result, significant_means, deconvoluted_result, deconvoluted_percents = build_results(
+
+    analysis_result = build_results(
         interactions_filtered,
         interactions,
         counts_relations,
@@ -205,18 +211,16 @@ def call(cpdb_file_path: str = None,
         counts,
         genes,
         result_precision,
-        counts_data
+        counts_data,
+        separator,
+        active_tf2cell_types,
+        receptor2tfs
     )
 
+    significant_means = analysis_result['significant_means']
     max_rank = significant_means['rank'].max()
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
-
-    analysis_result['deconvoluted_result'] = deconvoluted_result
-    analysis_result['deconvoluted_percents'] = deconvoluted_percents
-    analysis_result['means_result'] = means_result
-    analysis_result['relevant_interactions_result'] = relevant_interactions_result
-    analysis_result['significant_means'] = significant_means
 
     if score_interactions:
         interaction_scores = scoring_utils.score_interactions_based_on_participant_expressions_product(
@@ -237,7 +241,11 @@ def build_results(interactions: pd.DataFrame,
                   counts: pd.DataFrame,
                   genes: pd.DataFrame,
                   result_precision: int,
-                  counts_data: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+                  counts_data: str,
+                  separator: str,
+                  active_tf2cell_types: dict,
+                  receptor2tfs: dict
+                  ) -> dict:
     """
     Sets the results data structure from method generated data. Results documents are defined by specs.
     """
@@ -317,6 +325,10 @@ def build_results(interactions: pd.DataFrame,
     relevant_interactions_result = pd.concat(
         [interactions_data_result, relevant_interactions], axis=1, join='inner', sort=False)
 
+    # Perform CellSign analysis to identify active interactions
+    active_interactions, active_interactions_deconvoluted = \
+        cellsign.find_active_interactions(relevant_interactions_result, receptor2tfs, active_tf2cell_types, separator)
+
     # Document 2: means.txt
     means_result = pd.concat(
         [interactions_data_result, real_mean_analysis], axis=1, join='inner', sort=False)
@@ -333,9 +345,15 @@ def build_results(interactions: pd.DataFrame,
                                                             counts,
                                                             genes,
                                                             counts_data)
-    
 
-    return relevant_interactions_result, means_result, significant_means_result, deconvoluted_result, deconvoluted_percents
+    analysis_result = {'deconvoluted': deconvoluted_result,
+                       'deconvoluted_percents': deconvoluted_percents,
+                       'means': means_result,
+                       'relevant_interactions': relevant_interactions_result,
+                       'significant_means': significant_means_result,
+                       'CellSign_active_interactions': active_interactions,
+                       'CellSign_active_interactions_deconvoluted': active_interactions_deconvoluted}
+    return analysis_result
 
 def build_degs_matrix(degs: pd.DataFrame,
                       genes: pd.DataFrame,

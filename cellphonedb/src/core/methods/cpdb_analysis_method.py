@@ -80,11 +80,11 @@ def call(
         "cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path"))
 
     # Load into memory CellphoneDB data
-    interactions, genes, complex_compositions, complexes, gene_synonym2gene_name = \
+    interactions, genes, complex_compositions, complexes, gene_synonym2gene_name, receptor2tfs = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     # Load user files into memory
-    counts, meta, microenvs, degs = file_utils.get_user_files( \
+    counts, meta, microenvs, degs, _ = file_utils.get_user_files( \
         counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, \
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
@@ -104,7 +104,7 @@ def call(
                                                     complex_compositions)
     if interactions_filtered.empty:
         core_logger.info('No CellphoneDB interactions found in this input.')
-        return pd.DataFrame, pd.DataFrame
+        return analysis_result
 
     meta = meta.loc[counts.columns]
 

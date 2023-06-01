@@ -22,7 +22,7 @@ COMPLEX_INFO_FIELDS_FOR_WEB = ['transmembrane','peripheral','secreted', 'secrete
 COMPLEX_CROSSREFERENCE_FIELDS_FOR_WEB = ['reactome_reaction', 'reactome_complex', 'complexPortal_complex',
                                          'rhea_reaction']
 
-INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input']
+INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input','transcription_factor_input']
 PROTEIN_COLUMN_NAMES = ['uniprot_1','uniprot_2','uniprot_3','uniprot_4','uniprot_5']
 # This is used to indicate CellPhoneDB released data (as opposed to user-added data when they create their own CellPhoneDB file)
 CORE_CELLPHONEDB_DATA = "CellPhoneDBcore"
@@ -60,7 +60,7 @@ def get_protein_and_complex_data_for_web(cpdb_file_path) -> Tuple[dict, dict, di
 
     return protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name
 
-def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
+def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict, dict]:
     """
     Returns a tuple of four DataFrames containing data from <cpdb_dir>/cellphonedb.zip.
 
@@ -77,6 +77,7 @@ def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.Dat
         - complex_composition: pd.DataFrame
         - complex_expanded: pd.DataFrame
         - gene_synonym2gene_name: dict
+        - receptor2tfs: dict
     """
     # Extract csv files from db_files_path/cellphonedb.zip into dbTableDFs
     dbTableDFs = extract_dataframes_from_db(cpdb_file_path)
@@ -128,7 +129,12 @@ def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.Dat
     interactions.set_index('id_interaction', drop=True, inplace=True)
     complex_composition.set_index('id_complex_composition', inplace=True, drop=True)
 
-    return interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name
+    receptor_to_tf_df = dbTableDFs['receptor_to_transcription_factor'][['Receptor', 'TF']]
+    receptor2tfs = {}
+    for receptor, tf in receptor_to_tf_df.values:
+         receptor2tfs.update({receptor: receptor2tfs.get(receptor, []) + [tf]})
+
+    return interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name, receptor2tfs
 
 def extract_dataframes_from_db(cpdb_file_path):
     dfs = {}
@@ -197,11 +203,13 @@ def create_db(target_dir) -> None:
     protein_input = os.path.join(target_dir, "protein_input.csv")
     complex_input = os.path.join(target_dir, "complex_input.csv")
     interaction_input = os.path.join(target_dir, "interaction_input.csv")
+    transcription_factor_input = os.path.join(target_dir, "transcription_factor_input.csv")
     gene_synonyms_input = os.path.join(target_dir, "sources/uniprot_synonyms.tsv")
 
     pathlib.Path(target_dir).mkdir(parents=True, exist_ok=True)
     dataDFs = getDFs(gene_input=gene_input, protein_input=protein_input, complex_input=complex_input,
-                     interaction_input=interaction_input, gene_synonyms_input=gene_synonyms_input)
+                     interaction_input=interaction_input, transcription_factor_input = transcription_factor_input,
+                     gene_synonyms_input=gene_synonyms_input)
 
     # Perform sanity tests on *_input files and report any issues to the user as warnings
     run_sanity_tests(dataDFs)
@@ -225,6 +233,12 @@ def create_db(target_dir) -> None:
     protein_db_df = protein_db_df.drop('uniprot', axis=1)
     gene_db_df.rename(columns = {'protein_multidata_id':'protein_id'}, inplace = True)
     # print(gene_db_df.info)
+
+    # Collect mapping: (receptor) gene name -> TF gene name (in transcription_factor_input.tsv)
+    receptor_to_tf_df = dataDFs['transcription_factor_input'][['receptor_id', 'TF_symbol']].copy()
+    receptor_to_tf_df.columns = ['Receptor', 'TF']
+    # Strip any leading or trailing spaces
+    receptor_to_tf_df.replace(r'\s*(.*?)\s*', r'\1', regex=True, inplace=True)
 
     # Collect mapping: gene synonym (not in gene_input.csv) -> gene name (in gene_input.csv)
     gene_synonym_to_gene_name = {}
@@ -326,6 +340,7 @@ def create_db(target_dir) -> None:
         zip_file.writestr('multidata_table.csv', multidata_db_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('interaction_table.csv', interactions_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('gene_synonym_to_gene_name.csv', gene_synonym_to_gene_name_db_df.to_csv(index=False, sep=',').encode('utf-8'))
+        zip_file.writestr('receptor_to_transcription_factor.csv', receptor_to_tf_df.to_csv(index=False, sep=',').encode('utf-8'))
 
     file_suffix = file_utils.get_timestamp_suffix()
     file_path = os.path.join(target_dir,'cellphonedb_{}.zip'.format(file_suffix))
@@ -350,12 +365,15 @@ def download_released_files(target_dir, cpdb_version, regex):
                     f.write(zipContent.read(fpath))
                     print("Downloaded {} into {}".format(fname, target_dir))
 
-def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_input=None, gene_synonyms_input=None):
+def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_input=None, \
+           transcription_factor_input=None, \
+           gene_synonyms_input=None):
     dfs = {}
     dfs['gene_input'] = file_utils.read_data_table_from_file(gene_input)
     dfs['protein_input'] = file_utils.read_data_table_from_file(protein_input)
     dfs['complex_input'] = file_utils.read_data_table_from_file(complex_input)
     dfs['interaction_input'] = file_utils.read_data_table_from_file(interaction_input)
+    dfs['transcription_factor_input'] = file_utils.read_data_table_from_file(transcription_factor_input)
     dfs['gene_synonyms_input'] = file_utils.read_data_table_from_file(gene_synonyms_input)
     return dfs
 
@@ -365,6 +383,7 @@ def run_sanity_tests(dataDFs):
     complex_db_df = dataDFs['complex_input']
     gene_db_df = dataDFs['gene_input']
     interaction_db_df = dataDFs['interaction_input']
+    tf_input_df = dataDFs['transcription_factor_input']
 
     # 1. Report any uniprot accessions that map to multiple gene_names
     gene_names_uniprot_df = gene_db_df[['gene_name', 'uniprot']].copy()
@@ -482,6 +501,22 @@ def run_sanity_tests(dataDFs):
     if unknown_proteins:
         print("WARNING: The following proteins in protein_input.txt could not be found in gene_input.csv:")
         print("\n".join(sorted(unknown_proteins)) + "\n")
+        print()
+
+    # 11. Warn if some receptor ids in tf_input_df are in neither gene_input.csv or complex_input.csv
+    for (bioentity, df) in {"gene": gene_db_df, "complex" : complex_db_df }.items() :
+        if bioentity == "gene":
+            complex_filter = ~tf_input_df['receptor_id'].str.match('.*_.*')
+        else:
+            complex_filter = tf_input_df['receptor_id'].str.match('.*_.*')
+        bioentities_in_tf_input = set([i.strip() for i in tf_input_df[complex_filter]['receptor_id'].values.tolist()])
+        bioentities_in_input = set(df['{}_name'.format(bioentity)].values.tolist())
+        # Below: bioentities in bioentities_in_tf_input but not in bioentities_in_input
+        bioentities_not_in_input = bioentities_in_tf_input.difference(bioentities_in_input)
+        if bioentities_not_in_input:
+            print("WARNING: The following receptors in transcription_factor_input could not be found in {}_input.csv:".format(bioentity))
+            print("\n".join(set(bioentities_not_in_input)))
+            print()
 
     if data_errors_found:
         raise DatabaseCreationException

@@ -6,15 +6,18 @@ from cellphonedb.src.core.core_logger import core_logger
 from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper
 from cellphonedb.src.core.models.complex import complex_helper
+from cellphonedb.src.core.utils import cellsign
 
 def call(meta: pd.DataFrame,
          counts: pd.DataFrame,
          counts_data: str,
+         active_tf2cell_types: dict,
          interactions: pd.DataFrame,
          genes: pd.DataFrame,
          complexes: pd.DataFrame,
          complex_compositions: pd.DataFrame,
          microenvs: pd.DataFrame,
+         receptor2tfs: dict,
          pvalue: float,
          separator: str = '|',
          iterations: int = 1000,
@@ -24,7 +27,8 @@ def call(meta: pd.DataFrame,
          result_precision: int = 3,
          debug: bool = False,
          output_path: str = '',
-         ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+         ) -> dict:
+    analysis_result = {}
     core_logger.info(
         '[Cluster Statistical Analysis] '
         'Threshold:{} Iterations:{} Debug-seed:{} Threads:{} Precision:{}'.format(threshold,
@@ -54,7 +58,7 @@ def call(meta: pd.DataFrame,
 
     if interactions_filtered.empty:
         core_logger.info('No CellphoneDB interactions found in this input.')
-        return pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
+        return analysis_result
 
     meta = meta.loc[counts.columns]
 
@@ -114,7 +118,7 @@ def call(meta: pd.DataFrame,
                 "statistical_mean_analysis": statistical_mean_analysis,
                 "result_percent": result_percent}, fh)
 
-    pvalues_result, means_result, significant_means, deconvoluted_result, deconvoluted_percents = build_results(
+    analysis_result = build_results(
         interactions_filtered,
         interactions,
         counts_relations,
@@ -127,9 +131,12 @@ def call(meta: pd.DataFrame,
         genes,
         result_precision,
         pvalue,
-        counts_data
+        counts_data,
+        separator,
+        active_tf2cell_types,
+        receptor2tfs
     )
-    return pvalues_result, means_result, significant_means, deconvoluted_result, deconvoluted_percents
+    return analysis_result
 
 
 def build_results(interactions: pd.DataFrame,
@@ -144,8 +151,11 @@ def build_results(interactions: pd.DataFrame,
                   genes: pd.DataFrame,
                   result_precision: int,
                   pvalue: float,
-                  counts_data: str
-                  ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+                  counts_data: str,
+                  separator: str,
+                  active_tf2cell_types: dict,
+                  receptor2tfs: dict
+                  ) -> dict:
     """
     Sets the results data structure from method generated data. Results documents are defined by specs.
     """
@@ -221,6 +231,10 @@ def build_results(interactions: pd.DataFrame,
     significant_means_result = pd.concat([interactions_data_result, significant_mean_rank, significant_means], axis=1,
                                          join='inner', sort=False)
 
+    # Perform CellSign analysis to identify active interactions
+    active_interactions, active_interactions_deconvoluted = \
+        cellsign.find_active_interactions(significant_means_result, receptor2tfs, active_tf2cell_types, separator)
+
     # Document 5
     deconvoluted_result, deconvoluted_percents = deconvoluted_complex_result_build(clusters_means,
                                                             clusters_percents,
@@ -229,8 +243,15 @@ def build_results(interactions: pd.DataFrame,
                                                             counts,
                                                             genes,
                                                             counts_data)
+    analysis_result = {'deconvoluted': deconvoluted_result,
+                       'deconvoluted_percents': deconvoluted_percents,
+                       'means': means_result,
+                       'pvalues': pvalues_result,
+                       'significant_means': significant_means_result,
+                       'CellSign_active_interactions': active_interactions,
+                       'CellSign_active_interactions_deconvoluted': active_interactions_deconvoluted}
 
-    return pvalues_result, means_result, significant_means_result, deconvoluted_result, deconvoluted_percents
+    return analysis_result
 
 
 def deconvoluted_complex_result_build(clusters_means: pd.DataFrame,

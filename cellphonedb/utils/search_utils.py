@@ -47,7 +47,7 @@ def search(query_str: str = "",
     """
     start = time.time()
     results = []
-    interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name = \
+    interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name, _ = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name = \
