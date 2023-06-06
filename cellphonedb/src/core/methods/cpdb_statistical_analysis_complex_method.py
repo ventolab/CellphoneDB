@@ -295,9 +295,7 @@ def deconvoluted_complex_result_build(clusters_means: pd.DataFrame,
     deconvoluted_result = pd.concat([deconvoluted_result, clusters_means.reindex(deconvoluted_result.index)], axis=1, join='inner', sort=False)
     deconvoluted_percents = pd.concat([deconvoluted_result4pcts, clusters_percents.reindex(deconvoluted_result4pcts.index)], axis=1, join='inner', sort=False)
 
-    deconvoluted_result.set_index('gene', inplace=True, drop=True)
     deconvoluted_result.drop_duplicates(inplace=True)
-    deconvoluted_percents.set_index('gene', inplace=True, drop=True)
     deconvoluted_percents.drop_duplicates(inplace=True)
 
     return deconvoluted_result, deconvoluted_percents

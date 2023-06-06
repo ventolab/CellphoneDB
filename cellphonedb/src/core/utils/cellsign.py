@@ -41,6 +41,10 @@ def find_active_interactions(
                     break
             if interaction_active:
                 active_interactions.at[id_cp_interaction, col_name] = 1
+    # Remove from active_interactions all interactions with 0 across all ct_pair_cols (such interaction are not active)
+    active_interactions = active_interactions[active_interactions[ct_pair_cols].apply(lambda row: row.sum() > 0, axis=1)]
+    # Drop index - to match other CellphoneDB analysis output DataFrames
+    active_interactions.reset_index(drop=False, inplace=True)
     if active_interactions_deconvoluted:
         active_interactions_deconvoluted_df = pd.DataFrame(data=np.array(active_interactions_deconvoluted),
                                                            columns=['id_cp_interaction', 'interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', \

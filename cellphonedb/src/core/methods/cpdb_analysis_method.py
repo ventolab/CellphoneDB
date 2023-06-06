@@ -168,7 +168,7 @@ def call(
     significant_means.sort_values('rank', inplace=True)
 
     analysis_result['means_result'] = means_result
-    analysis_result['deconvoluted_result'] = deconvoluted_result
+    analysis_result['deconvoluted'] = deconvoluted_result
     analysis_result['deconvoluted_percents'] = deconvoluted_percents
 
     if score_interactions:
@@ -203,6 +203,7 @@ def build_results(interactions: pd.DataFrame,
         - means
         - significant_means
         - deconvoluted
+        - deconvoluted_percents
     """
     core_logger.info('Building results')
     interactions: pd.DataFrame = interactions_original.loc[interactions.index]
