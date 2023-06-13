@@ -207,7 +207,7 @@ def scale_expression(matrix: pd.DataFrame, upper_range: int) -> pd.DataFrame:
                                  columns=matrix.columns)
     return matrix_scaled
 
-def _get_lr_scores(matrix, cpdb_set_all_lrs, separator, cell_type_pair) -> dict:
+def _get_lr_scores(matrix, cpdb_set_all_lrs, separator, cell_type_pair) -> tuple:
     cell_type_A = cell_type_pair.split(separator)[0]
     cell_type_B = cell_type_pair.split(separator)[1]
     # Each cell in lr_outer is an arithmetic product:
@@ -294,11 +294,14 @@ def score_interactions_based_on_participant_expressions_product(
         counts: pd.DataFrame,
         means: pd.DataFrame,
         separator: str,
-        counts_data: str,
         metadata: pd.DataFrame,
         threshold: float,
         cell_type_col_name: str,
         threads: int) -> pd.DataFrame:
+
+    # Even if in the original analysis was done with counts_data = 'ensembl', we set it to 'gene_name' (= 'hgnc_symbol')
+    # This is because id2name below relies on one-to-one mapping between multidata_id and genes[counts_data]
+    counts_data = 'gene_name'
 
     # Get DB files
     interactions, genes, complex_composition, complex_expanded, _, _ = \
