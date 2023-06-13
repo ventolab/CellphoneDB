@@ -190,9 +190,9 @@ def build_results(interactions: pd.DataFrame,
         real_mean_analysis, result_percent, pvalue)
     significant_means = significant_means.round(result_precision)
 
-    gene_columns = ['{}_{}'.format(counts_data, suffix) for suffix in ('1', '2')]
+    gene_columns = ['{}_{}'.format('gene_name', suffix) for suffix in ('1', '2')]
     gene_renames = {column: 'gene_{}'.format(suffix) for column, suffix in zip(gene_columns, ['a', 'b'])}
-    # Remove useless columns
+    # Remove superfluous columns
     interactions_data_result = pd.DataFrame(
         interactions[['id_cp_interaction', 'partner_a', 'partner_b', 'receptor_1', 'receptor_2', *gene_columns,
                       'annotation_strategy']].copy())
