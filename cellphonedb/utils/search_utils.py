@@ -225,6 +225,8 @@ def get_html_table(data, complex_name2proteins, \
             else:
                 if field.startswith(COMPLEX_PFX):
                     name = field.split(":")[1]
+                    constituent_proteins = ', '.join(complex_name2proteins[name])
+                    complex_mouseover = "Contains proteins: {}".format(constituent_proteins)
                     inner_html = get_sidenav_html(field.startswith(COMPLEX_PFX), name,
                                                   complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name)
                     html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' title=\"{}\" href=\"#\">{}</a>" + \
