@@ -150,8 +150,8 @@ def get_sidenav_html(is_complex: bool, bioentity_name: str,
         for res in EXTERNAL_RESOURCE2URI:
             if res in resource2Complex2Acc:
                 resource_label = res.split(" ")[0]
-                if name in resource2Complex2Acc[res]:
-                    acc = resource2Complex2Acc[res][name]
+                if bioentity_name in resource2Complex2Acc[res]:
+                    acc = resource2Complex2Acc[res][bioentity_name]
                     res_lookup_id = acc.replace("RHEA:", "")
                     external_resource_links += "<a class=\"teal-text\" href=\"{}/{}\" target=\"blank\" {}>{} {}</a><br>" \
                         .format(EXTERNAL_RESOURCE2URI[res], res_lookup_id, SIDENAV_A_STYLE, resource_label, acc)
@@ -176,7 +176,7 @@ def get_sidenav_html(is_complex: bool, bioentity_name: str,
         for item in protein2Info[bioentity_name]:
             proteinInformation += "<a {}>{}</a><br>".format(SIDENAV_PROPERTY_STYLE, item)
         if bioentity_name in proteinAcc2Name:
-            proteinName = proteinAcc2Name[name]
+            proteinName = proteinAcc2Name[bioentity_name]
         else:
             proteinName = ""
         html = ("<li><a class=\"subheader\">Protein Information</a></li>" + \
