@@ -141,6 +141,52 @@ def get_uniprot_url(uniprot_accessions) -> str:
         url_query += "(accession:{})".format(acc)
     return url_prefix + url_query
 
+def get_sidenav_html(is_complex: bool, bioentity_name: str,
+                     complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name) -> str:
+    if is_complex:
+        constituent_proteins = ', '.join(complex_name2proteins[bioentity_name])
+        multi_protein_uniprot_url = get_uniprot_url(complex_name2proteins[bioentity_name])
+        external_resource_links = ""
+        for res in EXTERNAL_RESOURCE2URI:
+            if res in resource2Complex2Acc:
+                resource_label = res.split(" ")[0]
+                if name in resource2Complex2Acc[res]:
+                    acc = resource2Complex2Acc[res][name]
+                    res_lookup_id = acc.replace("RHEA:", "")
+                    external_resource_links += "<a class=\"teal-text\" href=\"{}/{}\" target=\"blank\" {}>{} {}</a><br>" \
+                        .format(EXTERNAL_RESOURCE2URI[res], res_lookup_id, SIDENAV_A_STYLE, resource_label, acc)
+        complexInformation = ""
+        for item in complex2Info[bioentity_name]:
+            complexInformation += "<a {}>{}</a><br> ".format(SIDENAV_PROPERTY_STYLE, item)
+        html = ("<li><a class=\"subheader\">Complex Information</a></li>" + \
+                    "<a {}><b>{}</b></a>" +
+                    "<li><div class=\"divider\"></div></li>" + \
+                    "<li><a class=\"subheader black-text\">Members</a></li>" + \
+                    "<a class=\"teal-text\" href=\"{}\" target=\"blank\" {}>{} (see in UniProt)</a>" + \
+                    "<li><div class=\"divider\"></div></li>" + \
+                    "<li><a class=\"subheader black-text\">Properties</li>" + \
+                    "{}" + \
+                    "<li><div class=\"divider\"></div></li>" + \
+                    "<li><a class=\"subheader black-text\">Cross References</li>" + \
+                    "{}").format(SIDENAV_PROPERTY_STYLE, bioentity_name,
+                                     multi_protein_uniprot_url, SIDENAV_A_STYLE, constituent_proteins,
+                                     complexInformation, external_resource_links)
+    else:
+        proteinInformation = ""
+        for item in protein2Info[bioentity_name]:
+            proteinInformation += "<a {}>{}</a><br>".format(SIDENAV_PROPERTY_STYLE, item)
+        if bioentity_name in proteinAcc2Name:
+            proteinName = proteinAcc2Name[name]
+        else:
+            proteinName = ""
+        html = ("<li><a class=\"subheader\">Protein Information</a></li>" + \
+                    "<a href=\"https://www.uniprot.org/uniprotkb/{}/entry\" class=\"teal-text\" target=\"blank\" {}><b>{}</b> (See in UniProt)</a><br><a {}>{}</a>" + \
+                    "<li><div class=\"divider\"></div></li>" + \
+                    "<li><a class=\"subheader black-text\">Properties</li>" + \
+                    "{}").format(bioentity_name, SIDENAV_A_STYLE, bioentity_name, SIDENAV_A_STYLE, proteinName,
+                                    proteinInformation)
+    return html
+
 def get_html_table(data, complex_name2proteins, \
                    protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name) -> str:
     """
@@ -179,54 +225,16 @@ def get_html_table(data, complex_name2proteins, \
             else:
                 if field.startswith(COMPLEX_PFX):
                     name = field.split(":")[1]
-                    constituent_proteins = ', '.join(complex_name2proteins[name])
-                    complex_mouseover = "Contains proteins: {}".format(constituent_proteins)
-                    multi_protein_uniprot_url = get_uniprot_url(complex_name2proteins[name])
-                    external_resource_links = ""
-                    for res in EXTERNAL_RESOURCE2URI:
-                        if res in resource2Complex2Acc:
-                            resource_label = res.split(" ")[0]
-                            if name in resource2Complex2Acc[res]:
-                                acc =  resource2Complex2Acc[res][name]
-                                res_lookup_id = acc.replace("RHEA:","")
-                                external_resource_links += "<a class=\"teal-text\" href=\"{}/{}\" target=\"blank\" {}>{} {}</a><br>" \
-                                    .format(EXTERNAL_RESOURCE2URI[res], res_lookup_id, SIDENAV_A_STYLE, resource_label, acc)
-                    complexInformation = ""
-                    for item in complex2Info[name]:
-                        complexInformation += "<a {}>{}</a><br> ".format(SIDENAV_PROPERTY_STYLE, item)
+                    inner_html = get_sidenav_html(field.startswith(COMPLEX_PFX), name,
+                                                  complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name)
                     html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' title=\"{}\" href=\"#\">{}</a>" + \
-                    "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" + \
-                    "<li><a class=\"subheader\">Complex Information</a></li>"+ \
-                    "<a {}><b>{}</b></a>"+
-                    "<li><div class=\"divider\"></div></li>" + \
-                    "<li><a class=\"subheader black-text\">Members</a></li>" + \
-                    "<a class=\"teal-text\" href=\"{}\" target=\"blank\" {}>{} (see in UniProt)</a>" + \
-                    "<li><div class=\"divider\"></div></li>" + \
-                    "<li><a class=\"subheader black-text\">Properties</li>" + \
-                    "{}" + \
-                    "<li><div class=\"divider\"></div></li>" + \
-                    "<li><a class=\"subheader black-text\">Cross References</li>" + \
-                    "{}" + \
-                    "</ul>" + \
-                    "</td> ").format(name, complex_mouseover, name, name, SIDENAV_PROPERTY_STYLE, name, multi_protein_uniprot_url, SIDENAV_A_STYLE, constituent_proteins, complexInformation, external_resource_links)
+                                "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" + inner_html + "</ul></td>").format(name, complex_mouseover, name, name)
                 elif field.startswith(SIMPLE_PFX):
                     name = field.split(":")[1]
-                    proteinInformation = ""
-                    for item in protein2Info[name]:
-                        proteinInformation += "<a {}>{}</a><br>".format(SIDENAV_PROPERTY_STYLE, item)
-                    if name in proteinAcc2Name:
-                        proteinName = proteinAcc2Name[name]
-                    else:
-                        proteinName = ""
-                    html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' href=\"#\">{}</a>" + \
-                    "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" + \
-                    "<li><a class=\"subheader\">Protein Information</a></li>"+ \
-                    "<a href=\"https://www.uniprot.org/uniprotkb/{}/entry\" class=\"teal-text\" target=\"blank\" {}><b>{}</b> (See in UniProt)</a><br><a {}>{}</a>" + \
-                    "<li><div class=\"divider\"></div></li>" + \
-                    "<li><a class=\"subheader black-text\">Properties</li>" + \
-                    "{}" + \
-                    "</ul>" + \
-                    "</td>").format(name, name, name, name, SIDENAV_A_STYLE, name, SIDENAV_A_STYLE, proteinName, proteinInformation)
+                    inner_html = get_sidenav_html(False, name,
+                                                  complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name)
+                    html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' title=\"{}\" href=\"#\">{}</a>" + \
+                                "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" + inner_html + "</ul></td>").format(name, name, name, name)
                 elif field.startswith(ENS_PFX):
                     html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" href=\"https://www.ensembl.org/id/{}\">{}</a></td>" \
                         .format(field, field)
