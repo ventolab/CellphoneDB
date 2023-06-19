@@ -160,14 +160,11 @@ def get_sidenav_html(is_complex: bool, bioentity_name: str,
             complexInformation += "<a {}>{}</a><br> ".format(SIDENAV_PROPERTY_STYLE, item)
         html = ("<li><a class=\"subheader\">Complex Information</a></li>" + \
                     "<a {}><b>{}</b></a>" +
-                    "<li><div class=\"divider\"></div></li>" + \
-                    "<li><a class=\"subheader black-text\">Members</a></li>" + \
+                    "<li><a class=\"subheader\">Members</a></li>" + \
                     "<a class=\"teal-text\" href=\"{}\" target=\"blank\" {}>{} (see in UniProt)</a>" + \
-                    "<li><div class=\"divider\"></div></li>" + \
-                    "<li><a class=\"subheader black-text\">Properties</li>" + \
+                    "<li><a class=\"subheader\">Properties</li>" + \
                     "{}" + \
-                    "<li><div class=\"divider\"></div></li>" + \
-                    "<li><a class=\"subheader black-text\">Cross References</li>" + \
+                    "<li><a class=\"subheader\">Cross References</li>" + \
                     "{}").format(SIDENAV_PROPERTY_STYLE, bioentity_name,
                                      multi_protein_uniprot_url, SIDENAV_A_STYLE, constituent_proteins,
                                      complexInformation, external_resource_links)
@@ -181,8 +178,7 @@ def get_sidenav_html(is_complex: bool, bioentity_name: str,
             proteinName = ""
         html = ("<li><a class=\"subheader\">Protein Information</a></li>" + \
                     "<a href=\"https://www.uniprot.org/uniprotkb/{}/entry\" class=\"teal-text\" target=\"blank\" {}><b>{}</b> (See in UniProt)</a><br><a {}>{}</a>" + \
-                    "<li><div class=\"divider\"></div></li>" + \
-                    "<li><a class=\"subheader black-text\">Properties</li>" + \
+                    "<li><a class=\"subheader\">Properties</li>" + \
                     "{}").format(bioentity_name, SIDENAV_A_STYLE, bioentity_name, SIDENAV_A_STYLE, proteinName,
                                     proteinInformation)
     return html
