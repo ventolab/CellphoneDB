@@ -7,7 +7,7 @@ import pandas as pd
 SIMPLE_PFX="simple:"
 COMPLEX_PFX = 'complex:'
 ENS_PFX = "ENS"
-INTERACTION_COLUMNS = ['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b']
+INTERACTION_COLUMNS = ['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'manual_directionality', 'classification']
 EXTERNAL_RESOURCE2URI = {'Reactome reaction' : 'https://reactome.org/content/detail',
                          'Reactome complex' : 'https://reactome.org/content/detail',
                          'ComplexPortal complex' : 'https://www.ebi.ac.uk/complexportal/complex',
@@ -82,11 +82,11 @@ def search(query_str: str = "",
     duration = time.time() - start
     dbg("Output for query '{}':".format(query_str))
     # Output header
-    results.append(['CellphoneDB interaction ', 'Partner A', 'Partner B', 'Gene name A', 'Gene name B', ' Ensembl ID A', 'Ensembl ID B', 'Annotation strategy', 'Curator','Source','Is PPI'])
+    results.append(['CellphoneDB interaction ', 'Partner A', 'Partner B', 'Gene name A', 'Gene name B', ' Ensembl ID A', 'Ensembl ID B', 'Annotation strategy', 'Curator','Source','Is PPI','Directionality','Classification'])
     for multidata_id in multidata_ids:
          interactions_data_list = interactions[[ \
              'id_cp_interaction','multidata_1_id', 'multidata_2_id', \
-             'name_1', 'name_2','is_complex_1', 'is_complex_2', 'annotation_strategy','curator','source','is_ppi']] \
+             'name_1', 'name_2','is_complex_1', 'is_complex_2', 'annotation_strategy','curator','source','is_ppi','manual_directionality','classification']] \
             [interactions[['multidata_1_id', 'multidata_2_id']].apply(lambda row: row.astype(int).eq(multidata_id).any(),
                                                                      axis=1)].values.tolist()
          for interaction in interactions_data_list:
@@ -117,7 +117,9 @@ def search(query_str: str = "",
                  interaction[7],
                  interaction[8],
                  interaction[9],
-                 interaction[10]
+                 interaction[10],
+                 interaction[11],
+                 interaction[12]
              ]
              results.append(output_row)
     dbg("Total search time: " + str(round(duration, 2)) + "s")
@@ -280,6 +282,7 @@ def search_analysis_results(
         query_cell_types_2: list = None,
         query_genes: list = None,
         query_interactions: list = None,
+        query_classifications: list = None,
         significant_means: pd.DataFrame = None,
         deconvoluted: pd.DataFrame = None,
         separator: str = "|",
@@ -349,6 +352,8 @@ def search_analysis_results(
             interactions = interactions.union(frozenset(deconvoluted[deconvoluted['gene_name'].isin(query_genes)]['id_cp_interaction'].tolist()))
     if query_interactions:
         interactions = interactions.union(frozenset(significant_means[significant_means['interacting_pair'].isin(query_interactions)]['id_cp_interaction'].tolist()))
+    if query_classifications:
+        interactions = interactions.union(frozenset(significant_means[significant_means['classification'].isin(query_classifications)]['id_cp_interaction'].tolist()))
 
     if interactions:
         result_df = significant_means[significant_means['id_cp_interaction'].isin(interactions)]
