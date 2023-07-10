@@ -53,10 +53,14 @@ def get_protein_and_complex_data_for_web(cpdb_file_path) -> Tuple[dict, dict, di
     complex2Info = {k: [x for x in aux[k] if str(x) != 'nan'] for k in aux}
 
     aux = pd.merge(mtc, cpxTable, left_on='id_multidata', right_on='complex_multidata_id')
+    complex_cols = list(aux.columns.values.tolist())
     resource2Complex2Acc = {}
     for col in COMPLEX_CROSSREFERENCE_FIELDS_FOR_WEB:
-        aux1 = aux.loc[pd.notna(aux[col])]
-        resource2Complex2Acc[col.replace("_"," ").capitalize()] = dict(zip(aux1['name'], aux1[col]))
+        if col in complex_cols:
+            # The above test is in case the user created their own CellphoneDB database and had chosen to remove
+            # COMPLEX_CROSSREFERENCE_FIELDS_FOR_WEB fields from complex_input.csv
+            aux1 = aux.loc[pd.notna(aux[col])]
+            resource2Complex2Acc[col.replace("_"," ").capitalize()] = dict(zip(aux1['name'], aux1[col]))
 
     return protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name
 
