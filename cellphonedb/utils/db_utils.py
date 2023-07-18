@@ -328,7 +328,7 @@ def create_db(target_dir) -> None:
     dbg(interactions_aux_df.info)
     dbg(interactions_aux_df.columns)
     interactions_df = interactions_aux_df[['id_cp_interaction','id_multidata_x','id_multidata_y', \
-                                          'source','annotation_strategy','curator','is_ppi','manual_directionality','classification']].copy()
+                                          'source','annotation_strategy','curator','is_ppi','directionality','classification']].copy()
     interactions_df.rename(columns={'id_multidata_x': 'multidata_1_id', 'id_multidata_y': 'multidata_2_id'}, inplace=True)
     interactions_df.insert(0, 'id_interaction', list(range(interactions_df.shape[0])), False)
     dbg(interactions_df.shape, interactions_df.index, interactions_df.columns)

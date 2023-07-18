@@ -7,7 +7,7 @@ import pandas as pd
 SIMPLE_PFX="simple:"
 COMPLEX_PFX = 'complex:'
 ENS_PFX = "ENS"
-INTERACTION_COLUMNS = ['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'manual_directionality', 'classification']
+INTERACTION_COLUMNS = ['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'directionality', 'classification']
 EXTERNAL_RESOURCE2URI = {'Reactome reaction' : 'https://reactome.org/content/detail',
                          'Reactome complex' : 'https://reactome.org/content/detail',
                          'ComplexPortal complex' : 'https://www.ebi.ac.uk/complexportal/complex',
@@ -86,7 +86,7 @@ def search(query_str: str = "",
     for multidata_id in multidata_ids:
          interactions_data_list = interactions[[ \
              'id_cp_interaction','multidata_1_id', 'multidata_2_id', \
-             'name_1', 'name_2','is_complex_1', 'is_complex_2', 'annotation_strategy','curator','source','is_ppi','manual_directionality','classification']] \
+             'name_1', 'name_2','is_complex_1', 'is_complex_2', 'annotation_strategy','curator','source','is_ppi','directionality','classification']] \
             [interactions[['multidata_1_id', 'multidata_2_id']].apply(lambda row: row.astype(int).eq(multidata_id).any(),
                                                                      axis=1)].values.tolist()
          for interaction in interactions_data_list:
