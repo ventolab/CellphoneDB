@@ -140,10 +140,11 @@ def call(cpdb_file_path: str = None,
     max_rank = significant_means['rank'].max()
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
+    means_result = analysis_result['means']
 
     if score_interactions:
         interaction_scores = scoring_utils.score_interactions_based_on_participant_expressions_product(
-            cpdb_file_path, counts4scoring, means.copy(), separator, meta, threshold, "cell_type", threads)
+            cpdb_file_path, counts4scoring, means_result.copy(), separator, meta, threshold, "cell_type", threads)
         analysis_result['interaction_scores'] = interaction_scores
 
     file_utils.save_dfs_as_tsv(output_path, output_suffix, "statistical_analysis", analysis_result)
