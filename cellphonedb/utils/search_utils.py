@@ -283,8 +283,10 @@ def search_analysis_results(
         query_genes: list = None,
         query_interactions: list = None,
         query_classifications: list = None,
+        query_minimum_score: int = None,
         significant_means: pd.DataFrame = None,
         deconvoluted: pd.DataFrame = None,
+        interaction_scores = None,
         separator: str = "|",
         long_format: bool = False
 ) -> pd.DataFrame:
@@ -309,8 +311,13 @@ def search_analysis_results(
         A list of gene names
     query_interactions: list
         A list of interactions
+    query_classifications: list
+        A list of query classifications
+    query_minimum_score: int
+        Find all interactions with at least minimum_score across the selected cell types
     significant_means: pd.DataFrame
     deconvoluted: pd.DataFrame
+    interaction_scores: pd.DataFrame
         Files output by either (by the same) statistical or DEG analysis
     separator: str
         Separator used in cell type pair column names in significant_means dataFrame
@@ -325,20 +332,16 @@ def search_analysis_results(
         print("ERROR: Both significant_means and deconvoluted dataframes need to be provided")
         return
 
-    if query_cell_types_1 is None or query_cell_types_2 is None:
-        print ("ERROR: Both query_cell_types_1 and query_cell_types_1 need to be provided. " + \
-               "If you wish to search for all cell type combinations, set them both to \"All\"")
-
     # Collect all combinations of cell types (disregarding the order) from query_cell_types_1 and query_cell_types_2
-    if query_cell_types_1 == "All" or query_cell_types_2 == "All":
+    if query_cell_types_1 is None or query_cell_types_2 is None:
         cols_filter = significant_means.filter(regex="\{}".format(separator)).columns
         all_cts = set([])
         for ct_pair in [i.split(separator) for i in cols_filter.tolist()]:
             all_cts |= set(ct_pair)
         all_cell_types = list(all_cts)
-        if query_cell_types_1 == "All":
+        if query_cell_types_1 is None:
             query_cell_types_1 = all_cell_types
-        if query_cell_types_2 == "All":
+        if query_cell_types_2 is None:
             query_cell_types_2 = all_cell_types
     cell_type_pairs = []
     for ct in query_cell_types_1:
@@ -354,11 +357,17 @@ def search_analysis_results(
         interactions = interactions.union(frozenset(significant_means[significant_means['interacting_pair'].isin(query_interactions)]['id_cp_interaction'].tolist()))
     if query_classifications:
         interactions = interactions.union(frozenset(significant_means[significant_means['classification'].isin(query_classifications)]['id_cp_interaction'].tolist()))
-
-    if interactions:
-        result_df = significant_means[significant_means['id_cp_interaction'].isin(interactions)]
-    else:
-        result_df = significant_means
+    # If minimum_score was provided, filter interactions to those with at least minimum_score across the selected cell types
+    if query_minimum_score is not None and interaction_scores is not None:
+        # Filter out interactions which are below query_minimum_score in any cell_type_pair/column in cols_filter
+        interactions_filtered_by_minimum_score = interaction_scores[interaction_scores[cols_filter] \
+            .max(axis=1) >= query_minimum_score]['id_cp_interaction'].tolist()
+        if query_genes or query_interactions or query_classifications:
+            interactions = interactions.intersection(interactions_filtered_by_minimum_score)
+        else:
+            # Filter all interactions by query_minimum_score
+            interactions = set(interactions_filtered_by_minimum_score)
+    result_df = significant_means[significant_means['id_cp_interaction'].isin(interactions)]
 
     # Filter out cell_type_pairs/columns in cols_filter for which no interaction in interactions set is significant
     cols_filter = cols_filter[result_df[cols_filter].notna().any(axis=0)]
