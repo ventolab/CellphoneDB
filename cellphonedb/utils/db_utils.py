@@ -133,7 +133,7 @@ def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.Dat
     interactions.set_index('id_interaction', drop=True, inplace=True)
     complex_composition.set_index('id_complex_composition', inplace=True, drop=True)
 
-    receptor_to_tf_df = dbTableDFs['receptor_to_transcription_factor'][['partner_receptor', 'TF_symbol']]
+    receptor_to_tf_df = dbTableDFs['receptor_to_transcription_factor'][['Receptor', 'TF']]
     receptor2tfs = {}
     for receptor, tf in receptor_to_tf_df.values:
          receptor2tfs.update({receptor: receptor2tfs.get(receptor, []) + [tf]})
