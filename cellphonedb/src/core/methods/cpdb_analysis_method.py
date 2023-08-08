@@ -240,10 +240,14 @@ def build_results(interactions: pd.DataFrame,
     gene_columns = ['{}_{}'.format('gene_name', suffix) for suffix in ('1', '2')]
     gene_renames = {column: 'gene_{}'.format(suffix) for column, suffix in zip(gene_columns, ['a', 'b'])}
 
+    # Cater for DB version-dependent column names
+    interaction_columns = []
+    if 'directionality' in interactions.columns:
+        interaction_columns = ['directionality', 'classification']
     # Remove superfluous columns
     interactions_data_result = pd.DataFrame(
         interactions[['id_cp_interaction', 'partner_a', 'partner_b', 'receptor_1', 'receptor_2', *gene_columns,
-                      'annotation_strategy', 'directionality', 'classification']].copy())
+                      'annotation_strategy'] + interaction_columns].copy())
 
     interactions_data_result = pd.concat([interacting_pair, interactions_data_result], axis=1, sort=False)
 
@@ -258,7 +262,7 @@ def build_results(interactions: pd.DataFrame,
     interactions_data_result.drop_duplicates(inplace=True)
 
     means_columns = ['id_cp_interaction', 'interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'secreted',
-                     'receptor_a', 'receptor_b', 'annotation_strategy', 'is_integrin', 'directionality', 'classification']
+                     'receptor_a', 'receptor_b', 'annotation_strategy', 'is_integrin'] + interaction_columns
 
     interactions_data_result = interactions_data_result[means_columns]
 

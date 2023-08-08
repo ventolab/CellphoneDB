@@ -17,7 +17,7 @@ from cellphonedb.src.core.preprocessors import method_preprocessors, counts_prep
 DEBUG=False
 
 def read_data_table_from_file(file: str, index_column_first: bool = False, separator: str = '',
-                              dtype=None, na_values=None, compression=None) -> pd.DataFrame:
+                              dtype=None, na_values=None, compression=None, optional=False) -> pd.DataFrame:
     if os.path.isdir(file):
         return _read_mtx(file)
 
@@ -44,7 +44,11 @@ def read_data_table_from_file(file: str, index_column_first: bool = False, separ
     try:
         f = open(file)
     except Exception:
-        raise ReadFileException(file)
+        if not optional:
+            raise ReadFileException(file)
+        else:
+            # Don't raise an exception if the file is optional (i.e. present in only certain DB versions)
+            return None
     else:
         with f:
             return _read_data(f, separator, index_column_first, dtype, na_values, compression)

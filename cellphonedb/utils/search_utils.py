@@ -50,6 +50,11 @@ def search(query_str: str = "",
     interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name, _ = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
+    interaction_columns = []
+    # Cater for DB version-dependent column names
+    if 'directionality' in interactions.columns:
+        interaction_columns = ['curator','source','is_ppi','directionality','classification']
+
     protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name = \
         db_utils.get_protein_and_complex_data_for_web(cpdb_file_path)
 
@@ -86,7 +91,7 @@ def search(query_str: str = "",
     for multidata_id in multidata_ids:
          interactions_data_list = interactions[[ \
              'id_cp_interaction','multidata_1_id', 'multidata_2_id', \
-             'name_1', 'name_2','is_complex_1', 'is_complex_2', 'annotation_strategy','curator','source','is_ppi','directionality','classification']] \
+             'name_1', 'name_2','is_complex_1', 'is_complex_2', 'annotation_strategy'] + interaction_columns] \
             [interactions[['multidata_1_id', 'multidata_2_id']].apply(lambda row: row.astype(int).eq(multidata_id).any(),
                                                                      axis=1)].values.tolist()
          for interaction in interactions_data_list:
@@ -114,13 +119,17 @@ def search(query_str: str = "",
                  data_2[0],
                  data_1[1],
                  data_2[1],
-                 interaction[7],
-                 interaction[8],
-                 interaction[9],
-                 interaction[10],
-                 interaction[11],
-                 interaction[12]
-             ]
+                 interaction[7]
+                 ]
+             # Cater for DB version-dependent column names
+             if len(interaction) > 8:
+                 output_row += [
+                     interaction[8],
+                     interaction[9],
+                     interaction[10],
+                     interaction[11],
+                     interaction[12]
+                ]
              results.append(output_row)
     dbg("Total search time: " + str(round(duration, 2)) + "s")
     return results, complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name

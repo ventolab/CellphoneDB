@@ -19,11 +19,9 @@ MULTIDATA_TABLE_BOOLEAN_COLS = ['receptor','other','secreted_highlight',\
 
 PROTEIN_INFO_FIELDS_FOR_WEB = ['transmembrane','secreted','secreted_desc','receptor','integrin','other_desc']
 COMPLEX_INFO_FIELDS_FOR_WEB = ['transmembrane','peripheral','secreted', 'secreted_desc','receptor','integrin', 'other_desc']
-COMPLEX_CROSSREFERENCE_FIELDS_FOR_WEB = ['reactome_reaction', 'reactome_complex', 'complexPortal_complex',
-                                         'rhea_reaction']
+COMPLEX_CROSSREFERENCE_FIELDS_FOR_WEB = ['reactome_reaction', 'reactome_complex', 'complexPortal_complex','rhea_reaction']
 
 INPUT_FILE_NAMES = ['complex_input','gene_input','interaction_input','protein_input','transcription_factor_input']
-PROTEIN_COLUMN_NAMES = ['uniprot_1','uniprot_2','uniprot_3','uniprot_4','uniprot_5']
 # This is used to indicate CellPhoneDB released data (as opposed to user-added data when they create their own CellPhoneDB file)
 CORE_CELLPHONEDB_DATA = "CellPhoneDBcore"
 
@@ -87,8 +85,11 @@ def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.Dat
     dbTableDFs = extract_dataframes_from_db(cpdb_file_path)
     # Convert dbTableDFs into interactions, genes, complex_composition, complex_expanded data frames
     # and gene_synonym2gene_name dict
-    gs2gn = dbTableDFs['gene_synonym_to_gene_name']
-    gene_synonym2gene_name = dict(zip(gs2gn['Gene Synonym'], gs2gn['Gene Name']))
+    gene_synonym2gene_name = {}
+    # Cater for DB version-dependent input files
+    if 'gene_synonym_to_gene_name' in dbTableDFs:
+        gs2gn = dbTableDFs['gene_synonym_to_gene_name']
+        gene_synonym2gene_name = dict(zip(gs2gn['Gene Synonym'], gs2gn['Gene Name']))
 
     mtTable = dbTableDFs['multidata_table']
     dbg(mtTable.dtypes)
@@ -133,10 +134,12 @@ def get_interactions_genes_complex(cpdb_file_path) -> Tuple[pd.DataFrame, pd.Dat
     interactions.set_index('id_interaction', drop=True, inplace=True)
     complex_composition.set_index('id_complex_composition', inplace=True, drop=True)
 
-    receptor_to_tf_df = dbTableDFs['receptor_to_transcription_factor'][['Receptor', 'TF']]
+    # Cater for DB version-dependent input files
     receptor2tfs = {}
-    for receptor, tf in receptor_to_tf_df.values:
-         receptor2tfs.update({receptor: receptor2tfs.get(receptor, []) + [tf]})
+    if 'receptor_to_transcription_factor' in dbTableDFs:
+        receptor_to_tf_df = dbTableDFs['receptor_to_transcription_factor'][['Receptor', 'TF']]
+        for receptor, tf in receptor_to_tf_df.values:
+             receptor2tfs.update({receptor: receptor2tfs.get(receptor, []) + [tf]})
 
     return interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name, receptor2tfs
 
@@ -185,6 +188,24 @@ def get_db_path(user_dir_root, db_version):
     """
     return os.path.join(user_dir_root, "releases", db_version)
 
+# Cater for DB version-dependent column names
+def get_column_names_for_db_version(complex_db_df, interactions_df, protein_df) -> tuple:
+    protein_column_names = ['uniprot_1', 'uniprot_2', 'uniprot_3', 'uniprot_4']
+    interaction_column_names1 = []
+    interaction_column_names2 = []
+    complex_columns = []
+    version = []
+
+    if 'directionality' in interactions_df.columns:
+        interaction_column_names1 = ['directionality', 'classification']
+        interaction_column_names2 = ['is_ppi','curator']
+    if 'uniprot_5' in complex_db_df.columns:
+        protein_column_names += ['uniprot_5']
+        complex_columns = COMPLEX_CROSSREFERENCE_FIELDS_FOR_WEB
+    if 'version' in protein_df.columns:
+        version = ['version']
+    return (protein_column_names, interaction_column_names1, interaction_column_names2, version, complex_columns)
+
 def create_db(target_dir) -> None:
     """
     Creates CellphoneDB databases file (cellphonedb.zip) in <target_dir> directory.
@@ -215,8 +236,11 @@ def create_db(target_dir) -> None:
                      interaction_input=interaction_input, transcription_factor_input = transcription_factor_input,
                      gene_synonyms_input=gene_synonyms_input)
 
+    (protein_column_names, interaction_column_names1, interaction_column_names2, version, complex_columns) = \
+        get_column_names_for_db_version(dataDFs['complex_input'], dataDFs['interaction_input'], dataDFs['protein_input'])
+
     # Perform sanity tests on *_input files and report any issues to the user as warnings
-    run_sanity_tests(dataDFs)
+    run_sanity_tests(dataDFs, protein_column_names, version)
 
     # Collect protein data
     protein_db_df = dataDFs['protein_input'][['protein_name', 'tags', 'tags_reason', 'tags_description', 'uniprot']]
@@ -239,25 +263,30 @@ def create_db(target_dir) -> None:
     # print(gene_db_df.info)
 
     # Collect mapping: (receptor) gene name -> TF gene name (in transcription_factor_input.tsv)
-    receptor_to_tf_df = dataDFs['transcription_factor_input'][['receptor_id', 'TF_symbol']].copy()
-    receptor_to_tf_df.columns = ['Receptor', 'TF']
-    # Strip any leading or trailing spaces
-    receptor_to_tf_df.replace(r'\s*(.*?)\s*', r'\1', regex=True, inplace=True)
+    receptor_to_tf_df = None
+    # Cater for DB version-dependent input files
+    if dataDFs['transcription_factor_input'] is not None:
+        receptor_to_tf_df = dataDFs['transcription_factor_input'][['receptor_id', 'TF_symbol']].copy()
+        receptor_to_tf_df.columns = ['Receptor', 'TF']
+        # Strip any leading or trailing spaces
+        receptor_to_tf_df.replace(r'\s*(.*?)\s*', r'\1', regex=True, inplace=True)
 
     # Collect mapping: gene synonym (not in gene_input.csv) -> gene name (in gene_input.csv)
-    gene_synonym_to_gene_name = {}
-    for gene_names in dataDFs['gene_synonyms_input'].filter(regex=("Gene Names.*")).dropna().agg(' '.join, axis=1).tolist():
-        gene_names_arr = re.split(';\s*|\s+', gene_names)
-        for gene_name in gene_db_df[gene_db_df['gene_name'].isin(gene_names_arr)]['gene_name'].tolist():
-            for gene_synonym in gene_names_arr:
-                if gene_synonym != gene_name:
-                    gene_synonym_to_gene_name[gene_synonym] = gene_name
-    gene_synonym_to_gene_name_db_df = pd.DataFrame(gene_synonym_to_gene_name.items(), columns=['Gene Synonym', 'Gene Name'])
+    gene_synonym_to_gene_name_db_df = None
+    # Cater for DB version-dependent input files
+    if dataDFs['gene_synonyms_input'] is not None:
+        gene_synonym_to_gene_name = {}
+        for gene_names in dataDFs['gene_synonyms_input'].filter(regex=("Gene Names.*")).dropna().agg(' '.join, axis=1).tolist():
+            gene_names_arr = re.split(';\s*|\s+', gene_names)
+            for gene_name in gene_db_df[gene_db_df['gene_name'].isin(gene_names_arr)]['gene_name'].tolist():
+                for gene_synonym in gene_names_arr:
+                    if gene_synonym != gene_name:
+                        gene_synonym_to_gene_name[gene_synonym] = gene_name
+        gene_synonym_to_gene_name_db_df = pd.DataFrame(gene_synonym_to_gene_name.items(), columns=['Gene Synonym', 'Gene Name'])
 
     # Collect complex data
     complex_db_df = dataDFs['complex_input'] \
-        [PROTEIN_COLUMN_NAMES + ['pdb_structure','pdb_id','stoichiometry','comments_complex', \
-                                 'reactome_reaction', 'reactome_complex','complexPortal_complex','rhea_reaction']]
+        [protein_column_names + ['pdb_structure','pdb_id','stoichiometry','comments_complex'] + complex_columns]
     # Note that uniprot_* cols will be dropped after complex_composition_df has been constructed
     num_complexes = complex_db_df.shape[0]
     complex_db_df.insert(0, 'id_complex', list(range(num_complexes)), False)
@@ -290,13 +319,13 @@ def create_db(target_dir) -> None:
     dbg(multidata_db_df.shape, multidata_db_df.index, multidata_db_df.columns)
 
     # First collect total_protein counts for each complex in complex_db_df
-    total_protein_cnt_list = np.apply_along_axis(lambda s: sum(type(x) == str for x in s), 1, complex_db_df[PROTEIN_COLUMN_NAMES].values).tolist()
+    total_protein_cnt_list = np.apply_along_axis(lambda s: sum(type(x) == str for x in s), 1, complex_db_df[protein_column_names].values).tolist()
     complex_db_df.insert(len(complex_db_df.columns), 'total_protein', total_protein_cnt_list, True)
     dbg(complex_db_df.info)
     # Next collect all complex_composition data into cc_list
     cc_list = []
-    pos = len(PROTEIN_COLUMN_NAMES)
-    for r in complex_db_df[PROTEIN_COLUMN_NAMES + ['complex_multidata_id','total_protein']].values.tolist():
+    pos = len(protein_column_names)
+    for r in complex_db_df[protein_column_names + ['complex_multidata_id','total_protein']].values.tolist():
         for acc in filter(lambda x: type(x) == str, r):
             protein_multidata_id = \
                 multidata_db_df.loc[(multidata_db_df['is_complex'] == False) & (multidata_db_df['name'] == acc), ['id_multidata']] \
@@ -308,8 +337,8 @@ def create_db(target_dir) -> None:
     complex_composition_df = pd.DataFrame(cc_list, columns=['complex_multidata_id', 'protein_multidata_id', 'total_protein'])
     complex_composition_df.insert(0, 'id_complex_composition', list(range(len(cc_list))), False)
     dbg(complex_composition_df.shape, complex_composition_df.index, complex_composition_df.columns, complex_composition_df.info)
-    # Next drop the auxiliary columns from complex_db_df: PROTEIN_COLUMN_NAMES and 'total_protein'
-    for col in PROTEIN_COLUMN_NAMES + ['total_protein']:
+    # Next drop the auxiliary columns from complex_db_df: protein_column_names and 'total_protein'
+    for col in protein_column_names + ['total_protein']:
         complex_db_df = complex_db_df.drop(col, axis=1)
 
     # Collect interaction data
@@ -328,7 +357,7 @@ def create_db(target_dir) -> None:
     dbg(interactions_aux_df.info)
     dbg(interactions_aux_df.columns)
     interactions_df = interactions_aux_df[['id_cp_interaction','id_multidata_x','id_multidata_y', \
-                                          'source','annotation_strategy','curator','is_ppi','directionality','classification']].copy()
+                                          'source','annotation_strategy'] + interaction_column_names2 + interaction_column_names1].copy()
     interactions_df.rename(columns={'id_multidata_x': 'multidata_1_id', 'id_multidata_y': 'multidata_2_id'}, inplace=True)
     interactions_df.insert(0, 'id_interaction', list(range(interactions_df.shape[0])), False)
     dbg(interactions_df.shape, interactions_df.index, interactions_df.columns)
@@ -343,8 +372,12 @@ def create_db(target_dir) -> None:
         zip_file.writestr('complex_composition_table.csv', complex_composition_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('multidata_table.csv', multidata_db_df.to_csv(index=False, sep=',').encode('utf-8'))
         zip_file.writestr('interaction_table.csv', interactions_df.to_csv(index=False, sep=',').encode('utf-8'))
-        zip_file.writestr('gene_synonym_to_gene_name.csv', gene_synonym_to_gene_name_db_df.to_csv(index=False, sep=',').encode('utf-8'))
-        zip_file.writestr('receptor_to_transcription_factor.csv', receptor_to_tf_df.to_csv(index=False, sep=',').encode('utf-8'))
+        if gene_synonym_to_gene_name_db_df is not None:
+            # Cater for DB version-dependent input files
+            zip_file.writestr('gene_synonym_to_gene_name.csv', gene_synonym_to_gene_name_db_df.to_csv(index=False, sep=',').encode('utf-8'))
+        if receptor_to_tf_df is not None:
+            # Cater for DB version-dependent input files
+            zip_file.writestr('receptor_to_transcription_factor.csv', receptor_to_tf_df.to_csv(index=False, sep=',').encode('utf-8'))
 
     file_suffix = file_utils.get_timestamp_suffix()
     file_path = os.path.join(target_dir,'cellphonedb_{}.zip'.format(file_suffix))
@@ -377,17 +410,20 @@ def getDFs(gene_input=None, protein_input=None, complex_input=None, interaction_
     dfs['protein_input'] = file_utils.read_data_table_from_file(protein_input)
     dfs['complex_input'] = file_utils.read_data_table_from_file(complex_input)
     dfs['interaction_input'] = file_utils.read_data_table_from_file(interaction_input)
-    dfs['transcription_factor_input'] = file_utils.read_data_table_from_file(transcription_factor_input)
-    dfs['gene_synonyms_input'] = file_utils.read_data_table_from_file(gene_synonyms_input)
+    dfs['transcription_factor_input'] = file_utils.read_data_table_from_file(transcription_factor_input, optional=True)
+    dfs['gene_synonyms_input'] = file_utils.read_data_table_from_file(gene_synonyms_input, optional=True)
     return dfs
 
-def run_sanity_tests(dataDFs):
+def run_sanity_tests(dataDFs, protein_column_names, version):
     data_errors_found = False
     protein_db_df = dataDFs['protein_input']
     complex_db_df = dataDFs['complex_input']
     gene_db_df = dataDFs['gene_input']
     interaction_db_df = dataDFs['interaction_input']
-    tf_input_df = dataDFs['transcription_factor_input']
+    tf_input_df = None
+    # Cater for DB version-dependent input files
+    if 'transcription_factor_input' in dataDFs:
+        tf_input_df = dataDFs['transcription_factor_input']
 
     # 1. Report any uniprot accessions that map to multiple gene_names
     gene_names_uniprot_df = gene_db_df[['gene_name', 'uniprot']].copy()
@@ -411,8 +447,10 @@ def run_sanity_tests(dataDFs):
     # does not start with CORE_CELLPHONEDB_DATA)
     participants_set_to_complex_names = {}
     participants_set_to_data_sources = {}
-    for row in complex_db_df[['complex_name','version'] + PROTEIN_COLUMN_NAMES].itertuples(index=False):
-        participants_set = frozenset([i for i in row[2:] if str(i) != 'nan'])
+    cols = ['complex_name'] + version + protein_column_names
+    start_idx = cols.index('uniprot_1')
+    for row in complex_db_df[cols].itertuples(index=False):
+        participants_set = frozenset([i for i in row[start_idx:] if str(i) != 'nan'])
         complex_name = row[0]
         data_source = row[1]
         m = re.search(r"^{}".format(CORE_CELLPHONEDB_DATA), data_source)
@@ -470,7 +508,7 @@ def run_sanity_tests(dataDFs):
     # 7. Warn the user if some proteins don't participate in any interactions directly, or are part some complex in orphan_complexes
     all_proteins_set = set(protein_db_df['uniprot'].tolist())
     proteins_in_complexes_participating_in_interactions = []
-    for colName in PROTEIN_COLUMN_NAMES:
+    for colName in protein_column_names:
         proteins_in_complexes_participating_in_interactions += complex_db_df[~complex_db_df['complex_name'].isin(orphan_complexes)][colName].tolist()
     orphan_proteins = all_proteins_set - interaction_participants_set - set(proteins_in_complexes_participating_in_interactions)
     if orphan_proteins:
@@ -491,7 +529,7 @@ def run_sanity_tests(dataDFs):
 
     # 9. Warn if some complexes contain proteins not in protein_input.csv
     unknown_proteins = set()
-    for col in PROTEIN_COLUMN_NAMES:
+    for col in protein_column_names:
         aux_df = pd.merge(complex_db_df, protein_db_df, left_on=col, right_on='uniprot', how='outer')
         unknown_complex_proteins = set(aux_df[pd.isnull(aux_df['uniprot']) & ~pd.isnull(aux_df[col])][col].tolist())
         unknown_proteins = unknown_proteins.union(unknown_complex_proteins)
@@ -508,19 +546,21 @@ def run_sanity_tests(dataDFs):
         print()
 
     # 11. Warn if some receptor ids in tf_input_df are in neither gene_input.csv or complex_input.csv
-    for (bioentity, df) in {"gene": gene_db_df, "complex" : complex_db_df }.items() :
-        if bioentity == "gene":
-            complex_filter = ~tf_input_df['receptor_id'].str.match('.*_.*')
-        else:
-            complex_filter = tf_input_df['receptor_id'].str.match('.*_.*')
-        bioentities_in_tf_input = set([i.strip() for i in tf_input_df[complex_filter]['receptor_id'].values.tolist()])
-        bioentities_in_input = set(df['{}_name'.format(bioentity)].values.tolist())
-        # Below: bioentities in bioentities_in_tf_input but not in bioentities_in_input
-        bioentities_not_in_input = bioentities_in_tf_input.difference(bioentities_in_input)
-        if bioentities_not_in_input:
-            print("WARNING: The following receptors in transcription_factor_input could not be found in {}_input.csv:".format(bioentity))
-            print("\n".join(set(bioentities_not_in_input)))
-            print()
+    if tf_input_df is not None:
+        # Cater for DB version-dependent input files
+        for (bioentity, df) in {"gene": gene_db_df, "complex" : complex_db_df }.items() :
+            if bioentity == "gene":
+                complex_filter = ~tf_input_df['receptor_id'].str.match('.*_.*')
+            else:
+                complex_filter = tf_input_df['receptor_id'].str.match('.*_.*')
+            bioentities_in_tf_input = set([i.strip() for i in tf_input_df[complex_filter]['receptor_id'].values.tolist()])
+            bioentities_in_input = set(df['{}_name'.format(bioentity)].values.tolist())
+            # Below: bioentities in bioentities_in_tf_input but not in bioentities_in_input
+            bioentities_not_in_input = bioentities_in_tf_input.difference(bioentities_in_input)
+            if bioentities_not_in_input:
+                print("WARNING: The following receptors in transcription_factor_input could not be found in {}_input.csv:".format(bioentity))
+                print("\n".join(set(bioentities_not_in_input)))
+                print()
 
     if data_errors_found:
         raise DatabaseCreationException
