@@ -14,8 +14,17 @@ def find_active_interactions(
     active_interactions_deconvoluted = []
     active_interactions = significant_relevant_df.copy()
     active_interactions.set_index('id_cp_interaction', inplace=True)
-    # Prepare active_interactions for population
-    active_interactions[ct_pair_cols] = 0
+    # If active_interactions was copied from significant_means (in the case of statistical analysis), we want to make it
+    # look the same as relevant_interactions (from DEG analysis). This is so that active_interactions can be handled in
+    # the same way to find out if an interaction is relevant/significant before recording it as active:
+    # N.B. assumption: It's never the case in statistical analysis that all means are significant
+    is_significant_means = active_interactions[ct_pair_cols].apply(lambda x: np.isnan(x)).values.any()
+    if is_significant_means:
+        # Replace all non-nan values with 1, then all nan values with 0
+        for col in ct_pair_cols:
+            active_interactions[col] = active_interactions[col].apply(lambda x: 1 if not np.isnan(x) else 0)
+            active_interactions.astype({col:'int'})
+
     for col_name in ct_pair_cols:
         ct_pair = col_name.split(separator)
         for row in significant_relevant_df[~significant_relevant_df[col_name].isna()] \
@@ -34,13 +43,16 @@ def find_active_interactions(
                             cts = active_tf2cell_types[tf]
                             active_cts_for_interaction = list(set(cts) & set(ct_pair))
                             interaction_active = any(active_cts_for_interaction)
-                            if interaction_active:
+                            if interaction_active and active_interactions.at[id_cp_interaction, col_name] == 1:
+                                # Add interaction to active_interactions_deconvoluted only if it's active and relevant
                                 for ct in active_cts_for_interaction:
                                     active_interactions_deconvoluted.append([id_cp_interaction, interacting_pair, row[2], row[3], row[4], row[5], tf, col_name, ct])
                 if interaction_active:
                     break
-            if interaction_active:
-                active_interactions.at[id_cp_interaction, col_name] = 1
+            if not interaction_active:
+                # active_interactions already contains 1 for relevant interactions and 0 for non-relevant, hence
+                # either the operation below is a no-op if the interactions was already irrelevant
+                active_interactions.at[id_cp_interaction, col_name] = 0
     # Remove from active_interactions all interactions with 0 across all ct_pair_cols (such interaction are not active)
     active_interactions = active_interactions[active_interactions[ct_pair_cols].apply(lambda row: row.sum() > 0, axis=1)]
     # Drop index - to match other CellphoneDB analysis output DataFrames
