@@ -7,6 +7,9 @@ def find_active_interactions(
         receptor2tfs: dict,
         active_tf2cell_types: dict,
         separator: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+
+    if not active_tf2cell_types:
+        return pd.DataFrame, pd.DataFrame
     # Find active interactions by CellSign method:
     # Relevant/significant interaction between cell type A and cell type B is active if one of its partners is or
     # interacts with a transcription factor (TF), and the user tells us that this TF is active in either cell type A or B.
@@ -55,6 +58,8 @@ def find_active_interactions(
                 active_interactions.at[id_cp_interaction, col_name] = 0
     # Remove from active_interactions all interactions with 0 across all ct_pair_cols (such interaction are not active)
     active_interactions = active_interactions[active_interactions[ct_pair_cols].apply(lambda row: row.sum() > 0, axis=1)]
+    # This is to de-fragment active_interactions - in order to improve performance
+    active_interactions = active_interactions.copy()
     # Drop index - to match other CellphoneDB analysis output DataFrames
     active_interactions.reset_index(drop=False, inplace=True)
     if active_interactions_deconvoluted:
