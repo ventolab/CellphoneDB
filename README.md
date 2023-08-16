@@ -7,14 +7,15 @@ CellPhoneDB is a publicly available repository of **HUMAN** curated receptors, l
 
 > A distinctive feature of CellPhoneDB is that the subunit architecture of either ligands and receptors is taken into account, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic CellPhoneDB includes only manually curated & reviewd molecular interactions with evidenced role in cellular communication.
 
-For more details on using CellPhoneDB for scRNA-seq data analysis, check the [DOCUMENTATION](https://cellphonedb.readthedocs.io/en/latest/#). 
+## Documentation
+> For more details on using CellPhoneDB and a more detailed description of the methods, visit the [DOCUMENTATION](https://cellphonedb.readthedocs.io/en/latest/#). 
 
 
 ## Novel features in v5
 1) New python package that can be easily executed in Jupyter Notebook and Collabs. 
 2) A scoring methodology to rank interaction based on the expression specificity of the interacting partners.
 3) A CellSign module to leverage interactions based on the activity of the transcription factor downstream the receptor. This module is accompanied by a collection of 211 well described receptor-transcription factor direct relationships.
-4) A new method to ease the query of CellPhoneDB results.
+4) A new method to ease the query of CellPhoneDB results `search_utils.search_analysis_results`.
 5) Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
 6) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
 7) A new database ([cellphonedb-data v5.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of ~3,000 interactions. This release of CellphoneDB database has three main changes:
