@@ -7,12 +7,23 @@ Documentation
 ============================================
 CellPhoneDB tool provides different methods to assess cellular crosstalk between different cell types by leveraging our CellphoneDB database of interacting molecules with single-cell transcriptome data.
 
-### Novel features in v4
+## Novel features in v5
 1) New python package that can be easily executed in Jupyter Notebook and Collabs. 
-2) A new method to ease the query of CellPhoneDB results.
-3) Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
+2) A scoring methodology to rank interaction based on the expression specificity of the interacting partners.
+3) A CellSign module to leverage interactions based on the activity of the transcription factor downstream the receptor. This module is accompanied by a collection of 211 well described receptor-transcription factor direct relationships.
+2) A new method `search_utils.search_analysis_results` to ease the query of CellPhoneDB results.
+3) Tutorials to run CellPhoneDB ([link](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
 4) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
-5) A new database ([cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of 2,923 interactions.
+5) A new database ([cellphonedb-data v5.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of ~3,000 interactions. This release of CellphoneDB database has three main changes:
+    - Integrates new manually reviewed interactions with evidenced roles in cell-cell communication. 
+    - Includes non-protein molecules acting as ligands.
+    - For interactions with a demonstranted signalling directionality, partners have been ordered according (ligand is partner A, receptor partner B).
+    - Interactions have been classified within signalling pathways.
+    - CellphoneDB does not longer imports interactions from external resources. This is to avoid the inclusion of low-confidence interactions.
+
+
+
+See updates from [previous releases here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes).
 
 
 # Installation
@@ -37,7 +48,7 @@ We highly recommend using an isolated python environment (as described in steps 
 5. Download the database.
    - Follow this [tutorial](https://github.com/ventolab/CellphoneDB/blob/master/notebooks/T00_DownloadDB.ipynb).
 
-> NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
+> Note: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
 
 # Analysis & Methods
@@ -73,7 +84,7 @@ Only interactions involving receptors and ligands expressed by more than a fract
    ```shell
    from cellphonedb.src.core.methods import cpdb_analysis_method
 
-   means, deconvoluted = cpdb_analysis_method.call(
+  cpdb_results = cpdb_analysis_method.call(
             cpdb_file_path = cellphonedb.zip,
             meta_file_path = test_meta.txt,
             counts_file_path = test_counts.h5ad,
@@ -95,17 +106,17 @@ Importantly:
 
 We then perform pairwise comparisons between all cell types. First, we randomly permute the cluster labels of all cells (1,000 default) and determine the mean of the average receptor expression level in a cluster and the average ligand expression level in the interacting cluster. For each receptor–ligand pair in each pairwise comparison between two cell types, this generates a null distribution. By calculating the proportion of the means which are equal or higher than the actual mean, we obtain a p-value for the likelihood of cell-type specificity of a given receptor–ligand complex. We then prioritise interactions that are highly enriched between cell types based on the number of significant pairs, so that the user can manually select biologically relevant ones.
 
-    - Example command:
-    ```shell
-    from cellphonedb.src.core.methods import cpdb_statistical_analysis_method
+   - Example command:
+   ```shell
+   from cellphonedb.src.core.methods import cpdb_statistical_analysis_method
 
-    deconvoluted, means, pvalues, significant_means = cpdb_statistical_analysis_method.call(
+cpdb_results = cpdb_statistical_analysis_method.call(
             cpdb_file_path = cellphonedb.zip,
             meta_file_path = test_meta.txt,
             counts_file_path = test_counts.h5ad,
             counts_data = 'hgnc_symbol',
             output_path = out_path)
-    ```
+   ```
     -  Output: Apart from the outputs in method 1, additional `pvalues.csv` and `significant_means.csv` files are generated with the values for the significant interactions. In this last file, ligand–receptor pairs are ranked on the basis of their total number of significant P values across the cell populations. 
 
 #### Cell subsampling for accelerating analyses (Optional METHOD 2)
@@ -126,7 +137,7 @@ The relevant/selected interactions will be labelled as 1 in the `relevant_intera
    ```shell
    from cellphonedb.src.core.methods import cpdb_degs_analysis_method
 
-   deconvoluted, means, relevant_interactions, significant_means = cpdb_degs_analysis_method.call(
+   cpdb_results = cpdb_degs_analysis_method.call(
             cpdb_file_path = cellphonedb.zip,
             meta_file_path = test_meta.txt,
             counts_file_path = test_counts.h5ad,
@@ -163,7 +174,33 @@ To consider microenvironments in any of the methods, add:
 
 You can define microenvironments with prior knowledge, imaging or Visium analysis with [cell2location](https://cell2location.readthedocs.io/en/latest/notebooks/cell2location_short_demo_downstream.html#4.-Identify-groups-of-co-located-cell-types-using-matrix-factorisation).
 
+## TF activity status: CellSign module
+CellPhoneDB v5 incorporates the  CellSign module, this prioritises high-confidence interactions by leveraging the activity status of the transcription factors downstream the receptor. These receptor-to-TF relationships are retrieved from a manual revision of the literature and are restricted to transcription factors with high specificity for an upstream receptor. Currently, the resource contains a total of 211 highly-specific direct receptor-to-TF relationships. CellSign module uses TF activation as a downstream sensor for receptor activation upon cell-cell interaction, thus adding an extra layer of evidence to the likelihood of the cell-cell interaction. 
 
+The module requires a user-provided list of the TFs that are active in each cell type, ideally estimated in a data-driven manner. To identify active transcription factors you can use: (i) their own TF expression (ii) the expression of their target genes (DoRothEA) (iii) the chromatin accessibility of their binding motifs from scATAC-seq atlases (ChromVar, SCENIC). The receptor-TF database can be updated by the user to include additional relationships of interest.
+
+To consider transcription factor in (methods 2 and 3) use the argument:
+```
+active_tfs_file_path = active_tf.txt
+````
+
+## Interaction ranking: Scoring module
+CellPhoneDB v5 incorporates a scoring methodology aiming to rank interactions according to the specificty of the interacting partners. To score interactions CellPhoneDB v5 employs the following protocol:
+1) Exclude genes not participating in any interaction and those expressed in less than k% of cells within a given cell type.
+2) Calculate the mean expression of each gene within each cell type.
+3) For heteromeric proteins, aggregate the mean gene expression of each subunit employing the geometric mean.
+4) Scale mean gene/heteromer expression across cell types between 0 and 10.
+5) Calculate the product of the scale mean expression of the interaction proteins as a proxy of the interaction relevance.
+
+
+To score interactions, CellPhoneDB requires **log-normalized expression** data, any normalisation process (i.e. z-scaling) that transforms zeros to any other value must be avoided. Because the scoring methodology and the interaction inference methods follow different approaches, it is possible to encounter interactions found relevant/significant but with a score of 0. This can occur due to multiple causes: (i) If one of the interacting genes is the least expressed in the dataset, during the scaling (step 4) its value will be set to 0.  (ii) If the gene is expressed in less than the user-defined % of cells in the dataset and this parameter has not been taken into account for the differential expression analysis (i.e. gene is DEG but expressed by fewer cells than defined in the filter). Likewise, the scoring methodology might yield high scores for pairs of cells for which no relevancy is found. This can occur when: (i) None of the interacting partners are differentially expressed but their expression values are high and this the score is.
+
+To score interactions use the argument:
+```
+score_interactions = True
+````
+
+> Important: to calculate the score, all the cells present in the dataset are employed (steps 1-4). If microenvironmens are defined, the score (step) 5 will be calculated only for cells within the same microenvironment.
 # Input files
 
 ## Counts file
@@ -206,6 +243,7 @@ All files (except "deconvoluted.txt") follow the same structure: rows depict int
 - The "significant_means.txt" contains the mean expression (same as "means.txt") of the significant receptor–ligand complex only. This is the result of crossing "means.csv" and "pvalues.txt".
 - The "relevant_interactions.txt" contains a binary matrix indicating if the interaction is relevant (1) or not (0). An interaction is classified as relevant if a gene is a DEG in a cluster/cell type (information provided by the user in the DEG.tsv file) and all the participant genes are expressed. Alternatively, the value is set to 0. This file is specific to `degs_analysis`. Each row corresponds to a ligand-receptor interaction, while each column corresponds to a cell-cell interacting pair.
 - The "deconvoluted.txt" file gives additional information for each of the interacting partners. This is important as some of the interacting partners are heteromers. In other words, multiple molecules have to be expressed in the same cluster in order for the interacting partner to be functional. 
+- The "percentages.txt" like deconvoluted  gives additional information for each of the interacting partners. In this case, this file denotes the percentage of cells expressing a given gene. 
 
 
 See below the meaning of each column in the outputs:

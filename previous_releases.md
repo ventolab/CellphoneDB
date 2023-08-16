@@ -1,3 +1,15 @@
+## Novel features in v4
+1) New python package that can be easily executed in Jupyter Notebook and Collabs. 
+2) A new method to ease the query of CellPhoneDB results.
+3) Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
+4) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
+5) A new database ([cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of ~3,000 interactions. This release of CellphoneDB database has three main changes:
+    - Integrates new manually reviewed interactions with evidenced roles in cell-cell communication. 
+    - Includes non-protein molecules acting as ligands.
+    - CellphoneDB does not longer imports interactions from external resources. This is to avoid the inclusion of low-confidence interactions.
+
+See updates from [previous releases here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes).
+
 ## New in CellPhoneDB-data v4
 
 This release involves a major [CellphoneDB database](https://github.com/ventolab/CellphoneDB-data) update. We have invested quite some time curating more cell-cell communication interactions validated experimentally. Specifically, we have:
