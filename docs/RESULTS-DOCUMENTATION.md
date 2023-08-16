@@ -331,7 +331,7 @@ search_results = search_utils.search_analysis_results(
 DATABASE of interactions
 ============================================
 
-CellphoneDB has its own database of interactions called **CellphoneDB-data**, which can be found at https://github.com/ventolab/cellphonedb-data. CellphoneDB database is a **manually curated** repository of receptors, ligands and their interactions.  
+CellphoneDB has its own database of interactions called **CellphoneDB-data**, which can be found [here](https://github.com/ventolab/cellphonedb-data). CellphoneDB database is a **manually curated** repository of receptors, ligands and their interactions.  
 
 
 #### Key features of CellphoneDB

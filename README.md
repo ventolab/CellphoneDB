@@ -52,7 +52,7 @@ We highly recommend using an isolated python environment (as described in steps 
 
 NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
-## Running CellPhoneDB Methods
+#### Running CellPhoneDB Methods
 
 Please, activate your environment if you didn't previously
 - Using conda: `source activate cpdb`
@@ -60,15 +60,18 @@ Please, activate your environment if you didn't previously
 
 We have created a set of tutorials that can be accessed for each To use the example data, please [tutorials and data](notebooks).
 
-### Prepatring INPUTS
+## Preparing INPUTS
 #### Preparing your counts input file (mandatory)
 Counts file can be a text file or a `h5ad` (recommended), `h5` or a path to a folder containing a 10x output with `mtx/barcode/features` files. NOTE: Your gene/protein **ids must be HUMAN**. If you are working with another specie such as mouse, we recommend you to convert the gene ids to their corresponding orthologous. 
 
 #### Preparing your DEGs file (optional, if `method degs_analysis`)
-This is a two columns file indicanting which gene is specific or upregulated in a cell type (see [example](in/endometrium_atlas_example/endometrium_example_DEGs.tsv) ). The first column should be the cell type/cluster name (matching those in `meta.txt`) and the second column the associated gene id. The remaining columns are ignored. We provide [notebooks](notebooks) for both Seurat and Scanpy users. It is on you to design a DEG analysis appropiated for your research question. 
+This is a two columns file indicanting which gene is specific or upregulated in a cell type (see [example](notebooks/data_tutorial.zip) ). The first column should be the cell type/cluster name (matching those in `meta.txt`) and the second column the associated gene id. The remaining columns are ignored. We provide [notebooks](notebooks) for both Seurat and Scanpy users. It is on you to design a DEG analysis appropiated for your research question. 
 
 #### Preparing your microenvironments file (optional, if `microenvs_file_path`)
-This is a two columns file indicating which cell type is in which spatial microenvironment (see [example](in/endometrium_atlas_example/endometrium_example_microenvironments.tsv) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters co-appearing in a microenvironment). 
+This is a two columns file indicating which cell type is in which spatial microenvironment (see [example](notebooks/data_tutorial.zip) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters co-appearing in a microenvironment). 
+
+#### Preparing your active transcription factor file (optional, if `active_tfs_file_path`)
+This is a two columns file indicating which cell type and which TFs are active (see [example](notebooks/data_tutorial.zip) ). CellphoneDB will use this information to denote relevant/significat interactions whose downstream TF is active. The information contained in this file (which TFs are active per cell)must be provided by the user.
 
 ### RUN examples
 
@@ -113,7 +116,6 @@ cpdb_results = cpdb_analysis_method.call(
         meta_file_path = test_meta.txt,
         counts_file_path = test_counts.txt,
         counts_data = 'hgnc_symbol',
-        active_tfs_file_path = active_tf.txt,
         score_interactions = True,
         output_path = out_path)
 ```
@@ -130,7 +132,7 @@ cpdb_results = cpdb_analysis_method.call(
         output_path = out_path)
 ```
 
-####  Example running a microenviroments file
+####  Example running a microenviroments file, CellSign and the scoring
 ```shell
 from cellphonedb.src.core.methods import cpdb_analysis_method
 
@@ -140,10 +142,12 @@ cpdb_results = cpdb_analysis_method.call(
         counts_file_path = test_counts.h5ad,
         counts_data = 'hgnc_symbol',
         microenvs_file_path = microenvs_file_path,
+        active_tfs_file_path = active_tf.txt,
+        score_interactions = True,
         output_path = out_path)
 ```
 
-####  Example running the DEG-based method with microenvironments file
+####  Example running the DEG-based method with microenvironments file, CellSign and the scoring 
 ```shell
 from cellphonedb.src.core.methods import cpdb_degs_analysis_method
 
@@ -153,8 +157,12 @@ cpdb_results = cpdb_degs_analysis_method.call(
         counts_file_path = test_counts.h5ad,
         counts_data = 'hgnc_symbol',
         microenvs_file_path = microenvs_file_path,
+                active_tfs_file_path = active_tf.txt,
+        score_interactions = True,
         output_path = out_path)
 ```
+
+Results are save in `output_path` and in `cpdb_results`, a dictionary of dataframes.
 
 To understand the different analysis and results, please check the [results documentation](docs/RESULTS-DOCUMENTATION.md).
 
@@ -185,7 +193,7 @@ To understand the different analysis and results, please check the [results docu
 
 ### Query results
 
-CellPhoneDB results can be queried by making use of the `search_analysis_results` method. This method requires two of the files generated by CellPhoneDB; `significant_means` and  `deconvoluted`. 
+CellPhoneDB results can be queried by making use of the `search_analysis_results` method. This method requires two of the files generated by CellPhoneDB; `significant_means` and  `deconvoluted` optionally `interaction_scores` can be used too.
 
 Through this method, users can specify the cell pairs of interest and both; the genes `query_genes` participating in the interaction and/or the name of the interaction itself `query_interactions`. This method will search for significant/relevant interactions in which any cell specified in `query_cell_types_1` is found to any cell specified in `query_cell_types_2`. Cell pairs within any of these two lists will not be queried, that is to say, no interaction between cells A and B or C and D will be queried.
 
@@ -195,7 +203,7 @@ from cellphonedb.utils import search_utils
 search_results = search_utils.search_analysis_results(
         query_cell_types_1 = ['cell_A', 'cell B'],  
         query_cell_types_2 = ['cell_C', 'cell D'],
-        query_genes = ['Gene A', 'GeneB'], 
+        query_genes = ['Gene_1', 'Gene_2', 'Gene_3'], 
         query_interactions = ['interaction_name_1', 'interaction_name_2'],  
         significant_means = cpdb_results['significant_means'],
         deconvoluted = cpdb_results['cpdb_deconvoluted'],
@@ -212,10 +220,9 @@ Examples of this are provided in the [tutorials](notebooks).
 
 Currently CellPhoneDB relies on external plotting implementations to represent the results. Some examples are provided in the [tutorials](notebooks).
 
-Currently we recommend using tools such as: seaborn, ggplot or a more specific and tailored implementation as the ktplots:
-[@zktuong](https://github.com/zktuong):
-- [ktplots](https://www.github.com/zktuong/ktplots/) (R; preferred)
-- [ktplotspy](https://www.github.com/zktuong/ktplotspy/) (python; under development)
+Currently we recommend using tools such as: seaborn, ggplot or a more specific and tailored implementation as the [@ktplots](https://github.com/zktuong):
+- [ktplots](https://www.github.com/zktuong/ktplots/) (R)
+- [ktplotspy](https://www.github.com/zktuong/ktplotspy/) (python implementation)
 
 
 ## Using different database versions
@@ -224,6 +231,8 @@ CellPhoneDB databases can be updated from the remote repository through our tool
 First, the user must download the database to its preferred directory, once this is done, the user must provide the argument `cpdb_file_path` to the CellPhoneDB method to be executed with the provided version of the database.
 
 The database is downloaded in a `zip` format along with the input files employed to generate it. These input files can be modified to update the database with new interactions.
+
+> CellPhoneDB v5 is complatible with database version 4.1.0 or newer.
 
 ## Listing remote available versions
 The command to list available versions from the remote repository is:
@@ -278,5 +287,6 @@ If you use CellphoneDB or CellphoneDB-data, please cite our papers:
 
 - **CellphoneDB v3**: Mapping the temporal and spatial dynamics of the human endometrium in vivo and in vitro. L Garcia-Alonso, L-François Handfield, K Roberts, K Nikolakopoulou et al. Nature Genetics 2021 [link](https://www.nature.com/articles/s41588-021-00972-2)
 
-- **CellphoneDB v4 (latest)**: Single-cell roadmap of human gonadal development. L Garcia-Alonso, V Lorenzi et al. 2022 Nature [link](https://www.nature.com/articles/s41586-022-04918-4)
+- **CellphoneDB v4**: Single-cell roadmap of human gonadal development. L Garcia-Alonso, V Lorenzi et al. 2022 Nature [link](https://www.nature.com/articles/s41586-022-04918-4)
 
+- **CellphoneDB v5 (latest)**: CellPhoneDV v5. Authors et al. 2023 Nature Protocls [link]()
