@@ -178,7 +178,7 @@ def get_html_table(data, complex_name2proteins, \
                 html += "<th style=\"text-align:left\">{}</th>".format(field)
             else:
                 if field.startswith(COMPLEX_PFX):
-                    name = field.split(":")[1]
+                    name = ":".join(field.split(":")[1:])
                     constituent_proteins = ', '.join(complex_name2proteins[name])
                     complex_mouseover = "Contains proteins: {}".format(constituent_proteins)
                     multi_protein_uniprot_url = get_uniprot_url(complex_name2proteins[name])
