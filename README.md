@@ -18,12 +18,12 @@ CellPhoneDB is a publicly available repository of **HUMAN** curated receptors, l
 4) A new method to ease the query of CellPhoneDB results `search_utils.search_analysis_results`.
 5) Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
 6) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
-7) A new database ([cellphonedb-data v5.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of ~3,000 interactions. This release of CellphoneDB database has three main changes:
+7) A new database ([cellphonedb-data v5.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of ~3,000 interactions. This release of CellPhoneDB database has three main changes:
     - Integrates new manually reviewed interactions with evidenced roles in cell-cell communication. 
     - Includes non-protein molecules acting as ligands.
     - For interactions with a demonstranted signalling directionality, partners have been ordered according (ligand is partner A, receptor partner B).
     - Interactions have been classified within signaling pathways.
-    - CellphoneDB does not longer imports interactions from external resources. This is to avoid the inclusion of low-confidence interactions.
+    - CellPhoneDB does not longer imports interactions from external resources. This is to avoid the inclusion of low-confidence interactions.
 
 See updates from [previous releases here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes).
 
@@ -68,14 +68,15 @@ Counts file can be a text file or a `h5ad` (recommended), `h5` or a path to a fo
 This is a two columns file indicanting which gene is specific or upregulated in a cell type (see [example](notebooks/data_tutorial.zip) ). The first column should be the cell type/cluster name (matching those in `meta.txt`) and the second column the associated gene id. The remaining columns are ignored. We provide [notebooks](notebooks) for both Seurat and Scanpy users. It is on you to design a DEG analysis appropiated for your research question. 
 
 #### Preparing your microenvironments file (optional, if `microenvs_file_path`)
-This is a two columns file indicating which cell type is in which spatial microenvironment (see [example](notebooks/data_tutorial.zip) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters co-appearing in a microenvironment). 
+This is a two columns file indicating which cell type is in which spatial microenvironment (see [example](notebooks/data_tutorial.zip) ). CellPhoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters co-appearing in a microenvironment). 
 
 #### Preparing your active transcription factor file (optional, if `active_tfs_file_path`)
-This is a two columns file indicating which cell type and which TFs are active (see [example](notebooks/data_tutorial.zip) ). CellphoneDB will use this information to denote relevant/significat interactions whose downstream TF is active. The information contained in this file (which TFs are active per cell)must be provided by the user.
+This is a two columns file indicating which cell type and which TFs are active (see [example](notebooks/data_tutorial.zip)). CellPhoneDB will use this information to highlight relevant/significat interactions whose downstream TF is active. The information defined in this file (which TFs are active per cell) must be provided by the user.
 
 ### RUN examples
 
 For more detailed examples refer to our tutorials [here](notebooks).
+
 ####  Example with running the DEG-based method
 ```shell
 from cellphonedb.src.core.methods import cpdb_degs_analysis_method
@@ -88,6 +89,7 @@ cpdb_results = cpdb_degs_analysis_method.call(
         counts_data = 'hgnc_symbol',
         active_tfs_file_path = active_tf.txt,
         score_interactions = True,
+        microenvs_file_path = microenvs_file_path,
         threshold = 0.1,
         output_path = out_path)
 ```
@@ -102,7 +104,9 @@ cpdb_results = cpdb_statistical_analysis_method.call(
         counts_file_path = test_counts.h5ad,
         counts_data = 'hgnc_symbol',
         active_tfs_file_path = active_tf.txt,
+        microenvs_file_path = microenvs_file_path
         score_interactions = True,
+        threshold = 0.1,
         output_path = out_path)
 ```
 
@@ -132,37 +136,7 @@ cpdb_results = cpdb_analysis_method.call(
         output_path = out_path)
 ```
 
-####  Example running a microenviroments file, CellSign and the scoring
-```shell
-from cellphonedb.src.core.methods import cpdb_analysis_method
-
-cpdb_results = cpdb_analysis_method.call(
-        cpdb_file_path = cellphonedb.zip,
-        meta_file_path = test_meta.txt,
-        counts_file_path = test_counts.h5ad,
-        counts_data = 'hgnc_symbol',
-        microenvs_file_path = microenvs_file_path,
-        active_tfs_file_path = active_tf.txt,
-        score_interactions = True,
-        output_path = out_path)
-```
-
-####  Example running the DEG-based method with microenvironments file, CellSign and the scoring 
-```shell
-from cellphonedb.src.core.methods import cpdb_degs_analysis_method
-
-cpdb_results = cpdb_degs_analysis_method.call(
-        cpdb_file_path = cellphonedb.zip,
-        meta_file_path = test_meta.txt,
-        counts_file_path = test_counts.h5ad,
-        counts_data = 'hgnc_symbol',
-        microenvs_file_path = microenvs_file_path,
-                active_tfs_file_path = active_tf.txt,
-        score_interactions = True,
-        output_path = out_path)
-```
-
-Results are save in `output_path` and in `cpdb_results`, a dictionary of dataframes.
+Results are save as files in `output_path` and as a dictionary of dataframes in the output variable `cpdb_results`.
 
 To understand the different analysis and results, please check the [results documentation](docs/RESULTS-DOCUMENTATION.md).
 
@@ -170,22 +144,22 @@ To understand the different analysis and results, please check the [results docu
 ### Optional Parameters
 
  **Optional Method parameters**:
-- `counts_data`: [ensembl \| gene_name \| hgnc_symbol] Type of gene identifiers in the counts data
+- `counts_data`: Type of gene identifiers in the counts data [ensembl \| gene_name \| hgnc_symbol]
 - `iterations`: Number of iterations for the statistical analysis [1000]
 - `threshold`: % of cells expressing the specific ligand/receptor
 - `result_precision`: Number of decimal digits in results [3]
-- `output_path`: Directory where the results will be allocated (the directory must exist) [out]
+- `output_path`: Directory where the results will be saved (the directory must exist) [out]
 - `output_suffix`: Output format of the results files (time stamp will be added to filename if not present) [txt]
-- `subsampling`: Enable subsampling
+- `subsampling`: Enable subsampling based on geometric sketching
 - `subsampling_log`: Enable subsampling log1p for non log-transformed data inputs !!mandatory!!
 - `subsampling_num_pc`: Subsampling NumPC argument (number of PCs to use) [100]
-- `subsampling_num_cells`: Number of cells to subsample the dataset [1/3 of cells]
+- `subsampling_num_cells`: Number of cells to subsample the dataset [1/3 of cells by default]
 
 
  **Optional Method Statistical parameters**
-- `active_tfs_file_path`: active TFs inpout file. This file indicates cells with transcription factors active (base on user-derived analysis by chromatin accesibility, motiff analysis and/or differential expression methodologies).
+- `active_tfs_file_path`: Active TFs input file. This file stores the information of the cells with transcription factors active. This information in this file is used to highligh interactions whose downstream TF is active, adding relevance to the interaction. The information provided in this file is based on user-derived analysis by; chromatin accesibility, motiff analysis and/or differential expression methodologies. See [example](notebooks/data_tutorial.zip)
 - `score_interactions`: scores interactions according to the gene expression specificty of the interacting genes. The scores ranges betweem 0 and 100. [False]
-- `microenvs_file_path`: Spatial microenvironments input file. Restricts the cluster/cell_type interacting pairs to the cluster/cell_type sharing a microenviroment (i.e. only test a combination of clusters if these coexist in a microenviroment). This file should contain two columns: 1st column indicates the cluster/cell_type, 2nd column indicates the microenviroment name.  See example [here](https://github.com/ventolab/CellphoneDB/tree/master/in). 
+- `microenvs_file_path`: Spatial microenvironments input file. Restricts the cluster/cell_type interacting pairs to the cluster/cell_type sharing a microenviroment (i.e. only test a combination of clusters if these coexist in a microenviroment). This file should contain two columns: 1st column indicates the cluster/cell_type, 2nd column indicates the microenviroment name. See [example](notebooks/data_tutorial.zip). 
 - `pvalue`: P-value threshold [0.05]
 - `debug_seed`: Debug random seed -1. To disable it please use a value >=0 [-1]
 - `threads`: Number of threads to use. >=1 [4]
@@ -193,7 +167,7 @@ To understand the different analysis and results, please check the [results docu
 
 ### Query results
 
-CellPhoneDB results can be queried by making use of the `search_analysis_results` method. This method requires two of the files generated by CellPhoneDB; `significant_means` and  `deconvoluted` optionally `interaction_scores` can be used too.
+CellPhoneDB results can be queried by making use of the `search_analysis_results` method. This method requires two of the files generated by CellPhoneDB `significant_means` and  `deconvoluted`, optionally `interaction_scores` can be used to subset interactions by score.
 
 Through this method, users can specify the cell pairs of interest and both; the genes `query_genes` participating in the interaction and/or the name of the interaction itself `query_interactions`. This method will search for significant/relevant interactions in which any cell specified in `query_cell_types_1` is found to any cell specified in `query_cell_types_2`. Cell pairs within any of these two lists will not be queried, that is to say, no interaction between cells A and B or C and D will be queried.
 
@@ -213,16 +187,15 @@ search_results = search_utils.search_analysis_results(
         separator = '|',
         long_format = True
 )
-
-Examples of this are provided in the [tutorials](notebooks).
 ```
+Examples provided in [tutorials](notebooks).
 ## Plotting results
 
-Currently CellPhoneDB relies on external plotting implementations to represent the results. Some examples are provided in the [tutorials](notebooks).
+Currently CellPhoneDB relies on external plotting implementations to represent the results. Examples of the use are provided in the [tutorials](notebooks).
 
 Currently we recommend using tools such as: seaborn, ggplot or a more specific and tailored implementation as the [@ktplots](https://github.com/zktuong):
 - [ktplots](https://www.github.com/zktuong/ktplots/) (R)
-- [ktplotspy](https://www.github.com/zktuong/ktplotspy/) (python implementation)
+- [ktplotspy](https://www.github.com/zktuong/ktplotspy/) (python)
 
 
 ## Using different database versions
@@ -271,22 +244,21 @@ Do not change the name of the input files, otherwise CellPhoneDB will not recogn
 ## Contributing to CellPhoneDB
 
 CellPhoneDB is an open-source project. If you are interested in contributing to this project, please let us know.
-
 You can check all project documentation in the [docs](https://cellphonedb.readthedocs.io/en/latest/#) section
 
 
-## Citing CellphoneDB
+## Citing CellPhoneDB
 
-The first version of CellphoneDB was originally developed at the [Teichmann Lab](http://www.teichlab.org/) in the Wellcome Sanger Institute (Cambridge, UK) by Roser Vento-Tormo and Mirjana Efremova. Currently, it is being further developed and supported by the [Vento-Tormo Lab](https://ventolab.org/) (CellphoneDB ≥v3).
+The first version of CellPhoneDB was originally developed at the [Teichmann Lab](http://www.teichlab.org/) in the Wellcome Sanger Institute (Cambridge, UK) by Roser Vento-Tormo and Mirjana Efremova. Currently, it is being further developed and supported by the [Vento-Tormo Lab](https://ventolab.org/) (CellPhoneDB ≥v3).
 
-If you use CellphoneDB or CellphoneDB-data, please cite our papers:
+If you use CellPhoneDB or CellPhoneDB-data, please cite our papers:
 
 - **CellPhoneDB v1 (original)**: Single-cell reconstruction of the early maternal-fetal interface in humans. Vento-Tormo R, Efremova M, et al., Nature. 2018 [link](https://www.nature.com/articles/s41586-018-0698-6)
 
 - **CellPhoneDB v2**: Inferring cell-cell communication from combined expression of multi-subunit receptor-ligand complexes. Efremova M, Vento-Tormo M, Teichmann S, Vento-Tormo R. Nat Protoc. 2020 [link](https://www.nature.com/articles/s41596-020-0292-x)
 
-- **CellphoneDB v3**: Mapping the temporal and spatial dynamics of the human endometrium in vivo and in vitro. L Garcia-Alonso, L-François Handfield, K Roberts, K Nikolakopoulou et al. Nature Genetics 2021 [link](https://www.nature.com/articles/s41588-021-00972-2)
+- **CellPhoneDB v3**: Mapping the temporal and spatial dynamics of the human endometrium in vivo and in vitro. L Garcia-Alonso, L-François Handfield, K Roberts, K Nikolakopoulou et al. Nature Genetics 2021 [link](https://www.nature.com/articles/s41588-021-00972-2)
 
-- **CellphoneDB v4**: Single-cell roadmap of human gonadal development. L Garcia-Alonso, V Lorenzi et al. 2022 Nature [link](https://www.nature.com/articles/s41586-022-04918-4)
+- **CellPhoneDB v4**: Single-cell roadmap of human gonadal development. L Garcia-Alonso, V Lorenzi et al. 2022 Nature [link](https://www.nature.com/articles/s41586-022-04918-4)
 
-- **CellphoneDB v5 (latest)**: CellPhoneDV v5. Authors et al. 2023 Nature Protocls [link]()
+- **CellPhoneDB v5 (latest)**: CellPhoneDV v5. Authors et al. 2023 Nature Protocls [link]()
