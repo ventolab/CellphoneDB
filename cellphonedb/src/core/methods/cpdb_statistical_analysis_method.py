@@ -1,7 +1,7 @@
 from typing import Tuple
 import pandas as pd
 
-from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
+from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method, cpdb_statistical_analysis_helper
 from cellphonedb.src.core.exceptions.MissingRequiredArgumentsException import MissingRequiredArgumentsException
 from cellphonedb.utils import db_utils, file_utils, scoring_utils
 from cellphonedb.src.core.utils import subsampler
@@ -107,6 +107,13 @@ def call(cpdb_file_path: str = None,
         active_tfs_fp = active_tfs_file_path, \
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
+    # add multidata id and means to counts
+    counts, counts_relations = cpdb_statistical_analysis_helper.add_multidata_and_means_to_counts(
+        counts, genes, counts_data)
+
+    if counts.empty:
+        raise AllCountsFilteredException(hint='Are you using human data?')
+
     # Note that for consistency with the other analysis methods, interaction scoring is done on all cells
     # whether subsampling takes place or not
     counts4scoring = counts.copy()
@@ -117,6 +124,7 @@ def call(cpdb_file_path: str = None,
 
     analysis_result = cpdb_statistical_analysis_complex_method.call(meta.copy(),
                                                       counts,
+                                                      counts_relations,
                                                       counts_data,
                                                       active_tf2cell_types,
                                                       interactions,
@@ -143,6 +151,8 @@ def call(cpdb_file_path: str = None,
     means_result = analysis_result['means']
 
     if score_interactions:
+        # Make sure all cell types are strings
+        meta['cell_type'] = meta['cell_type'].apply(str)
         interaction_scores = scoring_utils.score_interactions_based_on_participant_expressions_product(
             cpdb_file_path, counts4scoring, means_result.copy(), separator, meta, threshold, "cell_type", threads)
         analysis_result['interaction_scores'] = interaction_scores

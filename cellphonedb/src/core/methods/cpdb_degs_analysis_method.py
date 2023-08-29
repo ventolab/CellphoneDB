@@ -120,6 +120,10 @@ def call(cpdb_file_path: str = None,
         return analysis_result
 
     meta = meta.loc[counts.columns]
+    # Make sure all cell types are strings
+    meta['cell_type'] = meta['cell_type'].apply(str)
+    microenvs['cell_type'] = microenvs['cell_type'].apply(str)
+    degs['cluster'] = degs['cluster'].apply(str)
 
     complex_to_protein_row_ids = complex_helper.map_complex_to_protein_row_ids(complex_composition_filtered, counts_filtered)
     clusters = cpdb_statistical_analysis_helper.build_clusters(

@@ -10,6 +10,7 @@ from cellphonedb.src.core.utils import cellsign
 
 def call(meta: pd.DataFrame,
          counts: pd.DataFrame,
+         counts_relations: pd.DataFrame,
          counts_data: str,
          active_tf2cell_types: dict,
          interactions: pd.DataFrame,
@@ -42,13 +43,6 @@ def call(meta: pd.DataFrame,
 
     # get reduced interactions (drop duplicates)
     interactions_reduced = interactions[['multidata_1_id', 'multidata_2_id']].drop_duplicates()
-    
-    # add multidata id and means to counts
-    counts, counts_relations = cpdb_statistical_analysis_helper.add_multidata_and_means_to_counts(
-        counts, genes, counts_data)
-
-    if counts.empty:
-        raise AllCountsFilteredException(hint='Are you using human data?')
 
     interactions_filtered, counts_filtered, complex_composition_filtered = \
         cpdb_statistical_analysis_helper.prefilters(interactions_reduced,
@@ -61,6 +55,9 @@ def call(meta: pd.DataFrame,
         return analysis_result
 
     meta = meta.loc[counts.columns]
+    # Make sure all cell types are strings
+    meta['cell_type'] = meta['cell_type'].apply(str)
+    microenvs['cell_type'] = microenvs['cell_type'].apply(str)
 
     complex_to_protein_row_ids = complex_helper.map_complex_to_protein_row_ids(complex_composition_filtered, counts_filtered)
     clusters = cpdb_statistical_analysis_helper.build_clusters(meta, counts_filtered, complex_to_protein_row_ids, skip_percent=False)
