@@ -261,4 +261,4 @@ If you use CellPhoneDB or CellPhoneDB-data, please cite our papers:
 
 - **CellPhoneDB v4**: Single-cell roadmap of human gonadal development. L Garcia-Alonso, V Lorenzi et al. 2022 Nature [link](https://www.nature.com/articles/s41586-022-04918-4)
 
-- **CellPhoneDB v5 (latest)**: CellPhoneDV v5. Authors et al. 2023 Nature Protocls [link]()
+- **CellPhoneDB v5 (latest)**: CellPhoneDB v5: inferring cell-cell communication from single-cell multiomics data. (in preparation)
