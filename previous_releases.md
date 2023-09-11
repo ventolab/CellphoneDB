@@ -1,3 +1,19 @@
+## Novel features in v5
+1) New python package that can be easily executed in Jupyter Notebook and Collabs. 
+2) A scoring methodology to rank interaction based on the expression specificity of the interacting partners.
+3) A CellSign module to leverage interactions based on the activity of the transcription factor downstream the receptor. This module is accompanied by a collection of 211 well described receptor-transcription factor direct relationships.
+4) A new method of querying of CellphoneDB results `search_utils.search_analysis_results`.
+5) Tutorials to run CellphoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
+6) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
+7) A new database ([cellphonedb-data v5.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of ~3,000 interactions. This release of CellphoneDB database has three main changes:
+    - Integrates new manually reviewed interactions with evidenced roles in cell-cell communication. 
+    - Includes non-protein molecules acting as ligands.
+    - For interactions with a demonstrated signalling directionality, partners have been ordered according (ligand is partner A, receptor partner B).
+    - Interactions have been classified within signaling pathways.
+    - CellphoneDB no longer imports interactions from external resources. This is to avoid the inclusion of low-confidence interactions.
+
+See updates from [previous releases here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes).
+
 ## New in CellPhoneDB-data v4
 
 This release involves a major [CellphoneDB database](https://github.com/ventolab/CellphoneDB-data) update. We have invested quite some time curating more cell-cell communication interactions validated experimentally. Specifically, we have:

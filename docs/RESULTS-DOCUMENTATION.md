@@ -5,15 +5,23 @@
 
 Documentation
 ============================================
-CellPhoneDB tool provides different methods to assess cellular crosstalk between different cell types by leveraging our CellphoneDB database of interacting molecules with single-cell transcriptome data.
+CellphoneDB tool provides different methods to assess cellular crosstalk between different cell types by leveraging our CellphoneDB database of interacting molecules with single-cell transcriptome data.
 
-### Novel features in v4
+## Novel features in v5
 1) New python package that can be easily executed in Jupyter Notebook and Collabs. 
-2) A new method to ease the query of CellPhoneDB results.
-3) Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
-4) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
-5) A new database ([cellphonedb-data v4.1.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of 2,923 interactions.
+2) A scoring methodology to rank interaction based on the expression specificity of the interacting partners.
+3) A CellSign module to leverage interactions based on the activity of the transcription factor downstream the receptor. This module is accompanied by a collection of 211 well described receptor-transcription factor direct relationships.
+4) A new method of querying of CellphoneDB results `search_utils.search_analysis_results`.
+5) Tutorials to run CellphoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
+6) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
+7) A new database ([cellphonedb-data v5.0](https://github.com/ventolab/cellphonedb-data)) with more manually curated interactions, making up to a total of ~3,000 interactions. This release of CellphoneDB database has three main changes:
+    - Integrates new manually reviewed interactions with evidenced roles in cell-cell communication. 
+    - Includes non-protein molecules acting as ligands.
+    - For interactions with a demonstrated signalling directionality, partners have been ordered according (ligand is partner A, receptor partner B).
+    - Interactions have been classified within signaling pathways.
+    - CellphoneDB no longer imports interactions from external resources. This is to avoid the inclusion of low-confidence interactions.
 
+See updates from [previous releases here](https://github.com/ventolab/CellphoneDB/blob/master/docs/RESULTS-DOCUMENTATION.md#release-notes).
 
 # Installation
 
@@ -27,7 +35,7 @@ We highly recommend using an isolated python environment (as described in steps 
    - Using conda: `source activate cpdb`
    - Using virtualenv: `source cpdb/bin/activate`
 
-3. Install CellPhoneDB `pip install cellphonedb`
+3. Install CellphoneDB `pip install cellphonedb`
 
 4. Set up the kernel for the Jupyter notebooks.
    - Install the ipython kernel: `pip install -U ipykernel`.
@@ -37,7 +45,7 @@ We highly recommend using an isolated python environment (as described in steps 
 5. Download the database.
    - Follow this [tutorial](https://github.com/ventolab/CellphoneDB/blob/master/notebooks/T00_DownloadDB.ipynb).
 
-> NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
+> Note: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
 
 # Analysis & Methods
@@ -70,16 +78,16 @@ With this simple `analysis` method, no analysis of significance is performed. Th
 Only interactions involving receptors and ligands expressed by more than a fraction of the cells (`threshold` default is 0.1, which is 10%) in the specific cluster are included. We generally do not consider that an interaction is feasible if one of their gene participants is expressed by less than 10% of cells (users can modify this fraction `threshold`).
 
    - Example command: 
-   ```shell
-   from cellphonedb.src.core.methods import cpdb_analysis_method
+```shell
+from cellphonedb.src.core.methods import cpdb_analysis_method
 
-   means, deconvoluted = cpdb_analysis_method.call(
-            cpdb_file_path = cellphonedb.zip,
-            meta_file_path = test_meta.txt,
-            counts_file_path = test_counts.h5ad,
-            counts_data = 'hgnc_symbol',
-            output_path = out_path)
-   ```
+cpdb_results = cpdb_analysis_method.call(
+         cpdb_file_path = cellphonedb.zip,
+         meta_file_path = test_meta.txt,
+         counts_file_path = test_counts.h5ad,
+         counts_data = 'hgnc_symbol',
+         output_path = out_path)
+```
    -  Output: Without running statistical inference of receptor-ligand interactions only `means.csv` and `deconvoluted.csv` are generated.
 
 
@@ -95,18 +103,19 @@ Importantly:
 
 We then perform pairwise comparisons between all cell types. First, we randomly permute the cluster labels of all cells (1,000 default) and determine the mean of the average receptor expression level in a cluster and the average ligand expression level in the interacting cluster. For each receptor–ligand pair in each pairwise comparison between two cell types, this generates a null distribution. By calculating the proportion of the means which are equal or higher than the actual mean, we obtain a p-value for the likelihood of cell-type specificity of a given receptor–ligand complex. We then prioritise interactions that are highly enriched between cell types based on the number of significant pairs, so that the user can manually select biologically relevant ones.
 
-    - Example command:
-    ```shell
-    from cellphonedb.src.core.methods import cpdb_statistical_analysis_method
+   - Example command:
+```shell
+from cellphonedb.src.core.methods import cpdb_statistical_analysis_method
 
-    deconvoluted, means, pvalues, significant_means = cpdb_statistical_analysis_method.call(
-            cpdb_file_path = cellphonedb.zip,
-            meta_file_path = test_meta.txt,
-            counts_file_path = test_counts.h5ad,
-            counts_data = 'hgnc_symbol',
-            output_path = out_path)
-    ```
-    -  Output: Apart from the outputs in method 1, additional `pvalues.csv` and `significant_means.csv` files are generated with the values for the significant interactions. In this last file, ligand–receptor pairs are ranked on the basis of their total number of significant P values across the cell populations. 
+cpdb_results = cpdb_statistical_analysis_method.call(
+         cpdb_file_path = cellphonedb.zip,
+         meta_file_path = test_meta.txt,
+         counts_file_path = test_counts.h5ad,
+         counts_data = 'hgnc_symbol',
+         output_path = out_path)
+```
+
+ -  Output: Apart from the outputs in method 1, additional `pvalues.csv` and `significant_means.csv` files are generated with the values for the significant interactions. In this last file, ligand–receptor pairs are ranked on the basis of their total number of significant P values across the cell populations. 
 
 #### Cell subsampling for accelerating analyses (Optional METHOD 2)
 Sc-RNA-seq datasets are growing in size exponentially as technological developments and protocol improvements enable the sequencing of more and more cells. Large-scale datasets can profile hundreds of thousands cells, which presents a challenge for the existing analysis methods in terms of both memory usage and runtime. In order to improve the speed and efficiency of our protocol and facilitate its broad accessibility, we integrated subsampling as described in Hie *et al.* 2019 (PMID: 31176620). This "geometric sketching" approach aims to maintain the transcriptomic heterogeneity within a dataset with a smaller subset of cells. The subsampling step is optional, enabling users to perform the analysis either on all cells, or with other subsampling methods of their choice.
@@ -122,20 +131,20 @@ With this `degs_analysis` method introduced in version 3 the user can retrieve i
 
 The relevant/selected interactions will be labelled as 1 in the `relevant_interactions.txt` file and will get a mean assigned in the "significant_means.csv" file.  
 
-   - Example command: 
-   ```shell
-   from cellphonedb.src.core.methods import cpdb_degs_analysis_method
+- Example command: 
+```shell
+from cellphonedb.src.core.methods import cpdb_degs_analysis_method
 
-   deconvoluted, means, relevant_interactions, significant_means = cpdb_degs_analysis_method.call(
-            cpdb_file_path = cellphonedb.zip,
-            meta_file_path = test_meta.txt,
-            counts_file_path = test_counts.h5ad,
-            degs_file_path = degs_file.txt,
-            counts_data = 'hgnc_symbol',
-            threshold = 0.1,
-            output_path = out_path)
-   ```
-   -  Output: This approach will output `relevant_interactions.txt` (instead of "pvalues.csv") and the `significant_means.csv` files.  
+cpdb_results = cpdb_degs_analysis_method.call(
+         cpdb_file_path = cellphonedb.zip,
+         meta_file_path = test_meta.txt,
+         counts_file_path = test_counts.h5ad,
+         degs_file_path = degs_file.txt,
+         counts_data = 'hgnc_symbol',
+         threshold = 0.1,
+         output_path = out_path)
+```
+-  Output: This approach will output `relevant_interactions.txt` (instead of `pvalues.csv`) and the `significant_means.csv` files.  
 
 
 This method gives the user the freedom to design their gene expression comparison in a way that better matches their research question. With method 2, our null hypothesis (and background distribution) considers all the cell types in the dataset and performs a "one" cell type vs "the rest" comparison. However the user may wish to use a different approach to better reflect their research scenario. Find below a list of example cases:
@@ -150,7 +159,7 @@ See below for how to prepare the DEGs file.
 
 ## Inclusion of Spatial Information:  Microenvironments
 
-CellPhoneDB can prioritise interactions occurring between neighbouring cell types. The tool will restrict the cell type interacting pairs to those sharing a microenviroment (i.e. only test a combination of clusters if these coexist in a microenviroment). 
+CellphoneDB can prioritise interactions occurring between neighbouring cell types. The tool will restrict the cell type interacting pairs to those sharing a microenviroment (i.e. only test a combination of clusters if these coexist in a microenviroment). 
 
 Spatial information of the cells is provided via the `microenvironments` file.  This is a two columns file indicating which cell type is in which spatial microenvironment (see [example](https://github.com/ventolab/CellphoneDB/blob/master/in/endometrium_atlas_example/endometrium_example_microenviroments.tsv) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters sharing/coexisting in a microenvironment). 
 
@@ -163,7 +172,35 @@ To consider microenvironments in any of the methods, add:
 
 You can define microenvironments with prior knowledge, imaging or Visium analysis with [cell2location](https://cell2location.readthedocs.io/en/latest/notebooks/cell2location_short_demo_downstream.html#4.-Identify-groups-of-co-located-cell-types-using-matrix-factorisation).
 
+## TF activity status: CellSign module
+CellphoneDB v5 incorporates the CellSign module which prioritises high-confidence interactions by leveraging the activity status of the transcription factors downstream of the receptor. Receptor-to-TF relationships are retrieved by manual revision of the literature and are restricted to transcription factors with high specificity for an upstream receptor. CellSign database contains a total of 211 highly-specific direct receptor-to-TF relationships. CellSign uses TF activation as a downstream sensor for receptor activation upon cell-cell interaction, thus adding an extra layer of evidence to the likelihood of the cell-cell interaction. 
 
+The module requires a user-provided list of the TFs that are active in each cell type, ideally estimated in a data-driven manner. To identify active transcription factors you can use: (i) their own TF expression (ii) the expression of their target genes (DoRothEA) (iii) the chromatin accessibility of their binding motifs from scATAC-seq atlases (ChromVar, SCENIC). The receptor-TF database can be updated by the user to include additional relationships of interest.
+
+To consider transcription factor in (methods 2 and 3) use the argument:
+```
+active_tfs_file_path = active_tf.txt
+````
+
+## Interaction ranking: Scoring module
+CellphoneDB v5 incorporates a scoring methodology aiming to rank interactions according to the specificity of the interacting partners. To score interactions CellphoneDB v5 employs the following protocol:
+1) Exclude genes not participating in any interaction and those expressed in less than k% of cells within a given cell type.
+2) Calculate the mean expression of each gene within each cell type.
+3) For heteromeric proteins, aggregate the mean gene expression of each subunit employing the geometric mean.
+4) Scale mean gene/heteromer expression across cell types between 0 and 10.
+5) Calculate the product of the scale mean expression of the interaction proteins as a proxy of the interaction relevance.
+
+
+> To score interactions, CellphoneDB requires **log-normalized expression** data, any normalisation procedure (i.e. z-scaling) that transforms zeros to any other value must be avoided. 
+
+Because the scoring methodology and the interaction inference methods follow different approaches, it is possible to encounter interactions found relevant/significant but with a low score. This can occur due to multiple causes: (i) If one of the interacting genes is the least expressed in the dataset, during the scaling (step 4) its value will be set to 0.  (ii) If the gene is expressed in less than the user-defined % of cells in the dataset and this parameter has not been taken into account for the differential expression analysis (i.e. gene is DEG but expressed by fewer cells than defined in the filter). Likewise, the scoring methodology might yield high scores for pairs of cells for which no relevancy is found. This can occur when: (i) None of the interacting partners are differentially expressed but their expression values are high and this the score is.
+
+To score interactions use the argument:
+```
+score_interactions = True
+````
+
+> Important: to calculate the score, all the cells present in the dataset are employed (steps 1-4). If microenvironmens are defined, the score (step) 5 will be calculated only for cells within the same microenvironment.
 # Input files
 
 ## Counts file
@@ -206,6 +243,7 @@ All files (except "deconvoluted.txt") follow the same structure: rows depict int
 - The "significant_means.txt" contains the mean expression (same as "means.txt") of the significant receptor–ligand complex only. This is the result of crossing "means.csv" and "pvalues.txt".
 - The "relevant_interactions.txt" contains a binary matrix indicating if the interaction is relevant (1) or not (0). An interaction is classified as relevant if a gene is a DEG in a cluster/cell type (information provided by the user in the DEG.tsv file) and all the participant genes are expressed. Alternatively, the value is set to 0. This file is specific to `degs_analysis`. Each row corresponds to a ligand-receptor interaction, while each column corresponds to a cell-cell interacting pair.
 - The "deconvoluted.txt" file gives additional information for each of the interacting partners. This is important as some of the interacting partners are heteromers. In other words, multiple molecules have to be expressed in the same cluster in order for the interacting partner to be functional. 
+- The "percentages.txt" like deconvoluted  gives additional information for each of the interacting partners. In this case, this file denotes the percentage of cells expressing a given gene. 
 
 
 See below the meaning of each column in the outputs:
@@ -268,9 +306,9 @@ In other words:
 ![CellphoneDB methods](./interpreting_results.png)
 
 
-## How can I query my CellPhoneDB results?
+## How can I query my CellphoneDB results?
 
-CellPhoneDB results can be queried by making use of the `search_analysis_results` method. This method requires two of the files generated by CellPhoneDB: `significant_means` and `deconvoluted`.
+CellphoneDB results can be queried by making use of the `search_analysis_results` method. This method requires two of the files generated by CellphoneDB: `significant_means` and `deconvoluted`.
 
 Through this method, users can specify the cell pairs of interest and both; the genes `query_genes` participating in the interaction and/or the name of the interaction itself `query_interactions`. This method will search for significant/relevant interactions in which any cell specified in `query_cell_types_1` is found to any cell specified in `query_cell_types_2`. Cell pairs within any of these two lists will not be queried, that is to say, no interaction between cells A and B or C and D will be queried.
 
@@ -293,7 +331,7 @@ search_results = search_utils.search_analysis_results(
 DATABASE of interactions
 ============================================
 
-CellphoneDB has its own database of interactions called **CellphoneDB-data**, which can be found at https://github.com/ventolab/cellphonedb-data. CellphoneDB database is a **manually curated** repository of receptors, ligands and their interactions.  
+CellphoneDB has its own database of interactions called **CellphoneDB-data**, which can be found at [here](https://github.com/ventolab/cellphonedb-data). CellphoneDB database is a **manually curated** repository of receptors, ligands and their interactions.  
 
 
 #### Key features of CellphoneDB
@@ -374,7 +412,7 @@ Users can submit their lists using the Python package version of CellphoneDB, an
 Plotting results
 ============================================
 
-Currently CellPhoneDB relies on external plotting implementations to represent the results. Examples are provided in the [tutorials](notebooks).
+Currently CellphoneDB relies on external plotting implementations to represent the results. Examples are provided in the [tutorials](notebooks).
 
 We recommend using tools such as the ktplots:
 [@zktuong](https://github.com/zktuong):
@@ -387,8 +425,8 @@ Release notes
 
 ### cellphonedb v4.1.0
 1) New python package that can be easily executed in Jupyter Notebook and Collabs. 
-2) A new method to ease the query of CellPhoneDB results.
-3) Tutorials to run CellPhoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
+2) A new method to ease the query of CellphoneDB results.
+3) Tutorials to run CellphoneDB (available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks))
 4) Improved computational efficiency of method 2 `cpdb_statistical_analysis_method`.
 
 ### cellphonedb-data v4.1.0
@@ -400,7 +438,7 @@ Release notes
 2) Includes interactions involving non-peptidic molecules (i.e., not encoded by a gene) acting as ligands. Examples of these include steroid hormones (e.g., estrogen). To do so, we have reconstructed the biosynthetic pathways and used the last representative enzyme as a proxy of ligand abundance. We retrieve this information by manually reviewing and curating relevant literature and peer-reviewed pathway resources such as REACTOME. We include more than 200 interactions involving non-peptidic ligands!
 
 ### cellphonedb v3.0.0
-1) New method to incorporate spatial information. CellPhoneDB now allows the incorporation of spatial information of the cells via the `microenvironments` file. CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters sharing/coexisting in a microenvironment). You can define microenvironments with prior knowledge, imaging or Visium analysis with [cell2location](https://cell2location.readthedocs.io/en/latest/notebooks/cell2location_short_demo_downstream.html#4.-Identify-groups-of-co-located-cell-types-using-matrix-factorisation).
+1) New method to incorporate spatial information. CellphoneDB now allows the incorporation of spatial information of the cells via the `microenvironments` file. CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters sharing/coexisting in a microenvironment). You can define microenvironments with prior knowledge, imaging or Visium analysis with [cell2location](https://cell2location.readthedocs.io/en/latest/notebooks/cell2location_short_demo_downstream.html#4.-Identify-groups-of-co-located-cell-types-using-matrix-factorisation).
 2) New DEG analysis method. This method relies on Differentially Expressed Genes (`cpdb_degs_analysis_method` or `cellphonedb method degs_analysis`) as an alternative to the permutation-based approach. The user identifies the DEGs using their preferred tool and provides the information to CellphoneDB via text file. 
 
 ### cellphonedb-data v3.0.0
@@ -409,7 +447,7 @@ Release notes
 
 Tutorials
 ============================================
-Tutorials to run CellPhoneDB are available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks)
+Tutorials to run CellphoneDB are available [here](https://github.com/ventolab/CellphoneDB/tree/master/notebooks)
 
 
 
@@ -470,10 +508,12 @@ The first version of CellphoneDB was originally developed at the [Teichmann Lab]
 
 If you use CellphoneDB or CellphoneDB-data, please cite our papers:
 
-- **CellPhoneDB v1 (original)**: Single-cell reconstruction of the early maternal-fetal interface in humans. Vento-Tormo R, Efremova M, et al., Nature. 2018 [link](https://www.nature.com/articles/s41586-018-0698-6)
+- **CellphoneDB v1 (original)**: Single-cell reconstruction of the early maternal-fetal interface in humans. Vento-Tormo R, Efremova M, et al., Nature. 2018 [link](https://www.nature.com/articles/s41586-018-0698-6)
 
-- **CellPhoneDB v2**: Inferring cell-cell communication from combined expression of multi-subunit receptor-ligand complexes. Efremova M, Vento-Tormo M, Teichmann S, Vento-Tormo R. Nat Protoc. 2020 [link](https://www.nature.com/articles/s41596-020-0292-x)
+- **CellphoneDB v2**: Inferring cell-cell communication from combined expression of multi-subunit receptor-ligand complexes. Efremova M, Vento-Tormo M, Teichmann S, Vento-Tormo R. Nat Protoc. 2020 [link](https://www.nature.com/articles/s41596-020-0292-x)
 
 - **CellphoneDB v3**: Mapping the temporal and spatial dynamics of the human endometrium in vivo and in vitro. L Garcia-Alonso, L-François Handfield, K Roberts, K Nikolakopoulou et al. Nature Genetics 2021 [link](https://www.nature.com/articles/s41588-021-00972-2)
 
-- **CellphoneDB v4 (latest)**: Single-cell roadmap of human gonadal development. L Garcia-Alonso, V Lorenzi et al. 2022 Nature [link](https://www.nature.com/articles/s41586-022-04918-4)
+- **CellphoneDB v4**: Single-cell roadmap of human gonadal development. L Garcia-Alonso, V Lorenzi et al. 2022 Nature [link](https://www.nature.com/articles/s41586-022-04918-4)
+
+- **CellphoneDB v5 (latest)**: CellPhoneDV v5. Authors et al. 2023 Nature Protocls [link]()
