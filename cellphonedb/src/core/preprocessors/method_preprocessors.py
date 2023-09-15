@@ -40,11 +40,16 @@ def meta_preprocessor(meta_raw: pd.DataFrame) -> pd.DataFrame:
                 meta.index.name = 'cell'
                 return meta
 
-        meta = pd.DataFrame(data={'cell_type': meta_raw.iloc[:, 1]})
-        meta.set_index(meta_raw.iloc[:, 0], inplace=True)
-        meta.index.name = 'cell'
-        meta.index = meta.index.astype(str)
-        return meta
+        num_unique_vals_in_first_col = len(list(set(meta_raw.iloc[:, 0].values)))
+        num_unique_vals_in_second_col = len(list(set(meta_raw.iloc[:, 1].values)))
+        if num_unique_vals_in_first_col > num_unique_vals_in_second_col:
+            meta = pd.DataFrame(data={'cell_type': meta_raw.iloc[:, 1]})
+            meta.set_index(meta_raw.iloc[:, 0], inplace=True)
+            meta.index.name = 'cell'
+            meta.index = meta.index.astype(str)
+            return meta
+        else:
+            raise ProcessMetaException
 
     except:
         raise ProcessMetaException
