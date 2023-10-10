@@ -4,3 +4,4 @@ cellphonedb/out
 __pycache__
 out
 docs/api/_build
+cellphonedb/src/tests/test_data
