@@ -16,6 +16,11 @@ GENERATED_CPDB_PATTERN="cellphonedb_*.zip"
 downloaded_db_dir = os.path.join(targetDir, "downloaded_db")
 generated_db_dir = os.path.join(targetDir, "generated_db")
 CELLPHONEDB_FILES = ['complex_composition_table.csv','gene_synonym_to_gene_name.csv','interaction_table.csv','complex_table.csv','gene_table.csv','multidata_table.csv']
+test_files_path = os.path.join(os.path.join("..", os.path.join("..", os.path.join("..","example_data"))))
+test_files = {'counts' : os.path.join(test_files_path, 'test_counts.txt'), \
+                'meta': os.path.join(test_files_path, 'test_meta.txt'), \
+                'microenvs' : os.path.join(test_files_path, 'test_microenviroments.txt'), \
+                'degs' : os.path.join(test_files_path, 'test_degs.txt')}
 
 class UnitTests(unittest.TestCase):
 
@@ -63,6 +68,22 @@ class UnitTests(unittest.TestCase):
                     pass
             print("Comparing {} between generated and downloaded DB".format(f))
             assert generated_count == downloaded_count, "The number of lines in {} differs between generated and downloaded DB".format(f)
+
+    def test_search_db(self):
+        cpdb_file_path = os.path.join(targetDir, "cellphonedb.zip")
+        results, complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name = \
+            search_utils.search('ENSG00000134780,integrin_a10b1_complex', cpdb_file_path)
+        assert len(results) > 0
+
+    def test_get_remote_release_versions(self):
+        result = db_releases_utils.get_remote_database_versions_html(True, 4.0)
+        assert 'db_releases_html_table' in result
+
+    def test_statistical_method(self):
+        assert os.path.exists(test_files_path), test_files_path
+        for f in os.listdir(test_files_path):
+            assert f in test_files.values()
+
 
 if __name__ == "__main__":
     unittest.main()

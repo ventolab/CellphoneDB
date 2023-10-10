@@ -23,9 +23,13 @@ if __name__ == '__main__':
         db_utils.download_released_files(cpdb_dir, RELEASED_VERSION, "cellphonedb.zip")
         db_utils.create_db(cpdb_dir)
     elif arg == 's':
-        search_utils.search('ENSG00000134780,integrin_a10b1_complex', cpdb_dir)
+        cpdb_file_path = os.path.join(cpdb_dir, "cellphonedb.zip")
+        results, complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name = \
+            search_utils.search('ENSG00000134780,integrin_a10b1_complex', cpdb_file_path)
+        print(len(results))
     elif arg == 'rel':
-        db_releases_utils.get_remote_database_versions_html(True, 4.0)
+        result = db_releases_utils.get_remote_database_versions_html(True, 4.0)
+        print(result)
     elif arg == 'te':
         # Run statistical and deg analyses for endometrium example - for the purpose of comparing
         # results to old CellphoneDB or ones after the new code optiisations
