@@ -10,8 +10,7 @@ def meta_preprocessor(meta_raw: pd.DataFrame) -> pd.DataFrame:
     Parameters
     ----------
     meta_raw: pd.DataFrame
-        A DataFrame containing a mapping between cells and cell types, as returned by \
-        controller.get_user_file() and controller.get_user_files() functions.
+        A DataFrame containing a mapping between cells and cell types.
 
     Returns
     -------
