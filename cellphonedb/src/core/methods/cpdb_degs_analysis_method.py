@@ -1,5 +1,4 @@
 import pickle
-from typing import Tuple
 import pandas as pd
 
 from cellphonedb.src.core.core_logger import core_logger
@@ -9,6 +8,7 @@ from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper, cpdb_
 from cellphonedb.src.core.models.complex import complex_helper
 from cellphonedb.utils import db_utils, file_utils, scoring_utils
 from cellphonedb.src.core.utils import cellsign
+
 
 def call(cpdb_file_path: str = None,
          meta_file_path: str = None,
@@ -70,7 +70,7 @@ def call(cpdb_file_path: str = None,
 
     Return
     -------
-    Tuple
+    Dict
          - deconvoluted_result
          - deconvoluted_percents
          - means_result
@@ -86,22 +86,22 @@ def call(cpdb_file_path: str = None,
     # Report error unless the required arguments have been provided
     required_arguments = [cpdb_file_path, meta_file_path, counts_file_path, degs_file_path, counts_data, output_path]
     if None in required_arguments or '' in required_arguments:
-        raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format( \
-        "cpdb_file_path, meta_file_path, counts_file_path, degs_file_path, counts_data, output_path"))
+        raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format(
+            "cpdb_file_path, meta_file_path, counts_file_path, degs_file_path, counts_data, output_path"))
 
     # Load into memory CellphoneDB data
     interactions, genes, complex_compositions, complexes, gene_synonym2gene_name, receptor2tfs = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     # Load user files into memory
-    counts, meta, microenvs, degs, active_tf2cell_types = file_utils.get_user_files( \
-        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, degs_fp=degs_file_path, \
-        active_tfs_fp=active_tfs_file_path, \
+    counts, meta, microenvs, degs, active_tf2cell_types = file_utils.get_user_files(
+        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, degs_fp=degs_file_path,
+        active_tfs_fp=active_tfs_file_path,
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
     # get reduced interactions (drop duplicates)
     interactions_reduced = interactions[['multidata_1_id', 'multidata_2_id']].drop_duplicates()
-    
+
     # add multidata id and means to counts
     counts, counts_relations = cpdb_statistical_analysis_helper.add_multidata_and_means_to_counts(
         counts, genes, counts_data)
@@ -136,37 +136,34 @@ def call(cpdb_file_path: str = None,
     core_logger.info('Running Real Analysis')
     core_logger.debug('Generating cluster combinations')
     cluster_interactions = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'], microenvs)
-    
-    
+
     core_logger.debug('Build empty result matrix')
     base_result = cpdb_statistical_analysis_helper.build_result_matrix(interactions_filtered,
-                                                                cluster_interactions,
-                                                                separator)
+                                                                       cluster_interactions,
+                                                                       separator)
 
     core_logger.debug('Run Mean Analysis (real mean)')
     real_mean_analysis = cpdb_statistical_analysis_helper.mean_analysis(interactions_filtered,
-                                                                 clusters,
-                                                                 cluster_interactions,
-                                                                 separator)
+                                                                        clusters,
+                                                                        cluster_interactions,
+                                                                        separator)
     # do percent_analysis using the threshold value:
     core_logger.debug('Run Percent Analysis (real percent)')
     real_percents_analysis = cpdb_statistical_analysis_helper.percent_analysis(clusters,
-                                                                                threshold,
-                                                                                interactions_filtered,
-                                                                                cluster_interactions,
-                                                                                separator)
+                                                                               threshold,
+                                                                               interactions_filtered,
+                                                                               cluster_interactions,
+                                                                               separator)
 
     core_logger.info('Running DEGs-based Analysis')
 
     # Prepare DEGs matrix from input file
-    raw_degs = degs.copy()
     degs = build_degs_matrix(degs,
                              genes,
                              meta,
                              counts_filtered,
                              complex_composition_filtered,
                              counts_data)
-
 
     real_degs_analysis = degs_analysis(degs,
                                        interactions_filtered,
@@ -178,7 +175,7 @@ def call(cpdb_file_path: str = None,
     relevant_interactions = pd.DataFrame(real_percents_analysis.values & real_degs_analysis.values,
                                          columns=real_degs_analysis.columns,
                                          index=real_degs_analysis.index)
-    
+
     if debug:
         core_logger.info('Saving intermediate data to file debug_intermediate.pkl')
         with open(f"{output_path}/debug_intermediate.pkl", "wb") as fh:
@@ -235,6 +232,7 @@ def call(cpdb_file_path: str = None,
 
     file_utils.save_dfs_as_tsv(output_path, output_suffix, "degs_analysis", analysis_result)
     return analysis_result
+
 
 def build_results(interactions: pd.DataFrame,
                   interactions_original: pd.DataFrame,
@@ -327,10 +325,10 @@ def build_results(interactions: pd.DataFrame,
     # Document 1: relevant_intearcitons.txt
     # drop irrelevant interactions (all zeros)
     relevant_interactions = relevant_interactions.loc[
-        (relevant_interactions!=0).any(axis=1)]
+        (relevant_interactions != 0).any(axis=1)]
     # drop irrelevant clusters (columns with all zeros)
     relevant_interactions = relevant_interactions.loc[
-        :,(relevant_interactions!=0).any(axis=0)]
+        :, (relevant_interactions != 0).any(axis=0)]
     # concat interactions data and relevant interactions data
     relevant_interactions_result = pd.concat(
         [interactions_data_result, relevant_interactions], axis=1, join='inner', sort=False)
@@ -345,16 +343,17 @@ def build_results(interactions: pd.DataFrame,
 
     # Document 3: significant_means.txt
     significant_means_result = pd.concat(
-        [interactions_data_result, significant_mean_rank, significant_means], axis=1,join='inner', sort=False)
+        [interactions_data_result, significant_mean_rank, significant_means], axis=1, join='inner', sort=False)
 
     # Document 4: deconvoluted.txt
-    deconvoluted_result, deconvoluted_percents = cpdb_statistical_analysis_complex_method.deconvoluted_complex_result_build(clusters_means,
-                                                            clusters_percents,
-                                                            interactions,
-                                                            complex_compositions,
-                                                            counts,
-                                                            genes,
-                                                            counts_data)
+    deconvoluted_result, deconvoluted_percents = \
+        cpdb_statistical_analysis_complex_method.deconvoluted_complex_result_build(clusters_means,
+                                                                                   clusters_percents,
+                                                                                   interactions,
+                                                                                   complex_compositions,
+                                                                                   counts,
+                                                                                   genes,
+                                                                                   counts_data)
 
     analysis_result = {'deconvoluted': deconvoluted_result,
                        'deconvoluted_percents': deconvoluted_percents,
@@ -364,6 +363,7 @@ def build_results(interactions: pd.DataFrame,
                        'CellSign_active_interactions': active_interactions,
                        'CellSign_active_interactions_deconvoluted': active_interactions_deconvoluted}
     return analysis_result
+
 
 def build_degs_matrix(degs: pd.DataFrame,
                       genes: pd.DataFrame,
@@ -405,11 +405,11 @@ def build_degs_matrix(degs: pd.DataFrame,
 
     # mark provided DEGs as active
     d = degs.copy()
-    d["deg"]=1
+    d["deg"] = 1
 
     # create matrix from input and add id_multidata
     d = pd.pivot_table(d, values="deg", index="gene", columns="cluster", fill_value=0)
-    d = d.merge(genes[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']],left_index=True,right_on=counts_data)
+    d = d.merge(genes[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']], left_index=True, right_on=counts_data)
     d.set_index('id_multidata', inplace=True, drop=True)
     d = d.groupby(d.index).max()
 
@@ -433,9 +433,9 @@ def build_degs_matrix(degs: pd.DataFrame,
 
 
 def degs_analysis(degs: pd.DataFrame,
-                interactions: pd.DataFrame,
-                cluster_interactions: list,
-                separator: str) -> pd.DataFrame:
+                  interactions: pd.DataFrame,
+                  cluster_interactions: list,
+                  separator: str) -> pd.DataFrame:
     """
     Calculates the filter matrix based on the DEGs for the list of interactions and for each cluster
     Sets 1 if one of both is 1.
@@ -443,7 +443,7 @@ def degs_analysis(degs: pd.DataFrame,
     Example
     -------
         DEGs (input deg file is transformed into matrix)
-        
+
                cluster1   cluster2    cluster3
         ensembl1     0           1           0
         ensembl2     1           1           0
@@ -467,7 +467,7 @@ def degs_analysis(degs: pd.DataFrame,
             - 1 means the interaction is relevant for the cluster because either
               gene1-cluster1 or gene2-cluster2 are in the DEGs input.
             - 0 means there is no relevant interaction pair (missing from DEGs input).
-    """ 
+    """
 
     GENE_ID1 = 'multidata_1_id'
     GENE_ID2 = 'multidata_2_id'

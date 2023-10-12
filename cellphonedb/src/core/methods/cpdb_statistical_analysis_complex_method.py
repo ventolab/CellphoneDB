@@ -1,12 +1,11 @@
-from typing import Tuple
 import pandas as pd
 import numpy as np
 import pickle
 from cellphonedb.src.core.core_logger import core_logger
-from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper
 from cellphonedb.src.core.models.complex import complex_helper
 from cellphonedb.src.core.utils import cellsign
+
 
 def call(meta: pd.DataFrame,
          counts: pd.DataFrame,
@@ -60,8 +59,11 @@ def call(meta: pd.DataFrame,
     if not microenvs.empty:
         microenvs['cell_type'] = microenvs['cell_type'].apply(str)
 
-    complex_to_protein_row_ids = complex_helper.map_complex_to_protein_row_ids(complex_composition_filtered, counts_filtered)
-    clusters = cpdb_statistical_analysis_helper.build_clusters(meta, counts_filtered, complex_to_protein_row_ids, skip_percent=False)
+    complex_to_protein_row_ids = complex_helper.map_complex_to_protein_row_ids(complex_composition_filtered,
+                                                                               counts_filtered)
+    clusters = cpdb_statistical_analysis_helper.build_clusters(meta, counts_filtered,
+                                                               complex_to_protein_row_ids,
+                                                               skip_percent=False)
     core_logger.info('Running Real Analysis')
     cluster_combinations = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'], microenvs)
     base_result = cpdb_statistical_analysis_helper.build_result_matrix(interactions_filtered,
@@ -239,12 +241,12 @@ def build_results(interactions: pd.DataFrame,
 
     # Document 5
     deconvoluted_result, deconvoluted_percents = deconvoluted_complex_result_build(clusters_means,
-                                                            clusters_percents,
-                                                            interactions,
-                                                            complex_compositions,
-                                                            counts,
-                                                            genes,
-                                                            counts_data)
+                                                                                   clusters_percents,
+                                                                                   interactions,
+                                                                                   complex_compositions,
+                                                                                   counts,
+                                                                                   genes,
+                                                                                   counts_data)
     analysis_result = {'deconvoluted': deconvoluted_result,
                        'deconvoluted_percents': deconvoluted_percents,
                        'means': means_result,
@@ -284,7 +286,8 @@ def deconvoluted_complex_result_build(clusters_means: pd.DataFrame,
                                                                      '_2',
                                                                      counts_data)
 
-    deconvoluted_result = pd.concat([deconvoluted_complex_result_1, deconvoluted_simple_result_1, deconvoluted_complex_result_2, deconvoluted_simple_result_2], sort=False)
+    deconvoluted_result = pd.concat([deconvoluted_complex_result_1, deconvoluted_simple_result_1,
+                                     deconvoluted_complex_result_2, deconvoluted_simple_result_2], sort=False)
 
     deconvoluted_result.set_index('multidata_id', inplace=True, drop=True)
 
@@ -294,8 +297,11 @@ def deconvoluted_complex_result_build(clusters_means: pd.DataFrame,
     deconvoluted_result = deconvoluted_result[deconvoluted_columns]
     deconvoluted_result.rename({'name': 'uniprot'}, axis=1, inplace=True)
     deconvoluted_result4pcts = deconvoluted_result.copy(deep=True)
-    deconvoluted_result = pd.concat([deconvoluted_result, clusters_means.reindex(deconvoluted_result.index)], axis=1, join='inner', sort=False)
-    deconvoluted_percents = pd.concat([deconvoluted_result4pcts, clusters_percents.reindex(deconvoluted_result4pcts.index)], axis=1, join='inner', sort=False)
+    deconvoluted_result = pd.concat([deconvoluted_result, clusters_means.reindex(deconvoluted_result.index)],
+                                    axis=1, join='inner', sort=False)
+    deconvoluted_percents = pd.concat([deconvoluted_result4pcts,
+                                       clusters_percents.reindex(deconvoluted_result4pcts.index)],
+                                      axis=1, join='inner', sort=False)
 
     deconvoluted_result.drop_duplicates(inplace=True)
     deconvoluted_percents.drop_duplicates(inplace=True)
@@ -336,10 +342,13 @@ def deconvolute_complex_interaction_component(complex_compositions,
 
     # The two operations below remove duplicates - this prevents the latest version of Pandas throwing
     # 'ValueError: Columns must be same length as key' when counts_data == 'gene_name'
-    component_columns = list(dict.fromkeys([counts_data, 'protein_name', 'gene_name', 'name', 'is_complex', 'id_cp_interaction', 'id_multidata', 'receptor']) )
-    interactions_columns = list(dict.fromkeys(['{}{}'.format(counts_data, suffix), 'protein_name{}'.format(suffix), 'gene_name{}'.format(suffix),
-                      'name{}'.format(suffix), 'is_complex{}'.format(suffix), 'id_cp_interaction',
-                      'multidata{}_id'.format(suffix), 'receptor{}'.format(suffix)]))
+    component_columns = list(dict.fromkeys([counts_data, 'protein_name', 'gene_name', 'name', 'is_complex',
+                                            'id_cp_interaction', 'id_multidata', 'receptor']))
+    interactions_columns = list(dict.fromkeys(['{}{}'.format(counts_data, suffix), 'protein_name{}'
+                                              .format(suffix), 'gene_name{}'.format(suffix),
+                                               'name{}'.format(suffix), 'is_complex{}'.format(suffix),
+                                               'id_cp_interaction', 'multidata{}_id'
+                                              .format(suffix), 'receptor{}'.format(suffix)]))
     component[component_columns] = interactions[interactions_columns]
 
     deconvolution_complex = pd.merge(complex_compositions,
@@ -362,4 +371,3 @@ def deconvolute_complex_interaction_component(complex_compositions,
              'is_complex_complex', 'id_cp_interaction', 'receptor_simple', 'name_complex']]
 
     return deconvoluted_result
-

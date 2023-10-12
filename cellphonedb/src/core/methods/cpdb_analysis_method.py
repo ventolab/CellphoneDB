@@ -3,15 +3,16 @@ from typing import Tuple
 import pandas as pd
 import numpy as np
 import pickle
-import csv
 
 from cellphonedb.src.core.core_logger import core_logger
+
 from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
 from cellphonedb.src.core.exceptions.MissingRequiredArgumentsException import MissingRequiredArgumentsException
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper
 from cellphonedb.src.core.models.complex import complex_helper
 from cellphonedb.utils import db_utils, file_utils, scoring_utils
+
 
 def call(
          cpdb_file_path: str = None,
@@ -76,16 +77,16 @@ def call(
     # Report error unless the required arguments have been provided
     required_arguments = [cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path]
     if None in required_arguments or '' in required_arguments:
-        raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format( \
-        "cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path"))
+        raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format(
+            "cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path"))
 
     # Load into memory CellphoneDB data
     interactions, genes, complex_compositions, complexes, gene_synonym2gene_name, receptor2tfs = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     # Load user files into memory
-    counts, meta, microenvs, degs, _ = file_utils.get_user_files( \
-        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, \
+    counts, meta, microenvs, degs, _ = file_utils.get_user_files(
+        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path,
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
     # get reduced interactions (drop duplicates)
@@ -112,7 +113,6 @@ def call(
     if not microenvs.empty:
         microenvs['cell_type'] = microenvs['cell_type'].apply(str)
 
-
     complex_to_protein_row_ids = complex_helper.map_complex_to_protein_row_ids(complex_composition_filtered, counts_filtered)
     clusters = cpdb_statistical_analysis_helper.build_clusters(meta,
                                                                counts_filtered,
@@ -132,10 +132,10 @@ def call(
                                                                    separator)
 
     percent_analysis = cpdb_statistical_analysis_helper.percent_analysis(clusters,
-                                                             threshold,
-                                                             interactions_filtered,
-                                                             cluster_interactions,
-                                                             separator)
+                                                                         threshold,
+                                                                         interactions_filtered,
+                                                                         cluster_interactions,
+                                                                         separator)
 
     if debug:
         with open(f"{output_path}/debug_intermediate.pkl", "wb") as fh:
@@ -198,8 +198,8 @@ def build_results(interactions: pd.DataFrame,
                   result_precision: int,
                   counts_data: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Sets the results data structure from method generated data. 
-    
+    Sets the results data structure from method generated data.
+
     Results documents are defined by specs.
 
     Returns
@@ -312,7 +312,8 @@ def deconvoluted_complex_result_build(clusters_means: dict, interactions: pd.Dat
                                                                               interactions, '_2', counts_data)
     deconvoluted_simple_result_2 = deconvolute_interaction_component(interactions, '_2', counts_data)
 
-    deconvoluted_result = pd.concat([deconvoluted_complex_result_1, deconvoluted_simple_result_1, deconvoluted_complex_result_2, deconvoluted_simple_result_2], sort=False)
+    deconvoluted_result = pd.concat([deconvoluted_complex_result_1, deconvoluted_simple_result_1,
+                                     deconvoluted_complex_result_2, deconvoluted_simple_result_2], sort=False)
 
     deconvoluted_result.set_index('gene', inplace=True)
 

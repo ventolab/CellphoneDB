@@ -73,8 +73,7 @@ def write_to_file(df: pd.DataFrame, filename: str, output_path: str, output_form
             filename = '{}{}'.format(filename, selected_extension)
 
             if file_extension:
-                app_logger.warning(
-                    'Selected extension missmatches output filename ({}, {}): It will be added => {}'.format(
+                print('WARNING: Selected extension missmatches output filename ({}, {}): It will be added => {}'.format(
                         selected_extension, file_extension, filename))
         else:
             separator = _get_separator(selected_extension)

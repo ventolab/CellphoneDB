@@ -1,10 +1,9 @@
-from typing import Tuple
-import pandas as pd
-
+from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method, cpdb_statistical_analysis_helper
 from cellphonedb.src.core.exceptions.MissingRequiredArgumentsException import MissingRequiredArgumentsException
 from cellphonedb.utils import db_utils, file_utils, scoring_utils
 from cellphonedb.src.core.utils import subsampler
+
 
 def call(cpdb_file_path: str = None,
          meta_file_path: str = None,
@@ -94,17 +93,18 @@ def call(cpdb_file_path: str = None,
     # Report error unless the required arguments have been provided
     required_arguments = [cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path]
     if None in required_arguments or '' in required_arguments:
-        raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format( \
-        "cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path"))
+        raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}"
+                                                .format("cpdb_file_path, meta_file_path, counts_file_path, " +
+                                                        "counts_data, output_path"))
 
     # Load into memory CellphoneDB data
     interactions, genes, complex_composition, complex_expanded, gene_synonym2gene_name, receptor2tfs = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     # Load user files into memory
-    counts, meta, microenvs, degs, active_tf2cell_types = file_utils.get_user_files( \
-        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, \
-        active_tfs_fp = active_tfs_file_path, \
+    counts, meta, microenvs, degs, active_tf2cell_types = file_utils.get_user_files(
+        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path,
+        active_tfs_fp=active_tfs_file_path,
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
     # add multidata id and means to counts
@@ -119,30 +119,31 @@ def call(cpdb_file_path: str = None,
     counts4scoring = counts.copy()
     # Subsample counts data, if required
     if subsampling:
-        ss = subsampler.Subsampler(log=subsampling_log, num_pc=subsampling_num_pc, num_cells=subsampling_num_cells, verbose=False, debug_seed=None)
+        ss = subsampler.Subsampler(log=subsampling_log, num_pc=subsampling_num_pc,
+                                   num_cells=subsampling_num_cells, verbose=False, debug_seed=None)
         counts = ss.subsample(counts)
 
     analysis_result = cpdb_statistical_analysis_complex_method.call(meta.copy(),
-                                                      counts,
-                                                      counts_relations,
-                                                      counts_data,
-                                                      active_tf2cell_types,
-                                                      interactions,
-                                                      genes,
-                                                      complex_expanded,
-                                                      complex_composition,
-                                                      microenvs,
-                                                      receptor2tfs,
-                                                      pvalue,
-                                                      separator,
-                                                      iterations,
-                                                      threshold,
-                                                      threads,
-                                                      debug_seed,
-                                                      result_precision,
-                                                      debug,
-                                                      output_path
-                                                      )
+                                                                    counts,
+                                                                    counts_relations,
+                                                                    counts_data,
+                                                                    active_tf2cell_types,
+                                                                    interactions,
+                                                                    genes,
+                                                                    complex_expanded,
+                                                                    complex_composition,
+                                                                    microenvs,
+                                                                    receptor2tfs,
+                                                                    pvalue,
+                                                                    separator,
+                                                                    iterations,
+                                                                    threshold,
+                                                                    threads,
+                                                                    debug_seed,
+                                                                    result_precision,
+                                                                    debug,
+                                                                    output_path
+                                                                    )
 
     significant_means = analysis_result['significant_means']
     max_rank = significant_means['rank'].max()
