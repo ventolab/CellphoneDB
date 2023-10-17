@@ -354,7 +354,7 @@ def create_db(target_dir) -> None:
     cc_list = []
     pos = len(protein_column_names)
     for r in complex_db_df[protein_column_names + ['complex_multidata_id', 'total_protein']].values.tolist():
-        for acc in filter(lambda x: type(x) == str, r):
+        for acc in filter(lambda x: isinstance(x, str), r):
             protein_multidata_id = \
                 multidata_db_df.loc[(multidata_db_df['is_complex'] == False) &
                                     (multidata_db_df['name'] == acc), ['id_multidata']].iat[0, 0]
