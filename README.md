@@ -5,7 +5,7 @@
 
 CellPhoneDB is a publicly available repository of **HUMAN** curated receptors, ligands and their interactions paired with a tool to interrogate your own single-cell transcriptomics data (or even bulk transcriptomics data if your samples represent pure populations!). 
 
-> A distictive feature of CellPhoneDB is that the subunit architecture of either ligands and receptors is taken into account, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic CellPhoneDB includes only manually curated & reviewd molecular interactions with evidenced role in cellular communication.
+> A distinctive feature of CellPhoneDB is that the subunit architecture of either ligands and receptors is taken into account, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellPhoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic CellPhoneDB includes only manually curated & reviewd molecular interactions with evidenced role in cellular communication.
 
 For more details on using CellPhoneDB for scRNA-seq data analysis, check the [DOCUMENTATION](https://cellphonedb.readthedocs.io/en/latest/#). 
 
@@ -62,12 +62,12 @@ Counts file can be a text file or a `h5ad` (recommended), `h5` or a path to a fo
 #### Preparing your DEGs file (optional, if `method degs_analysis`)
 This is a two columns file indicanting which gene is specific or upregulated in a cell type (see [example](in/endometrium_atlas_example/endometrium_example_DEGs.tsv) ). The first column should be the cell type/cluster name (matching those in `meta.txt`) and the second column the associated gene id. The remaining columns are ignored. We provide [notebooks](notebooks) for both Seurat and Scanpy users. It is on you to design a DEG analysis appropiated for your research question. 
 
-#### Preparing your microenviroments file (optional, if `microenvs_file_path`)
+#### Preparing your microenvironments file (optional, if `microenvs_file_path`)
 This is a two columns file indicating which cell type is in which spatial microenvironment (see [example](in/endometrium_atlas_example/endometrium_example_microenviroments.tsv) ). CellphoneDB will use this information to define possible pairs of interacting cells (i.e. pairs of clusters co-appearing in a microenvironment). 
 
 ### RUN examples
 
-For more detailed examples refer to out tutorials [here](notebooks).
+For more detailed examples refer to our tutorials [here](notebooks).
 ####  Example with running the DEG-based method
 ```shell
 from cellphonedb.src.core.methods import cpdb_degs_analysis_method
@@ -119,7 +119,7 @@ means, deconvoluted = cpdb_analysis_method.call(
         output_path = out_path)
 ```
 
-####  Example running a microenviroments file
+####  Example running a microenvironments file
 ```shell
 from cellphonedb.src.core.methods import cpdb_analysis_method
 
@@ -132,7 +132,7 @@ means, deconvoluted = cpdb_analysis_method.call(
         output_path = out_path)
 ```
 
-####  Example running the DEG-based method with microenviroments file
+####  Example running the DEG-based method with microenvironments file
 ```shell
 from cellphonedb.src.core.methods import cpdb_degs_analysis_method
 
@@ -164,7 +164,7 @@ To understand the different analysis and results, please check the [results docu
 
 
 ~ **Optional Method Statistical parameters**
-- `microenvs_file_path`: Spatial microenviroments input file. Restricts the cluster/cell_type interacting pairs to the cluster/cell_type sharing a microenviroment (i.e. only test a combination of clusters if these coexist in a microenviroment). This file should contain two columns: 1st column indicates the cluster/cell_type, 2nd column indicates the microenviroment name.  See example [here](https://github.com/ventolab/CellphoneDB/tree/master/in). 
+- `microenvs_file_path`: Spatial microenvironments input file. Restricts the cluster/cell_type interacting pairs to the cluster/cell_type sharing a microenvironment (i.e. only test a combination of clusters if these coexist in a microenvironment). This file should contain two columns: 1st column indicates the cluster/cell_type, 2nd column indicates the microenvironment name.  See example [here](https://github.com/ventolab/CellphoneDB/tree/master/in). 
 - `pvalue`: P-value threshold [0.05]
 - `debug_seed`: Debug random seed -1. To disable it please use a value >=0 [-1]
 - `threads`: Number of threads to use. >=1 [4]
