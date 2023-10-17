@@ -1,9 +1,7 @@
 import pandas as pd
 import numpy as np
 from cellphonedb.utils import db_utils
-from scipy.stats.mstats import gmean
 from sklearn.preprocessing import MinMaxScaler
-from itertools import combinations_with_replacement
 from cellphonedb.src.core.core_logger import core_logger
 from collections import ChainMap
 
@@ -11,7 +9,6 @@ from functools import partial
 from multiprocessing.pool import Pool
 from tqdm.std import tqdm
 
-import time
 
 def filter_genes_per_cell_type(
         matrix: pd.DataFrame,
@@ -19,14 +16,15 @@ def filter_genes_per_cell_type(
         min_pct_cell: float,
         cell_column_name: str) -> pd.DataFrame:
     """
-    This function takes as input a normalized count matrix and for each gene calculates the 
+    This function takes as input a normalized count matrix and for each gene calculates the
     percentage of cells expressing it (anything but 0). Then sets to 0 the expression of a given
     gene for all cells of a specific cell type if this gene is expressed in less than min_pct_cell.
 
     Parameters
     ----------
     matrix: Normalized gene expression matrix (genes x barcodes).
-    metadata: Index contains the barcode id and a single column named 'cell_type' indicating the group/cell type which the barcode belongs to.
+    metadata: Index contains the barcode id and a single column named 'cell_type' indicating the group/cell type which
+              the barcode belongs to.
     min_pct_cell : Percentage of cells required to express a given gene.
     cell_column_name: Name of the column containing cell types
 
@@ -68,7 +66,8 @@ def mean_expression_per_cell_type(matrix: pd.DataFrame, metadata: pd.DataFrame, 
     Parameters
     ----------
     matrix: Normalized gene expression matrix (genes x barcodes).
-    metadata: Index contains the barcode id and a single column named 'cell_type' indicating the group/cell type which the barcode belongs to.
+    metadata: Index contains the barcode id and a single column named 'cell_type' indicating the group/cell type which
+              the barcode belongs to.
     cell_column_name: Name of the column containing cell types
 
     Returns
@@ -97,11 +96,13 @@ def mean_expression_per_cell_type(matrix: pd.DataFrame, metadata: pd.DataFrame, 
 
     return matrix_mean_expr
 
+
 def _geometric_mean(x):
     sub_values = list(x)
     sub_prod = np.prod(sub_values)
     geom = np.power(sub_prod, 1 / len(sub_values))
     return (geom)
+
 
 def heteromer_geometric_expression_per_cell_type(
         matrix: pd.DataFrame,
@@ -145,7 +146,7 @@ def heteromer_geometric_expression_per_cell_type(
     # Map complex name to its constituents/subunits
     complex_composition = pd.merge(complex_composition,
                                    complex_expanded[['complex_multidata_id', 'name']], on='complex_multidata_id')
-    complex_composition = pd.merge(complex_composition, \
+    complex_composition = pd.merge(complex_composition,
                                    genes[[counts_data, 'protein_id']], left_on='protein_multidata_id',
                                    right_on='protein_id')
     d = complex_composition.groupby('name')[counts_data].apply(list).reset_index(name='subunits')
@@ -183,6 +184,7 @@ def heteromer_geometric_expression_per_cell_type(
 
     return final_df
 
+
 def scale_expression(matrix: pd.DataFrame, upper_range: int) -> pd.DataFrame:
     """
     Scale (up to upper_range) the expression of genes across all cell types in matrix
@@ -199,13 +201,14 @@ def scale_expression(matrix: pd.DataFrame, upper_range: int) -> pd.DataFrame:
     """
 
     # Transpose matrix to apply scaling per row (i.e. scale across cell types)
-    scaler = MinMaxScaler(feature_range = (0, upper_range), clip = True).fit(matrix.T)
+    scaler = MinMaxScaler(feature_range=(0, upper_range), clip=True).fit(matrix.T)
     matrix_scaled = scaler.transform(matrix.T).T
 
     matrix_scaled = pd.DataFrame(matrix_scaled,
                                  index=matrix.index,
                                  columns=matrix.columns)
     return matrix_scaled
+
 
 def _get_lr_scores(matrix, cpdb_set_all_lrs, separator, cell_type_pair) -> tuple:
     cell_type_A = cell_type_pair.split(separator)[0]
@@ -217,15 +220,16 @@ def _get_lr_scores(matrix, cpdb_set_all_lrs, separator, cell_type_pair) -> tuple
                             index=matrix.index,
                             columns=matrix.index)
     # Round scores to 3 decimal places
-    lr_outer = np.around(lr_outer,3)
+    lr_outer = np.around(lr_outer, 3)
     df = lr_outer.stack().reset_index()
     lr_outer_long = pd.DataFrame({
-        'interacting_pair' : df.iloc[:, 0] + "_" + df.iloc[:, 1],
-        "score" : df.iloc[:, 2]})
+        'interacting_pair': df.iloc[:, 0] + "_" + df.iloc[:, 1],
+        "score": df.iloc[:, 2]})
     # Filtering interactions to only those in CellphoneDB
     idx_interactions = [i in cpdb_set_all_lrs for i in lr_outer_long['interacting_pair'].values]
     lr_outer_long_filtered = lr_outer_long.loc[idx_interactions]
     return (cell_type_pair, lr_outer_long_filtered)
+
 
 def score_product(matrix: pd.DataFrame,
                   interactions: pd.DataFrame,
@@ -282,10 +286,11 @@ def score_product(matrix: pd.DataFrame,
             results.append(tp)
 
     for ct_pair, lr_scores_filtered in results:
-        interacting_pair2score = dict(zip(lr_scores_filtered['interacting_pair'],lr_scores_filtered['score']))
+        interacting_pair2score = dict(zip(lr_scores_filtered['interacting_pair'], lr_scores_filtered['score']))
         interaction_scores[ct_pair] = [interacting_pair2score[id] for id in interaction_scores['interacting_pair']]
 
     return interaction_scores
+
 
 # For each interaction in CellphoneDB and a pair of cell types it calculates a score based on
 # an arithmetic product of expressions of its participants in counts matrix
@@ -308,8 +313,8 @@ def score_interactions_based_on_participant_expressions_product(
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     #  Get mapping between multidata_id and genes[counts_data]
-    id2name = dict(ChainMap( \
-        dict(zip(genes.protein_id, genes[counts_data])), \
+    id2name = dict(ChainMap(
+        dict(zip(genes.protein_id, genes[counts_data])),
         dict(zip(complex_expanded.complex_multidata_id, complex_expanded.name))))
 
     # Step 1: Filter genes expressed in less than min_pct_cell of cells in a given cell type.
@@ -324,12 +329,12 @@ def score_interactions_based_on_participant_expressions_product(
                                             cell_column_name=cell_type_col_name)
 
     # Step 3: Calculate geometric expression mean per heteromer
-    cpdb_fmsh = heteromer_geometric_expression_per_cell_type(matrix = cpdb_fm,
-                                                             counts_data = counts_data,
-                                                             genes = genes,
-                                                             complex_composition = complex_composition,
-                                                             complex_expanded = complex_expanded,
-                                                             id2name = id2name)
+    cpdb_fmsh = heteromer_geometric_expression_per_cell_type(matrix=cpdb_fm,
+                                                             counts_data=counts_data,
+                                                             genes=genes,
+                                                             complex_composition=complex_composition,
+                                                             complex_expanded=complex_expanded,
+                                                             id2name=id2name)
 
     # Step 4: Scale the gene's mean expression across cell types.
     cpdb_fms = scale_expression(cpdb_fmsh,
@@ -337,9 +342,9 @@ def score_interactions_based_on_participant_expressions_product(
 
     # Step 5: calculate the ligand-receptor score.
     interaction_scores = score_product(matrix=cpdb_fms,
-                                means=means,
-                                separator=separator,
-                                interactions=interactions,
-                                id2name=id2name,
-                                threads=threads)
+                                       means=means,
+                                       separator=separator,
+                                       interactions=interactions,
+                                       id2name=id2name,
+                                       threads=threads)
     return interaction_scores

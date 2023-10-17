@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 from fbpca import pca
 import warnings
-warnings.simplefilter("ignore", FutureWarning)
 from geosketch import gs
-
 from cellphonedb.src.core.core_logger import core_logger
+
+warnings.simplefilter("ignore", FutureWarning)
 
 
 class Subsampler(object):

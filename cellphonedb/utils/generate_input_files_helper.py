@@ -6,6 +6,7 @@ from cellphonedb.utils import file_utils
 
 import pandas as pd
 
+
 def interaction_exist(interaction, interactions, interaction_1_key='uniprot_1', interaction_2_key='uniprot_2'):
     """
     Checks if interaction already exists in first dataframe.

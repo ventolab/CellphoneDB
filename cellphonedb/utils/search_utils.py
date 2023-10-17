@@ -4,29 +4,33 @@ from cellphonedb.utils import db_utils
 from cellphonedb.utils.file_utils import dbg
 import pandas as pd
 
-SIMPLE_PFX="simple:"
+SIMPLE_PFX = "simple:"
 COMPLEX_PFX = 'complex:'
 ENS_PFX = "ENS"
 INTERACTION_COLUMNS = ['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'directionality', 'classification']
-EXTERNAL_RESOURCE2URI = {'Reactome reaction' : 'https://reactome.org/content/detail',
-                         'Reactome complex' : 'https://reactome.org/content/detail',
-                         'ComplexPortal complex' : 'https://www.ebi.ac.uk/complexportal/complex',
-                         'Rhea reaction' : 'https://www.rhea-db.org/rhea'}
+EXTERNAL_RESOURCE2URI = {'Reactome reaction': 'https://reactome.org/content/detail',
+                         'Reactome complex': 'https://reactome.org/content/detail',
+                         'ComplexPortal complex': 'https://www.ebi.ac.uk/complexportal/complex',
+                         'Rhea reaction': 'https://www.rhea-db.org/rhea'}
 SIDENAV_PROPERTY_STYLE = "style=\"padding-left: 60px; font-size: 14px; margin: 20px 0px !important; \""
 SIDENAV_A_STYLE = "style=\"padding-left: 60px; font-size: 14px; margin: 20px 0px !important;\""
+
 
 def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, complex_expanded, complex_composition):
     constituent_proteins = []
     if complex_name not in complex_name2proteins:
-        complex_multidata_id = complex_expanded['complex_multidata_id'] \
-            [complex_expanded[['name']].apply(lambda row: row.astype(str).eq(complex_name).any(), axis=1)].to_list()[0]
-        for protein_multidata_id in complex_composition['protein_multidata_id'] \
-                [complex_composition['complex_multidata_id'] == complex_multidata_id].to_list():
+        complex_multidata_id = complex_expanded['complex_multidata_id'][
+            complex_expanded[['name']].apply(lambda row: row.astype(str).eq(complex_name).any(), axis=1)
+        ].to_list()[0]
+        for protein_multidata_id in \
+                complex_composition['protein_multidata_id'][complex_composition['complex_multidata_id'] ==
+                                                            complex_multidata_id].to_list():
             constituent_proteins.append(genes['name'][genes['protein_multidata_id'] == protein_multidata_id].to_list()[0])
         complex_name2proteins[complex_name] = constituent_proteins
 
+
 def search(query_str: str = "",
-           cpdb_file_path: str = None)->(list, map, map, map, map):
+           cpdb_file_path: str = None) -> (list, map, map, map, map):
     """
     Searches CellphoneDB interactions for genes/proteins/complexes in query_str
 
@@ -53,7 +57,7 @@ def search(query_str: str = "",
     interaction_columns = []
     # Cater for DB version-dependent column names
     if 'directionality' in interactions.columns:
-        interaction_columns = ['curator','source','is_ppi','directionality','classification']
+        interaction_columns = ['curator', 'source', 'is_ppi', 'directionality', 'classification']
 
     protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name = \
         db_utils.get_protein_and_complex_data_for_web(cpdb_file_path)
@@ -61,7 +65,7 @@ def search(query_str: str = "",
     complex_name2proteins = {}
     # Assemble a list of multidata_ids to search interactions DF with
     multidata_ids = []
-    for token in re.split(',\s*| ', query_str):
+    for token in re.split(',\\s*| ', query_str):
 
         if token in gene_synonym2gene_name:
             # Map any gene synonyms not in gene_input to gene names in gene_input
@@ -69,78 +73,88 @@ def search(query_str: str = "",
 
         complex_multidata_ids = []
         # Attempt to find token in genes (N.B. genes contains protein information also)
-        gene_protein_data_list = genes['protein_multidata_id'] \
-            [genes[['ensembl','gene_name','name','protein_name']].apply(lambda row: row.astype(str).eq(token).any(), axis=1)].to_list()
+        gene_protein_data_list = \
+            genes['protein_multidata_id'][
+                genes[['ensembl', 'gene_name', 'name', 'protein_name']]
+                .apply(lambda row: row.astype(str).eq(token).any(), axis=1)
+            ].to_list()
         if (len(gene_protein_data_list) > 0):
             multidata_ids += gene_protein_data_list
             for protein_multidata_id in gene_protein_data_list:
                 complex_multidata_ids = \
-                    complex_composition['complex_multidata_id'] \
-                        [complex_composition['protein_multidata_id'] == protein_multidata_id].to_list()
+                    complex_composition['complex_multidata_id'][complex_composition['protein_multidata_id']
+                                                                == protein_multidata_id].to_list()
                 multidata_ids += complex_multidata_ids
         else:
             # No match in genes - attempt to find token in complex_expanded
-            complex_multidata_ids += complex_expanded['complex_multidata_id'] \
-                [complex_expanded[['name']].apply(lambda row: row.astype(str).eq(token).any(), axis=1)].to_list()
+            complex_multidata_ids += \
+                complex_expanded['complex_multidata_id'][
+                    complex_expanded[['name']]
+                    .apply(lambda row: row.astype(str).eq(token).any(), axis=1)
+                ].to_list()
             multidata_ids += complex_multidata_ids
     # Now search for all multidata_ids in interactions
     duration = time.time() - start
     dbg("Output for query '{}':".format(query_str))
     # Output header
-    results.append(['CellphoneDB interaction ', 'Partner A', 'Partner B', 'Gene name A', 'Gene name B', ' Ensembl ID A', 'Ensembl ID B', 'Annotation strategy', 'Curator','Source','Is PPI','Directionality','Classification'])
+    results.append(['CellphoneDB interaction ', 'Partner A', 'Partner B', 'Gene name A', 'Gene name B', ] +
+                   [' Ensembl ID A', 'Ensembl ID B', 'Annotation strategy', 'Curator', 'Source', 'Is PPI'] +
+                   ['Directionality', 'Classification'])
     for multidata_id in multidata_ids:
-         interactions_data_list = interactions[[ \
-             'id_cp_interaction','multidata_1_id', 'multidata_2_id', \
-             'name_1', 'name_2','is_complex_1', 'is_complex_2', 'annotation_strategy'] + interaction_columns] \
-            [interactions[['multidata_1_id', 'multidata_2_id']].apply(lambda row: row.astype(int).eq(multidata_id).any(),
-                                                                     axis=1)].values.tolist()
-         for interaction in interactions_data_list:
-             output_row = [interaction[0]]
-             if interaction[5] == False:
-                 data_1 = generate_output(interaction[1], genes)
-                 prefix_1 = SIMPLE_PFX
-             else:
-                 data_1 = ['','']
-                 prefix_1 = COMPLEX_PFX
-                 populate_proteins_for_complex(interaction[3], complex_name2proteins,
-                                               genes, complex_expanded, complex_composition)
-             if interaction[6] == False:
-                 data_2 = generate_output(interaction[2], genes)
-                 prefix_2 = SIMPLE_PFX
-             else:
-                 data_2 = ['', '']
-                 prefix_2 = COMPLEX_PFX
-                 populate_proteins_for_complex(interaction[4], complex_name2proteins,
-                                               genes, complex_expanded, complex_composition)
-             output_row += [
-                 prefix_1+interaction[3],
-                 prefix_2+interaction[4],
-                 data_1[0],
-                 data_2[0],
-                 data_1[1],
-                 data_2[1],
-                 interaction[7]
-                 ]
-             # Cater for DB version-dependent column names
-             if len(interaction) > 8:
-                 output_row += [
-                     interaction[8],
-                     interaction[9],
-                     interaction[10],
-                     interaction[11],
-                     interaction[12]
+        interactions_data_list = interactions[[
+             'id_cp_interaction', 'multidata_1_id', 'multidata_2_id',
+             'name_1', 'name_2', 'is_complex_1', 'is_complex_2', 'annotation_strategy'] + interaction_columns][
+                interactions[['multidata_1_id', 'multidata_2_id']]
+                .apply(lambda row: row.astype(int).eq(multidata_id).any(), axis=1)
+        ].values.tolist()
+        for interaction in interactions_data_list:
+            output_row = [interaction[0]]
+            if interaction[5] == False:
+                data_1 = generate_output(interaction[1], genes)
+                prefix_1 = SIMPLE_PFX
+            else:
+                data_1 = ['', '']
+                prefix_1 = COMPLEX_PFX
+                populate_proteins_for_complex(interaction[3], complex_name2proteins,
+                                              genes, complex_expanded, complex_composition)
+            if interaction[6] == False:
+                data_2 = generate_output(interaction[2], genes)
+                prefix_2 = SIMPLE_PFX
+            else:
+                data_2 = ['', '']
+                prefix_2 = COMPLEX_PFX
+                populate_proteins_for_complex(interaction[4], complex_name2proteins,
+                                              genes, complex_expanded, complex_composition)
+            output_row += [
+                prefix_1+interaction[3],
+                prefix_2+interaction[4],
+                data_1[0],
+                data_2[0],
+                data_1[1],
+                data_2[1],
+                interaction[7]
                 ]
-             results.append(output_row)
+            # Cater for DB version-dependent column names
+            if len(interaction) > 8:
+                output_row += [
+                    interaction[8],
+                    interaction[9],
+                    interaction[10],
+                    interaction[11],
+                    interaction[12]
+                ]
+            results.append(output_row)
     dbg("Total search time: " + str(round(duration, 2)) + "s")
     return results, complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name
 
 
 def generate_output(multidata_id, genes):
-    protein_data_list = genes[['gene_name','ensembl']][genes['protein_multidata_id'] == multidata_id].values.tolist()
+    protein_data_list = genes[['gene_name', 'ensembl']][genes['protein_multidata_id'] == multidata_id].values.tolist()
     if len(protein_data_list) == 0:
         return None
     # Expect only a single result
     return protein_data_list[0]
+
 
 def get_uniprot_url(uniprot_accessions) -> str:
     url_prefix = "https://www.uniprot.org/uniprotkb?query="
@@ -151,6 +165,7 @@ def get_uniprot_url(uniprot_accessions) -> str:
             url_query += "%20OR%20"
         url_query += "(accession:{})".format(acc)
     return url_prefix + url_query
+
 
 def get_sidenav_html(is_complex: bool, bioentity_name: str,
                      complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name) -> str:
@@ -169,16 +184,16 @@ def get_sidenav_html(is_complex: bool, bioentity_name: str,
         complexInformation = ""
         for item in complex2Info[bioentity_name]:
             complexInformation += "<a {}>{}</a><br> ".format(SIDENAV_PROPERTY_STYLE, item)
-        html = ("<li><a class=\"subheader\">Complex Information</a></li>" + \
-                    "<a {}><b>{}</b></a>" +
-                    "<li><a class=\"subheader\">Members</a></li>" + \
-                    "<a class=\"teal-text\" href=\"{}\" target=\"blank\" {}>{} (see in UniProt)</a>" + \
-                    "<li><a class=\"subheader\">Properties</li>" + \
-                    "{}" + \
-                    "<li><a class=\"subheader\">Cross References</li>" + \
-                    "{}").format(SIDENAV_PROPERTY_STYLE, bioentity_name,
-                                     multi_protein_uniprot_url, SIDENAV_A_STYLE, constituent_proteins,
-                                     complexInformation, external_resource_links)
+        html = ("<li><a class=\"subheader\">Complex Information</a></li>" +
+                "<a {}><b>{}</b></a>" +
+                "<li><a class=\"subheader\">Members</a></li>" +
+                "<a class=\"teal-text\" href=\"{}\" target=\"blank\" {}>{} (see in UniProt)</a>" +
+                "<li><a class=\"subheader\">Properties</li>" +
+                "{}" +
+                "<li><a class=\"subheader\">Cross References</li>" +
+                "{}").format(SIDENAV_PROPERTY_STYLE, bioentity_name,
+                             multi_protein_uniprot_url, SIDENAV_A_STYLE, constituent_proteins,
+                             complexInformation, external_resource_links)
     else:
         proteinInformation = ""
         for item in protein2Info[bioentity_name]:
@@ -187,14 +202,16 @@ def get_sidenav_html(is_complex: bool, bioentity_name: str,
             proteinName = proteinAcc2Name[bioentity_name]
         else:
             proteinName = ""
-        html = ("<li><a class=\"subheader\">Protein Information</a></li>" + \
-                    "<a href=\"https://www.uniprot.org/uniprotkb/{}/entry\" class=\"teal-text\" target=\"blank\" {}><b>{}</b> (See in UniProt)</a><br><a {}>{}</a>" + \
-                    "<li><a class=\"subheader\">Properties</li>" + \
-                    "{}").format(bioentity_name, SIDENAV_A_STYLE, bioentity_name, SIDENAV_A_STYLE, proteinName,
-                                    proteinInformation)
+        html = ("<li><a class=\"subheader\">Protein Information</a></li>" +
+                "<a href=\"https://www.uniprot.org/uniprotkb/{}/entry\" class=\"teal-text\" target=\"blank\" " +
+                "{}><b>{}</b> (See in UniProt)</a><br><a {}>{}</a>" +
+                "<li><a class=\"subheader\">Properties</li>" +
+                "{}").format(bioentity_name, SIDENAV_A_STYLE, bioentity_name, SIDENAV_A_STYLE, proteinName,
+                             proteinInformation)
     return html
 
-def get_html_table(data, complex_name2proteins, \
+
+def get_html_table(data, complex_name2proteins,
                    protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name) -> str:
     """
     Parameters
@@ -235,17 +252,24 @@ def get_html_table(data, complex_name2proteins, \
                     constituent_proteins = ', '.join(complex_name2proteins[name])
                     complex_mouseover = "Contains proteins: {}".format(constituent_proteins)
                     inner_html = get_sidenav_html(field.startswith(COMPLEX_PFX), name,
-                                                  complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name)
-                    html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' title=\"{}\" href=\"#\">{}</a>" + \
-                                "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" + inner_html + "</ul></td>").format(name, complex_mouseover, name, name)
+                                                  complex_name2proteins, protein2Info,
+                                                  complex2Info, resource2Complex2Acc, proteinAcc2Name)
+                    html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" " +
+                             "data-target='sidenav_{}' title=\"{}\" href=\"#\">{}</a>" +
+                             "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" +
+                             inner_html + "</ul></td>").format(name, complex_mouseover, name, name)
                 elif field.startswith(SIMPLE_PFX):
                     name = field.split(":")[1]
                     inner_html = get_sidenav_html(False, name,
-                                                  complex_name2proteins, protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name)
-                    html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' title=\"{}\" href=\"#\">{}</a>" + \
-                                "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" + inner_html + "</ul></td>").format(name, name, name, name)
+                                                  complex_name2proteins, protein2Info, complex2Info,
+                                                  resource2Complex2Acc, proteinAcc2Name)
+                    html += ("<td style=\"text-align:left\"><a class=\"teal-text sidenav-trigger\" data-target='sidenav_{}' " +
+                             "title=\"{}\" href=\"#\">{}</a>" +
+                             "<ul id=\"sidenav_{}\" class=\"sidenav fixed\" style=\"width:410px\">" +
+                             inner_html + "</ul></td>").format(name, name, name, name)
                 elif field.startswith(ENS_PFX):
-                    html += "<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" href=\"https://www.ensembl.org/id/{}\">{}</a></td>" \
+                    html += ("<td style=\"text-align:left\"><a class=\"teal-text\" target=\"_blank\" " +
+                             "href=\"https://www.ensembl.org/id/{}\">{}</a></td>") \
                         .format(field, field)
                 else:
                     html += "<td style=\"text-align:left\">{}</td>".format(field)
@@ -255,6 +279,7 @@ def get_html_table(data, complex_name2proteins, \
         first_row = False
     html += "</tbody></table>"
     return html
+
 
 def autocomplete_query(genes: pd.DataFrame, interactions: pd.DataFrame, partial_element: str) -> pd.DataFrame:
     values = _partial_filter(genes, 'ensembl', partial_element)
@@ -273,18 +298,21 @@ def autocomplete_query(genes: pd.DataFrame, interactions: pd.DataFrame, partial_
     result = pd.DataFrame(data=values, columns=['value']).drop_duplicates()
     return result
 
+
 def _partial_filter(input_data, name, partial_element):
     matching = input_data[input_data[name].str.contains(partial_element, flags=re.IGNORECASE)][name]
     return matching
 
+
 def return_all_identifiers(genes: pd.DataFrame, interactions: pd.DataFrame) -> pd.DataFrame:
     values = genes['ensembl']
-    for col in ['gene_name','protein_name','hgnc_symbol']:
+    for col in ['gene_name', 'protein_name', 'hgnc_symbol']:
         values = pd.concat([values, genes[col]], ignore_index=True)
     for col in ['name_1', 'name_2']:
         values = pd.concat([values, interactions[col]], ignore_index=True)
     result = pd.DataFrame(data=values, columns=['value']).drop_duplicates()
     return result
+
 
 def search_analysis_results(
         query_cell_types_1: list = None,
@@ -295,7 +323,7 @@ def search_analysis_results(
         query_minimum_score: int = None,
         significant_means: pd.DataFrame = None,
         deconvoluted: pd.DataFrame = None,
-        interaction_scores = None,
+        interaction_scores=None,
         separator: str = "|",
         long_format: bool = False
 ) -> pd.DataFrame:
@@ -343,7 +371,7 @@ def search_analysis_results(
 
     # Collect all combinations of cell types (disregarding the order) from query_cell_types_1 and query_cell_types_2
     if query_cell_types_1 is None or query_cell_types_2 is None:
-        cols_filter = significant_means.filter(regex="\{}".format(separator)).columns
+        cols_filter = significant_means.filter(regex="\\{}".format(separator)).columns
         all_cts = set([])
         for ct_pair in [i.split(separator) for i in cols_filter.tolist()]:
             all_cts |= set(ct_pair)
@@ -361,16 +389,20 @@ def search_analysis_results(
     # Collect all interactions from query_genes and query_interactions
     interactions = set([])
     if query_genes:
-            interactions = interactions.union(frozenset(deconvoluted[deconvoluted['gene_name'].isin(query_genes)]['id_cp_interaction'].tolist()))
+        interactions = interactions.union(frozenset(deconvoluted[deconvoluted['gene_name']
+                                                    .isin(query_genes)]['id_cp_interaction'].tolist()))
     if query_interactions:
-        interactions = interactions.union(frozenset(significant_means[significant_means['interacting_pair'].isin(query_interactions)]['id_cp_interaction'].tolist()))
+        interactions = interactions.union(frozenset(significant_means[significant_means['interacting_pair']
+                                                    .isin(query_interactions)]['id_cp_interaction'].tolist()))
     if query_classifications:
-        interactions = interactions.union(frozenset(significant_means[significant_means['classification'].isin(query_classifications)]['id_cp_interaction'].tolist()))
+        interactions = interactions.union(frozenset(significant_means[significant_means['classification']
+                                                    .isin(query_classifications)]['id_cp_interaction'].tolist()))
     # If minimum_score was provided, filter interactions to those with at least minimum_score across the selected cell types
     if query_minimum_score is not None and interaction_scores is not None:
         # Filter out interactions which are below query_minimum_score in any cell_type_pair/column in cols_filter
-        interactions_filtered_by_minimum_score = interaction_scores[interaction_scores[cols_filter] \
-            .max(axis=1) >= query_minimum_score]['id_cp_interaction'].tolist()
+        interactions_filtered_by_minimum_score = interaction_scores[
+            interaction_scores[cols_filter].max(axis=1) >= query_minimum_score
+        ]['id_cp_interaction'].tolist()
         if query_genes or query_interactions or query_classifications:
             interactions = interactions.intersection(interactions_filtered_by_minimum_score)
         else:
@@ -389,10 +421,10 @@ def search_analysis_results(
     if long_format:
         # Convert the results DataFrame from (default) wide to long format
         result_df = pd.melt(result_df,
-                                 id_vars=result_df.columns[0:len(INTERACTION_COLUMNS)],
-                                 value_vars=result_df.columns[len(INTERACTION_COLUMNS):],
-                                 value_name='significant_mean',
-                                 var_name='interacting_cells') \
+                            id_vars=result_df.columns[0:len(INTERACTION_COLUMNS)],
+                            value_vars=result_df.columns[len(INTERACTION_COLUMNS):],
+                            value_name='significant_mean',
+                            var_name='interacting_cells') \
             .dropna(subset=['significant_mean'])
 
     return result_df

@@ -25,17 +25,17 @@ def meta_preprocessor(meta_raw: pd.DataFrame) -> pd.DataFrame:
             meta.set_index('cell', inplace=True, drop=True)
             return meta
 
-        if isinstance(type(meta_raw.index), pd.core.indexes.multi.MultiIndex):
+        if isinstance(meta_raw.index, pd.core.indexes.multi.MultiIndex):
             raise ProcessMetaException
 
         elif 'cell_type' in meta_raw:
             meta = meta_raw[['cell_type']]
-            if isinstance(type(meta_raw.index), pd.core.indexes.range.RangeIndex):
+            if isinstance(meta_raw.index, pd.core.indexes.range.RangeIndex):
                 meta.set_index(meta_raw.iloc[:, 0], inplace=True)
                 meta.index.name = 'cell'
                 return meta
 
-            if isinstance(type(meta_raw.index), pd.core.indexes.base.Index):
+            if isinstance(meta_raw.index, pd.core.indexes.base.Index):
                 meta.index.name = 'cell'
                 return meta
 
