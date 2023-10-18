@@ -109,7 +109,7 @@ def search(query_str: str = "",
         ].values.tolist()
         for interaction in interactions_data_list:
             output_row = [interaction[0]]
-            if interaction[5] == False:
+            if not interaction[5]:
                 data_1 = generate_output(interaction[1], genes)
                 prefix_1 = SIMPLE_PFX
             else:
@@ -117,7 +117,7 @@ def search(query_str: str = "",
                 prefix_1 = COMPLEX_PFX
                 populate_proteins_for_complex(interaction[3], complex_name2proteins,
                                               genes, complex_expanded, complex_composition)
-            if interaction[6] == False:
+            if not interaction[6]:
                 data_2 = generate_output(interaction[2], genes)
                 prefix_2 = SIMPLE_PFX
             else:

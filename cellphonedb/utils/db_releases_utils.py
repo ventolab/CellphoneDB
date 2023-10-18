@@ -47,7 +47,7 @@ def get_remote_database_versions_html(include_file_browsing: bool = False, min_v
                     .format(css_style, rel['html_url'], rel['tag_name'])
                 html += "<td {}>{}</td>".format(css_style, rel['published_at'].split("T")[0])
                 if include_file_browsing:
-                    html += ("<td {}><a class='dropdown-trigger grey lighten-1' href='#' data-target='{}_dropdown'>"+
+                    html += ("<td {}><a class='dropdown-trigger grey lighten-1' href='#' data-target='{}_dropdown'>" +
                              "<i class=\"material-icons teal-text\">pageview</i></a>").format(css_style, rel['tag_name'])
                     html += "<ul id='{}_dropdown' class='dropdown-content'>".format(rel['tag_name'])
                     for file_name in ["gene_input", "protein_input", "complex_input", "interaction_input"]:
