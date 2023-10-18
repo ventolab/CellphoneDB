@@ -8,6 +8,7 @@ def get_active_cts_tf_for_interaction(
     col_name: str,
     id_cp_interaction: str,
     receptor2tfs: dict,
+    separator: str,
     active_tf2cell_types: dict,
     active_interactions: pd.DataFrame
 ) -> list:
@@ -48,7 +49,7 @@ def collect_active_interactions_across_cell_types(
 
                 active_cts_for_interaction, tf = \
                     get_active_cts_tf_for_interaction(
-                        partner, col_name, id_cp_interaction, receptor2tfs,
+                        partner, col_name, id_cp_interaction, receptor2tfs, separator,
                         active_tf2cell_types, active_interactions)
 
                 interaction_active = active_cts_for_interaction is not None
