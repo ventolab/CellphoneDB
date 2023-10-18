@@ -7,7 +7,7 @@ import pandas as pd
 SIMPLE_PFX = "simple:"
 COMPLEX_PFX = 'complex:'
 ENS_PFX = "ENS"
-INTERACTION_COLUMNS = ['interacting_pair','partner_a', 'partner_b', 'gene_a', 'gene_b', 'directionality', 'classification']
+INTERACTION_COLUMNS = ['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'directionality', 'classification']
 EXTERNAL_RESOURCE2URI = {'Reactome reaction': 'https://reactome.org/content/detail',
                          'Reactome complex': 'https://reactome.org/content/detail',
                          'ComplexPortal complex': 'https://www.ebi.ac.uk/complexportal/complex',
