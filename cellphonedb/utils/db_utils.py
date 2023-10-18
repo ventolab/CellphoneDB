@@ -306,7 +306,7 @@ def create_db(target_dir) -> None:
                                                        columns=['Gene Synonym', 'Gene Name'])
 
     # Collect complex data
-    cols = [protein_column_names + ['pdb_structure', 'pdb_id', 'stoichiometry', 'comments_complex'] + complex_columns]
+    cols = protein_column_names + ['pdb_structure', 'pdb_id', 'stoichiometry', 'comments_complex'] + complex_columns
     complex_db_df = dataDFs['complex_input'][cols]
 
     # Note that uniprot_* cols will be dropped after complex_composition_df has been constructed
