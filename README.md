@@ -157,7 +157,7 @@ To understand the different analysis and results, please check the [results docu
 
 
 ~ **Optional Method Statistical parameters**
-- `microenvs_file_path`: Spatial microenviroments input file. Restricts the cluster/cell_type interacting pairs to the cluster/cell_type sharing a microenviroment (i.e. only test a combination of clusters if these coexist in a microenviroment). This file should contain two columns: 1st column indicates the cluster/cell_type, 2nd column indicates the microenviroment name.  See example [here](https://github.com/ventolab/CellphoneDB/tree/master/in). 
+- `microenvs_file_path`: Spatial microenvironments input file. Restricts the cluster/cell_type interacting pairs to the cluster/cell_type sharing a microenviroment (i.e. only test a combination of clusters if these coexist in a microenviroment). This file should contain two columns: 1st column indicates the cluster/cell_type, 2nd column indicates the microenviroment name.  See example [here](https://github.com/ventolab/CellphoneDB/tree/master/in). 
 - `pvalue`: P-value threshold [0.05]
 - `debug_seed`: Debug random seed -1. To disable it please use a value >=0 [-1]
 - `threads`: Number of threads to use. >=1 [4]
