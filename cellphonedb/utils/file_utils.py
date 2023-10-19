@@ -28,17 +28,8 @@ def read_data_table_from_file(file: str, index_column_first: bool = False, separ
         return _read_h5ad(file)
     if file_extension == '.h5':
         return _read_h5(file)
-
     if file_extension == '.pickle':
-        try:
-            with open(file, 'rb') as f:
-                df = pickle.load(f)
-                if isinstance(df, pd.DataFrame):
-                    return df
-                else:
-                    raise NotADataFrameException(file)
-        except Exception:
-            raise ReadFromPickleException(file)
+        return _read_pickle(file)
 
     if not separator:
         separator = _get_separator(file_extension)
@@ -109,6 +100,18 @@ def _read_h5ad(path: str) -> pd.DataFrame:
 def _read_h5(path: str) -> pd.DataFrame:
     df = pd.read_hdf(path)
     return df
+
+
+def _read_pickle(path: str) -> pd.DataFrame:
+    try:
+        with open(path, 'rb') as f:
+            df = pickle.load(f)
+            if isinstance(df, pd.DataFrame):
+                return df
+            else:
+                raise NotADataFrameException(path)
+    except Exception:
+        raise ReadFromPickleException(path)
 
 
 def _read_data(file_stream: TextIO, separator: str, index_column_first: bool, dtype=None,

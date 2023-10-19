@@ -29,6 +29,44 @@ def populate_proteins_for_complex(complex_name, complex_name2proteins, genes, co
         complex_name2proteins[complex_name] = constituent_proteins
 
 
+def assemble_multidata_ids_for_search(
+        query_str: str,
+        genes: pd.DataFrame,
+        complex_expanded: pd.DataFrame,
+        complex_composition: pd.DataFrame,
+        gene_synonym2gene_name: dict) -> list:
+    multidata_ids = []
+    for token in re.split(',\\s*| ', query_str):
+
+        if token in gene_synonym2gene_name:
+            # Map any gene synonyms not in gene_input to gene names in gene_input
+            token = gene_synonym2gene_name[token]
+
+        complex_multidata_ids = []
+        # Attempt to find token in genes (N.B. genes contains protein information also)
+        gene_protein_data_list = \
+            genes['protein_multidata_id'][
+                genes[['ensembl', 'gene_name', 'name', 'protein_name']]
+                .apply(lambda row: row.astype(str).eq(token).any(), axis=1)
+            ].to_list()
+        if (len(gene_protein_data_list) > 0):
+            multidata_ids += gene_protein_data_list
+            for protein_multidata_id in gene_protein_data_list:
+                complex_multidata_ids = \
+                    complex_composition['complex_multidata_id'][complex_composition['protein_multidata_id']
+                                                                == protein_multidata_id].to_list()
+                multidata_ids += complex_multidata_ids
+        else:
+            # No match in genes - attempt to find token in complex_expanded
+            complex_multidata_ids += \
+                complex_expanded['complex_multidata_id'][
+                    complex_expanded[['name']]
+                    .apply(lambda row: row.astype(str).eq(token).any(), axis=1)
+                ].to_list()
+            multidata_ids += complex_multidata_ids
+    return multidata_ids
+
+
 def search(query_str: str = "",
            cpdb_file_path: str = None) -> (list, map, map, map, map):
     """
@@ -64,35 +102,9 @@ def search(query_str: str = "",
 
     complex_name2proteins = {}
     # Assemble a list of multidata_ids to search interactions DF with
-    multidata_ids = []
-    for token in re.split(',\\s*| ', query_str):
+    multidata_ids = assemble_multidata_ids_for_search(
+        query_str, genes, complex_expanded, complex_composition, gene_synonym2gene_name)
 
-        if token in gene_synonym2gene_name:
-            # Map any gene synonyms not in gene_input to gene names in gene_input
-            token = gene_synonym2gene_name[token]
-
-        complex_multidata_ids = []
-        # Attempt to find token in genes (N.B. genes contains protein information also)
-        gene_protein_data_list = \
-            genes['protein_multidata_id'][
-                genes[['ensembl', 'gene_name', 'name', 'protein_name']]
-                .apply(lambda row: row.astype(str).eq(token).any(), axis=1)
-            ].to_list()
-        if (len(gene_protein_data_list) > 0):
-            multidata_ids += gene_protein_data_list
-            for protein_multidata_id in gene_protein_data_list:
-                complex_multidata_ids = \
-                    complex_composition['complex_multidata_id'][complex_composition['protein_multidata_id']
-                                                                == protein_multidata_id].to_list()
-                multidata_ids += complex_multidata_ids
-        else:
-            # No match in genes - attempt to find token in complex_expanded
-            complex_multidata_ids += \
-                complex_expanded['complex_multidata_id'][
-                    complex_expanded[['name']]
-                    .apply(lambda row: row.astype(str).eq(token).any(), axis=1)
-                ].to_list()
-            multidata_ids += complex_multidata_ids
     # Now search for all multidata_ids in interactions
     duration = time.time() - start
     dbg("Output for query '{}':".format(query_str))
@@ -314,6 +326,28 @@ def return_all_identifiers(genes: pd.DataFrame, interactions: pd.DataFrame) -> p
     return result
 
 
+def collect_celltype_pairs(
+        significant_means: pd.DataFrame,
+        query_cell_types_1: list,
+        query_cell_types_2: list,
+        separator: str) -> list:
+    if query_cell_types_1 is None or query_cell_types_2 is None:
+        cols_filter = significant_means.filter(regex="\\{}".format(separator)).columns
+        all_cts = set([])
+        for ct_pair in [i.split(separator) for i in cols_filter.tolist()]:
+            all_cts |= set(ct_pair)
+        all_cell_types = list(all_cts)
+        if query_cell_types_1 is None:
+            query_cell_types_1 = all_cell_types
+        if query_cell_types_2 is None:
+            query_cell_types_2 = all_cell_types
+    cell_type_pairs = []
+    for ct in query_cell_types_1:
+        for ct1 in query_cell_types_2:
+            cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
+    return cell_type_pairs
+
+
 def search_analysis_results(
         query_cell_types_1: list = None,
         query_cell_types_2: list = None,
@@ -370,20 +404,7 @@ def search_analysis_results(
         return
 
     # Collect all combinations of cell types (disregarding the order) from query_cell_types_1 and query_cell_types_2
-    if query_cell_types_1 is None or query_cell_types_2 is None:
-        cols_filter = significant_means.filter(regex="\\{}".format(separator)).columns
-        all_cts = set([])
-        for ct_pair in [i.split(separator) for i in cols_filter.tolist()]:
-            all_cts |= set(ct_pair)
-        all_cell_types = list(all_cts)
-        if query_cell_types_1 is None:
-            query_cell_types_1 = all_cell_types
-        if query_cell_types_2 is None:
-            query_cell_types_2 = all_cell_types
-    cell_type_pairs = []
-    for ct in query_cell_types_1:
-        for ct1 in query_cell_types_2:
-            cell_type_pairs += ["{}{}{}".format(ct, separator, ct1), "{}{}{}".format(ct1, separator, ct)]
+    cell_type_pairs = collect_celltype_pairs(significant_means, query_cell_types_1, query_cell_types_2, separator)
     cols_filter = significant_means.columns[significant_means.columns.isin(cell_type_pairs)]
 
     # Collect all interactions from query_genes and query_interactions
