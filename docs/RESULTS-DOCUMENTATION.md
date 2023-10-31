@@ -203,6 +203,14 @@ score_interactions = True
 > Important: to calculate the score, all the cells present in the dataset are employed (steps 1-4). If microenvironmens are defined, the score (step) 5 will be calculated only for cells within the same microenvironment.
 # Input files
 
+## Data format advice
+
+NOTE Please _do not use_ the following in any of your input (e.g. Counts and Meta) files:
+
+> Numeric cell type names (see [GitHub issue #148](https://github.com/ventolab/CellphoneDB/issues/148))
+
+> Dashes ("-") in cell names (see [GitHub issue #144](https://github.com/ventolab/CellphoneDB/issues/144)))
+
 ## Counts file
 
 For large datasets, do not use .txt files to input counts `test_counts.txt`. Please, input counts as h5ad (recommended), h5 or a path to a folder containing a 10x output with mtx/barcode/features files. 
