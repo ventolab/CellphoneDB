@@ -65,6 +65,7 @@ html_theme_options = {"logo_only": True}
 def setup(app):
     app.add_css_file("css/custom.css")
 
+
 master_doc = "index"
 
 napoleon_use_param = False

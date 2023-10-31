@@ -7,7 +7,7 @@ def gene_generator(ensembl_db: pd.DataFrame,
                    user_gene: pd.DataFrame,
                    result_columns: list) -> pd.DataFrame:
     def get_first_gene_name(gene_names: str) -> str:
-        if type(gene_names) != str:
+        if type(gene_names) is not str:
             return ''
         gene_names = gene_names.split(' ')
         return gene_names[0]
@@ -21,7 +21,7 @@ def gene_generator(ensembl_db: pd.DataFrame,
     no_hla_uniprots = uniprot_db[~uniprot_db['gene_name'].str.contains('HLA')]
     # Merge non-hla uniprot entries with ensembl on gene_name only (ignore uniprot column for now)
     cpdb_genes = no_hla_uniprots.merge(ensembl_db, how='inner', on='gene_name',
-                                                     sort=False, suffixes=('', '_ensembl')) \
+                                       sort=False, suffixes=('', '_ensembl')) \
         .drop_duplicates(['ensembl', 'uniprot', 'gene_name'])
 
     # Add additional unique ensembl genes if their corresponding uniprot accession is in no_hla_uniprots['uniprot']
@@ -31,7 +31,7 @@ def gene_generator(ensembl_db: pd.DataFrame,
         ensembl_db_filtered['uniprot'].apply(lambda uniprot: uniprot in no_hla_uniprots['uniprot'].tolist())]
     # Filter out from additional_genes genes that are already in cpdb_genes['ensembl']
     additional_genes = additional_genes[
-        additional_genes['ensembl'].apply(lambda ensembl: not ensembl in cpdb_genes['ensembl'].tolist())
+        additional_genes['ensembl'].apply(lambda ensembl: ensembl not in cpdb_genes['ensembl'].tolist())
     ]
     cpdb_genes = pd.concat([cpdb_genes, additional_genes], ignore_index=True, sort=False)
 
@@ -40,13 +40,13 @@ def gene_generator(ensembl_db: pd.DataFrame,
     # Remove duplicated ensembl genes if hgnc_symbol != gene_name
     cpdb_genes.drop(duplicated_ensembl_genes[
                         duplicated_ensembl_genes.apply(lambda gene: gene['hgnc_symbol'] != gene['gene_name'],
-                                                      axis=1)].index, inplace=True)
+                                                       axis=1)].index, inplace=True)
     # Append hla_genes to cpdb_genes
     cpdb_genes = pd.concat([cpdb_genes, hla_genes], ignore_index=True, sort=False).drop_duplicates(result_columns)
 
     # Append user_gene to cpdb_genes, if provided
     cpdb_genes = pd.concat([cpdb_genes, user_gene], ignore_index=True, sort=False).drop_duplicates(result_columns,
-                                                                                             keep='last')
+                                                                                                   keep='last')
     # Check if exist any duplicated ensembl
     # print('Duplicated ensembl genes')
     # print(len(cpdb_genes[cpdb_genes['ensembl'].duplicated()]))

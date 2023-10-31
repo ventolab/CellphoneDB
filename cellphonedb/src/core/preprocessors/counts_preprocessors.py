@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from cellphonedb.src.core.exceptions.ParseCountsException import ParseCountsException
 
+
 def counts_preprocessor(counts: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFrame:
     """
     Ensure that counts values are of type float32, and that all cells in meta exist in counts
@@ -24,7 +25,7 @@ def counts_preprocessor(counts: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFram
     try:
         if np.any(counts.dtypes.values != np.dtype('float32')):
             counts = counts.astype(np.float32)  # type: pd.DataFrame
-    except:
+    except Exception:
         raise ParseCountsException
 
     meta.index = meta.index.astype(str)
@@ -34,5 +35,5 @@ def counts_preprocessor(counts: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFram
                                    "Maybe incorrect file format")
 
     if np.any(~counts.columns.isin(meta.index)):
-        counts = counts.loc[:, counts.columns.isin(meta.index)].copy()
+        counts = counts.loc[:, counts.columns.isin(meta.index)]
     return counts

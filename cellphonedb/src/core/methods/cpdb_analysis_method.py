@@ -5,12 +5,14 @@ import numpy as np
 import pickle
 
 from cellphonedb.src.core.core_logger import core_logger
+
 from cellphonedb.src.core.exceptions.AllCountsFilteredException import AllCountsFilteredException
 from cellphonedb.src.core.exceptions.MissingRequiredArgumentsException import MissingRequiredArgumentsException
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_complex_method
 from cellphonedb.src.core.methods import cpdb_statistical_analysis_helper
 from cellphonedb.src.core.models.complex import complex_helper
-from cellphonedb.utils import db_utils, file_utils
+from cellphonedb.utils import db_utils, file_utils, scoring_utils
+
 
 def call(
          cpdb_file_path: str = None,
@@ -23,8 +25,10 @@ def call(
          threshold: float = 0.1,
          result_precision: int = 3,
          debug: bool = False,
-         output_suffix: str = None
-         ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+         output_suffix: str = None,
+         score_interactions: bool = False,
+         threads: int = 4
+         ) -> dict:
     """Non-statistical method for analysis
 
     This methods calculates the mean and percent for the cluster interactions
@@ -54,29 +58,35 @@ def call(
         Storge intermediate data as pickle file (debug_intermediate.pkl).
     output_suffix: str, optional
         Suffix to append to the result file's name (if not provided, timestamp will be used)
-
+    score_interactions: bool
+        If True, CellphoneDB interactions will be scored per cell type pair, and returned in interaction_scores_dict
+    threads: int
+        Number of threads to be used when scoring interactions
     Returns
     -------
-    Tuple
+    Dict with the following keys:
         - means_result
         - deconvoluted_result
+        - deconvoluted_percents
+        - interaction_scores_dict
     """
+    analysis_result = {}
     core_logger.info(
         '[Non Statistical Method] Threshold:{} Precision:{}'.format(threshold,
                                                                     result_precision))
     # Report error unless the required arguments have been provided
     required_arguments = [cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path]
     if None in required_arguments or '' in required_arguments:
-        raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format( \
-        "cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path"))
+        raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}".format(
+            "cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path"))
 
     # Load into memory CellphoneDB data
-    interactions, genes, complex_compositions, complexes, gene_synonym2gene_name = \
+    interactions, genes, complex_compositions, complexes, gene_synonym2gene_name, receptor2tfs = \
         db_utils.get_interactions_genes_complex(cpdb_file_path)
 
     # Load user files into memory
-    counts, meta, microenvs, degs = file_utils.get_user_files( \
-        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path, \
+    counts, meta, microenvs, degs, _ = file_utils.get_user_files(
+        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path,
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
     # get reduced interactions (drop duplicates)
@@ -85,7 +95,6 @@ def call(
     # add id multidata and means to counts input
     counts, counts_relations = cpdb_statistical_analysis_helper.add_multidata_and_means_to_counts(
         counts, genes, counts_data)
-
     if counts.empty:
         raise AllCountsFilteredException(hint='Are you using human data?')
 
@@ -96,16 +105,20 @@ def call(
                                                     complex_compositions)
     if interactions_filtered.empty:
         core_logger.info('No CellphoneDB interactions found in this input.')
-        return pd.DataFrame, pd.DataFrame
+        return analysis_result
 
     meta = meta.loc[counts.columns]
+    # Make sure all cell types are strings
+    meta['cell_type'] = meta['cell_type'].apply(str)
+    if not microenvs.empty:
+        microenvs['cell_type'] = microenvs['cell_type'].apply(str)
 
     complex_to_protein_row_ids = complex_helper.map_complex_to_protein_row_ids(complex_composition_filtered, counts_filtered)
     clusters = cpdb_statistical_analysis_helper.build_clusters(meta,
                                                                counts_filtered,
                                                                complex_to_protein_row_ids,
                                                                skip_percent=False)
-    core_logger.info('Running Real Analysis')
+    core_logger.info('Running Basic Analysis')
 
     cluster_interactions = cpdb_statistical_analysis_helper.get_cluster_combinations(clusters['names'], microenvs)
 
@@ -119,10 +132,10 @@ def call(
                                                                    separator)
 
     percent_analysis = cpdb_statistical_analysis_helper.percent_analysis(clusters,
-                                                             threshold,
-                                                             interactions_filtered,
-                                                             cluster_interactions,
-                                                             separator)
+                                                                         threshold,
+                                                                         interactions_filtered,
+                                                                         cluster_interactions,
+                                                                         separator)
 
     if debug:
         with open(f"{output_path}/debug_intermediate.pkl", "wb") as fh:
@@ -140,13 +153,14 @@ def call(
                 "mean_analysis": mean_analysis,
                 "percent_analysis": percent_analysis}, fh)
 
-    means_result, significant_means, deconvoluted_result = build_results(
+    means_result, significant_means, deconvoluted_result, deconvoluted_percents = build_results(
         interactions_filtered,
         interactions,
         counts_relations,
         mean_analysis,
         percent_analysis,
         clusters['means'],
+        clusters['percents'],
         complex_composition_filtered,
         counts,
         genes,
@@ -158,10 +172,17 @@ def call(
     significant_means['rank'] = significant_means['rank'].apply(lambda rank: rank if rank != 0 else (1 + max_rank))
     significant_means.sort_values('rank', inplace=True)
 
-    file_utils.save_dfs_as_tsv(output_path, output_suffix, "simple_analysis", \
-                            {"means_result" : means_result, \
-                            "deconvoluted_result" : deconvoluted_result} )
-    return means_result, deconvoluted_result
+    analysis_result['means_result'] = means_result
+    analysis_result['deconvoluted'] = deconvoluted_result
+    analysis_result['deconvoluted_percents'] = deconvoluted_percents
+
+    if score_interactions:
+        interaction_scores = scoring_utils.score_interactions_based_on_participant_expressions_product(
+            cpdb_file_path, counts, means_result.copy(), separator, meta, threshold, "cell_type", threads)
+        analysis_result['interaction_scores'] = interaction_scores
+
+    file_utils.save_dfs_as_tsv(output_path, output_suffix, "simple_analysis", analysis_result)
+    return analysis_result
 
 
 def build_results(interactions: pd.DataFrame,
@@ -170,14 +191,15 @@ def build_results(interactions: pd.DataFrame,
                   mean_analysis: pd.DataFrame,
                   percent_analysis: pd.DataFrame,
                   clusters_means: pd.DataFrame,
+                  clusters_percents: pd.DataFrame,
                   complex_compositions: pd.DataFrame,
                   counts: pd.DataFrame,
                   genes: pd.DataFrame,
                   result_precision: int,
-                  counts_data: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+                  counts_data: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Sets the results data structure from method generated data. 
-    
+    Sets the results data structure from method generated data.
+
     Results documents are defined by specs.
 
     Returns
@@ -186,6 +208,7 @@ def build_results(interactions: pd.DataFrame,
         - means
         - significant_means
         - deconvoluted
+        - deconvoluted_percents
     """
     core_logger.info('Building results')
     interactions: pd.DataFrame = interactions_original.loc[interactions.index]
@@ -222,10 +245,14 @@ def build_results(interactions: pd.DataFrame,
     gene_columns = ['{}_{}'.format('gene_name', suffix) for suffix in ('1', '2')]
     gene_renames = {column: 'gene_{}'.format(suffix) for column, suffix in zip(gene_columns, ['a', 'b'])}
 
+    # Cater for DB version-dependent column names
+    interaction_columns = []
+    if 'directionality' in interactions.columns:
+        interaction_columns = ['directionality', 'classification']
     # Remove superfluous columns
     interactions_data_result = pd.DataFrame(
         interactions[['id_cp_interaction', 'partner_a', 'partner_b', 'receptor_1', 'receptor_2', *gene_columns,
-                      'annotation_strategy']].copy())
+                      'annotation_strategy'] + interaction_columns].copy())
 
     interactions_data_result = pd.concat([interacting_pair, interactions_data_result], axis=1, sort=False)
 
@@ -240,7 +267,7 @@ def build_results(interactions: pd.DataFrame,
     interactions_data_result.drop_duplicates(inplace=True)
 
     means_columns = ['id_cp_interaction', 'interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'secreted',
-                     'receptor_a', 'receptor_b', 'annotation_strategy', 'is_integrin']
+                     'receptor_a', 'receptor_b', 'annotation_strategy', 'is_integrin'] + interaction_columns
 
     interactions_data_result = interactions_data_result[means_columns]
 
@@ -249,6 +276,8 @@ def build_results(interactions: pd.DataFrame,
     # Round result decimals
     for key, cluster_means in clusters_means.items():
         clusters_means[key] = cluster_means.round(result_precision)
+    for key, cluster_percents in clusters_percents.items():
+        clusters_percents[key] = cluster_percents.round(result_precision)
 
     # Document 2
     means_result = pd.concat([interactions_data_result, mean_analysis], axis=1, join='inner', sort=False)
@@ -256,17 +285,17 @@ def build_results(interactions: pd.DataFrame,
     # Document 3
     significant_means_result = pd.concat([interactions_data_result, significant_mean_rank, significant_means], axis=1,
                                          join='inner', sort=False)
-
     # Document 5
-    deconvoluted_result = cpdb_statistical_analysis_complex_method.deconvoluted_complex_result_build(
+    deconvoluted_result, deconvoluted_percents = cpdb_statistical_analysis_complex_method.deconvoluted_complex_result_build(
         clusters_means,
+        clusters_percents,
         interactions,
         complex_compositions,
         counts,
         genes,
         counts_data)
 
-    return means_result, significant_means_result, deconvoluted_result
+    return means_result, significant_means_result, deconvoluted_result, deconvoluted_percents
 
 
 def deconvoluted_complex_result_build(clusters_means: dict, interactions: pd.DataFrame,
@@ -283,7 +312,8 @@ def deconvoluted_complex_result_build(clusters_means: dict, interactions: pd.Dat
                                                                               interactions, '_2', counts_data)
     deconvoluted_simple_result_2 = deconvolute_interaction_component(interactions, '_2', counts_data)
 
-    deconvoluted_result = pd.concat([deconvoluted_complex_result_1, deconvoluted_simple_result_1, deconvoluted_complex_result_2, deconvoluted_simple_result_2], sort=False)
+    deconvoluted_result = pd.concat([deconvoluted_complex_result_1, deconvoluted_simple_result_1,
+                                     deconvoluted_complex_result_2, deconvoluted_simple_result_2], sort=False)
 
     deconvoluted_result.set_index('gene', inplace=True)
 

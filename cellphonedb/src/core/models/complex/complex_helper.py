@@ -1,7 +1,7 @@
 import pandas as pd
-import time
 COMPLEX_ID = 'complex_multidata_id'
 PROTEIN_ID = 'protein_multidata_id'
+
 
 def get_involved_complex_composition_from_protein(proteins: pd.DataFrame,
                                                   complex_compositions: pd.DataFrame) -> pd.DataFrame:
@@ -30,6 +30,7 @@ def get_involved_complex_composition_from_protein(proteins: pd.DataFrame,
         complex_counts_filtered.apply(all_protein_involved, axis=1)]
 
     return complex_composition_complete
+
 
 # Return a dict mapping complex_id to an array of row numbers within counts that correspond to
 # the ids of is constituent proteins

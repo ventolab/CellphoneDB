@@ -1,10 +1,7 @@
 from typing import Tuple
 import warnings
-warnings.simplefilter("ignore", UserWarning)
-
 from functools import partial
 from multiprocessing.pool import Pool
-
 import pandas as pd
 import numpy as np
 import numpy_groupies as npg
@@ -12,12 +9,15 @@ from cellphonedb.src.core.core_logger import core_logger
 from cellphonedb.src.core.models.complex import complex_helper
 from tqdm.std import tqdm
 
+warnings.simplefilter("ignore", UserWarning)
+
+
 def get_significant_means(real_mean_analysis: pd.DataFrame,
                           result_percent: pd.DataFrame,
                           min_significant_mean: float = None) -> pd.DataFrame:
     """
     Get the significant means for gene1_gene2|cluster1_cluster2.
-    
+
     For statistical_analysis `min_significant_mean` needs to be provided
     and if `result_percent > min_significant_mean` then sets the value to
     NaN otherwise uses the mean.
@@ -64,7 +64,7 @@ def get_significant_means(real_mean_analysis: pd.DataFrame,
     -------
     pd.DataFrame
         Significant means data frame. Columns are cluster interactions (cluster1|cluster2)
-        and rows are NaN if there is no significant interaction or the mean value of the 
+        and rows are NaN if there is no significant interaction or the mean value of the
         interaction if it is a significant interaction.
     """
     significant_means = real_mean_analysis.values.copy()
@@ -157,15 +157,15 @@ def build_clusters(meta: pd.DataFrame,
              for complex_id, protein_row_ids in complex_to_protein_row_ids.items()},
             index=cluster_means.columns
         ).T
-        cluster_means = pd.concat([cluster_means,complex_cluster_means])
+        cluster_means = pd.concat([cluster_means, complex_cluster_means])
         cluster_pcts_x = cluster_pcts.values
         if not skip_percent:
             complex_cluster_pcts = pd.DataFrame(
                 {complex_id: cluster_pcts_x[protein_row_ids].min(axis=0)
-             for complex_id, protein_row_ids in complex_to_protein_row_ids.items()},
+                 for complex_id, protein_row_ids in complex_to_protein_row_ids.items()},
                 index=cluster_pcts.columns
             ).T
-            cluster_pcts = pd.concat([cluster_pcts,complex_cluster_pcts])
+            cluster_pcts = pd.concat([cluster_pcts, complex_cluster_pcts])
     return {'names': cluster_names, 'means': cluster_means, 'percents': cluster_pcts}
 
 
@@ -175,7 +175,7 @@ def filter_counts_by_interactions(counts: pd.DataFrame,
     Removes counts if is not defined in interactions components
     """
     multidata_genes_ids = pd.concat([interactions['multidata_1_id'],
-        interactions['multidata_2_id']]).drop_duplicates().tolist()
+                                     interactions['multidata_2_id']]).drop_duplicates().tolist()
 
     counts_filtered = counts.filter(multidata_genes_ids, axis=0)
 
@@ -213,8 +213,8 @@ def get_cluster_combinations(cluster_names: np.array, microenvs: pd.DataFrame = 
     Calculates and sorts combinations of clusters.
 
     Generates all possible combinations between the `cluster_names` provided.
-    Combinations include each cluster with itself. 
-    If `microenvs` is provided then the combinations are limited to the 
+    Combinations include each cluster with itself.
+    If `microenvs` is provided then the combinations are limited to the
     clusters within each microenvironment as specified.
 
     Parameters
@@ -261,12 +261,13 @@ def get_cluster_combinations(cluster_names: np.array, microenvs: pd.DataFrame = 
         core_logger.info('Limiting cluster combinations using microenvironments')
         cluster_combinations = []
         for me in microenvs["microenvironment"].unique():
-            me_cell_types = microenvs[microenvs["microenvironment"]==me]["cell_type"]
+            me_cell_types = microenvs[microenvs["microenvironment"] == me]["cell_type"]
             combinations = np.array(np.meshgrid(me_cell_types, me_cell_types))
             cluster_combinations.extend(combinations.T.reshape(-1, 2))
         result = pd.DataFrame(cluster_combinations).drop_duplicates().to_numpy()
     core_logger.debug(f'Using {len(result)} cluster combinations for analysis')
     return result
+
 
 def build_result_matrix(interactions: pd.DataFrame, cluster_combinations: list, separator: str) -> pd.DataFrame:
     """
@@ -288,7 +289,7 @@ def mean_analysis(interactions: pd.DataFrame,
                   separator: str) -> pd.DataFrame:
     """
     Calculates the mean for the list of interactions and for each cluster
-    
+
     Based on the interactions from CellPhoneDB database (gene1|gene2) and each
     cluster means (gene|cluster) this method calculates the mean of an interaction
     (gene1|gene2) and a cluster combination (cluster1|cluster2). When any of the
@@ -296,8 +297,8 @@ def mean_analysis(interactions: pd.DataFrame,
     expression is used to get the result `(x > 0) * (y > 0) * (x + y) / 2` where
     `x = mean(gene1|cluster1)` and `y = mean(gene2|cluster2)` and the output is
     expected to be mean(gene1|gene2, cluster1|cluster2).
-    
-    
+
+
     Parameters
     ----------
     interactions: pd.DataFrame
@@ -305,7 +306,7 @@ def mean_analysis(interactions: pd.DataFrame,
         here and interpret as 'multidata_1_id' for gene1 and 'multidata_2_id'
         for gene2.
     clusters: dict
-        Clusters information. 'means' key will be used to get the means of a 
+        Clusters information. 'means' key will be used to get the means of a
         gene/cluster combination/
     cluster_combinations: list
         List of cluster interactions obtained from the combination of the cluster
@@ -367,16 +368,16 @@ def percent_analysis(clusters: dict,
                      cluster_combinations: list,
                      separator: str) -> (pd.DataFrame, pd.DataFrame):
     """
-    Calculates the percents for cluster interactions and for each gene 
+    Calculates the percents for cluster interactions and for each gene
     interaction.
 
     This method builds a gene1|gene2,cluster1|cluster2 table of percent values.
     As the first step, calculates the percents for each gene|cluster. The cluster
-    percent is 0 if the number of positive cluster cells divided by total of 
+    percent is 0 if the number of positive cluster cells divided by total of
     cluster cells is greater than threshold and 1 if not. If one of both is NOT 0
-    then sets the value to 0 else sets the value to 1. Then it calculates the 
+    then sets the value to 0 else sets the value to 1. Then it calculates the
     percent value of the interaction.
-    
+
     Parameters
     ----------
     clusters: dict
@@ -386,7 +387,7 @@ def percent_analysis(clusters: dict,
         Cutoff value for percentages (number of positive clusters cells divided
         by total of cluster cells). All values above this one will be set to 0
         and all below will be set to 1. The following expression is used to
-        apply this rule: `((x > threshold) * (y > threshold)).astype(int)`
+        apply this rule: `((x > threshold) * (y > threshold)).astype(int)
     interactions: pd.DataFrame
         Interactions from CellPhoneDB database. Gene names will be taken from
         here and interpret as 'multidata_1_id' for gene1 and 'multidata_2_id'
@@ -396,7 +397,7 @@ def percent_analysis(clusters: dict,
         names and possibly filtered using microenvironments.
     separator: str
         Character to use as a separator when joining cluster as column names.
-    
+
 
     Example
     ----------
@@ -429,7 +430,7 @@ def percent_analysis(clusters: dict,
         ensembl1_ensembl2   (0,1)-> 0           (0,1)-> 0           (0,1)->0            (0,1)->0
         ensembl1_ensembl3   (0,1)-> 0           (0,0)-> 1           (0,1)->0            (0,0)->1
 
-    
+
     Returns
     ----------
     pd.DataFrame:
@@ -488,7 +489,7 @@ def shuffled_analysis(iterations: int,
 
             if i % progress_step == 0:
                 # Poor man's progress reporting
-                print("{}%".format(round(i / progress_step), 0), end=' ')
+                print("{}%".format(round(i / progress_step, 0)), end=' ')
             results.append(result)
     else:
         with Pool(processes=threads) as pool:
@@ -501,9 +502,10 @@ def shuffled_analysis(iterations: int,
                                                   separator,
                                                   real_mean_analysis)
             for result in tqdm(pool.imap(statistical_analysis_thread, range(iterations)),
-                                         total=iterations):
+                               total=iterations):
                 results.append(result)
     return results
+
 
 def _statistical_analysis(cluster_combinations,
                           counts,
@@ -528,12 +530,12 @@ def _statistical_analysis(cluster_combinations,
                                            separator)
 
     result_mean_analysis = shuffled_greater_than_real(shuffled_mean_analysis,
-                                                    real_mean_analysis)
+                                                      real_mean_analysis)
     return result_mean_analysis
 
 
 def shuffled_greater_than_real(shuffled_mean_analysis: pd.DataFrame,
-                             real_mean_analysis: pd.DataFrame):
+                               real_mean_analysis: pd.DataFrame):
     return np.packbits(shuffled_mean_analysis.values > real_mean_analysis.values, axis=None)
 
 
@@ -643,7 +645,7 @@ def build_significant_means(real_mean_analysis: pd.DataFrame,
     """
     Calculates the significant means and adds rank (number of non-empty entries divided by total entries)
 
-    
+
     """
     significant_means = get_significant_means(real_mean_analysis, result_percent, min_significant_mean)
     significant_mean_rank = significant_means.count(axis=1)  # type: pd.Series
@@ -702,6 +704,7 @@ def prefilters(interactions: pd.DataFrame,
 
     return interactions_filtered, counts_filtered, complex_composition_filtered
 
+
 def get_involved_complex_from_counts(
     counts: pd.DataFrame,
     complex_composition: pd.DataFrame
@@ -714,13 +717,13 @@ def get_involved_complex_from_counts(
     counts: pd.DataFrame
         Counts data.
     complex_composition: pd.DataFrame
-        complexes 
+        complexes
 
     Returns
     -------
     Tuple: A tuple containing:
         - complex_composition filtered
-        - counts filtered 
+        - counts filtered
     """
     proteins_in_complexes = complex_composition['protein_multidata_id'].drop_duplicates().tolist()
 
@@ -744,7 +747,7 @@ def get_involved_complex_from_counts(
     return complex_composition_filtered, counts_filtered
 
 
-def add_multidata_and_means_to_counts(counts: pd.DataFrame, genes: pd.DataFrame, counts_data:str):
+def add_multidata_and_means_to_counts(counts: pd.DataFrame, genes: pd.DataFrame, counts_data: str):
     """Adds multidata and means to counts
 
     This method merges multidata ids into counts data using counts_data
@@ -775,14 +778,14 @@ def add_multidata_and_means_to_counts(counts: pd.DataFrame, genes: pd.DataFrame,
         genes[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']],
         left_index=True,
         right_on=counts_data
-    )    
-    
-    counts_relations = counts[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']].copy()    
+    )
+
+    counts_relations = counts[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']].copy()
 
     counts.set_index('id_multidata', inplace=True, drop=True)
     counts = counts[cells_names]
     if np.any(counts.dtypes.values != np.dtype('float32')):
         counts = counts.astype(np.float32)
     counts = counts.groupby(counts.index).mean()
-    
+
     return counts, counts_relations
