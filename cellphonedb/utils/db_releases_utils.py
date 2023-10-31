@@ -69,7 +69,8 @@ def get_release_info(
         html += ("<td {}><a class='dropdown-trigger grey lighten-1' href='#' data-target='{}_dropdown'>" +
                  "<i class=\"material-icons teal-text\">pageview</i></a>").format(css_style, rel['tag_name'])
         html += "<ul id='{}_dropdown' class='dropdown-content'>".format(rel['tag_name'])
-        for file_name in ["gene_input", "protein_input", "complex_input", "interaction_input"]:
+        for file_name in ["gene_input", "protein_input", "complex_input", "interaction_input",
+                          "transcription_factor_input"]:
             html += "<li><a href=\"javascript:get_input_file_as_html_table(\'{}\',\'{}\');\">{}</a></li>" \
                 .format(rel['tag_name'], file_name, file_name)
         html += "</ul></td>"
