@@ -410,6 +410,15 @@ There are two main inputs of interactions: i) a systematic input querying other 
 
 Each interaction stored has a CellphoneDB unique identifier ("id_cp_interaction") generated automatically by the internal pipeline.
 
+### 5. "transcription_factor_input"
+Mandatory fields: "receptor_id"; "TF_symbol"; "Effect". 
+Optional fields: "partner_receptor"; "partner_TF"; "protein_name_receptor"; "protein_name_TF"; "Source"; "Curator"; "Xrefs_or_figures"; "Brivanlou_class"
+
+"receptor_id" contains either the name of a complex (see: "complex_name" column in "complex_input") or a gene name - corresponding to the receptor, and "TF_symbol" the gene name - corresponding to the TF.
+"Effect" field is set to -1 if the receptor has an inhibitory effect on the TF, and 1 otherwise.
+"partner_TF" and "partner_receptor" contain UniProt accession and complex_name/UniProt accession respectively.
+"protein_name_TF" and non-complex "protein_name_receptor" contain protein names respectively.
+"Brivanlou_class" contain TF classification by Ali H. Brivanlou (see: https://www.jstor.org/stable/3075743)
 
 ## User-defined database
 Our system allows users to create their own database of interactions and complexes. In order to do so, the format of the users’ lists must be compatible with the input files. 
