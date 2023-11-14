@@ -5,7 +5,7 @@
 
 CellphoneDB is a publicly available repository of **HUMAN** curated receptors, ligands and their interactions paired with a tool to interrogate your own single-cell transcriptomics data (or even bulk transcriptomics data if your samples represent pure populations!). 
 
-> A distinctive feature of CellphoneDB is that the subunit architecture of either ligands and receptors is taken into account, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellphoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic CellphoneDB includes only manually curated & reviewd molecular interactions with evidenced role in cellular communication.
+> A distinctive feature of CellphoneDB is that the subunit architecture of either ligands and receptors is taken into account, representing heteromeric complexes accurately. This is crucial, as cell communication relies on multi-subunit protein complexes that go beyond the binary representation used in most databases and studies. CellphoneDB also incorporates biosynthetic pathways in which we use the last representative enzyme as a proxy of ligand abundance, by doing so, we include interactions involving non-peptidic molecules. CellphoneDB includes only manually curated & reviewed molecular interactions with evidenced role in cellular communication.
 
 ## Documentation
 > For more details on using CellphoneDB and a more detailed description of the methods, visit the [DOCUMENTATION](https://cellphonedb.readthedocs.io/en/latest/#). 
