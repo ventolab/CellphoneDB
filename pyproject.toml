@@ -43,6 +43,7 @@ geosketch = ">=1.2"
 anndata = ">=0.8"
 ktplotspy = ">=0.1.4"
 tqdm = ">=4.3,<5.0"
+pytest = ">=7.2.0"
 
 [tool.poetry.extras]
 dev = ["black", "isort"]
