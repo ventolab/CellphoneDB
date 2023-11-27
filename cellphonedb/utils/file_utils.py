@@ -381,16 +381,33 @@ def _load_degs(degs_filepath: str, meta: pd.DataFrame) -> pd.DataFrame:
     return degs
 
 
-def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None, active_tfs_fp=None,
+def is_anndata_type(obj):
+    """ Return true if obj is of type AnnData; false otherwise"""
+    return type(obj).__name__ == "AnnData"
+
+
+def read_counts(obj) -> (pd.DataFrame, str):
+    """ Read counts df from obj - obj can be AnnData or a path to a file (various formats allowed) that contains counts """
+    if is_anndata_type(obj):
+        counts = obj.to_df().T
+        counts_label = "counts from AnnData object"
+    else:
+        counts = read_data_table_from_file(obj, index_column_first=True)
+        counts_label = obj
+    return counts, counts_label
+
+
+def get_user_files(counts=None, meta_fp=None, microenvs_fp=None, degs_fp=None, active_tfs_fp=None,
                    gene_synonym2gene_name=None, counts_data=None) \
         -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
     """
 
     Parameters
     ----------
-    counts_fp
+    counts
         Path to the user's counts file, exemplified by \
-        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_counts.txt
+        https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_counts.txt,
+        or an in-memory AnnData object
     meta_fp
         Path to the user's meta file, exemplified by \
         https://github.com/ventolab/CellphoneDB/blob/bare-essentials/example_data/test_meta.txt
@@ -414,14 +431,14 @@ def get_user_files(counts_fp=None, meta_fp=None, microenvs_fp=None, degs_fp=None
     loaded_user_files = []
     # Read user files
     print("Reading user files...", flush=True)
-    counts = read_data_table_from_file(counts_fp, index_column_first=True)
+    counts, counts_label = read_counts(counts)
 
     # N.B. The functionality below has been switched off for the time being, on Kevin's request
     # In counts df, replace any gene synonyms not in gene_input.csv to gene names that are in gene_input.
     # if counts_data == "hgnc_symbol" or counts_data == "gene_name":
     #     counts.rename(index=gene_synonym2gene_name, inplace=True)
 
-    loaded_user_files.append(counts_fp)
+    loaded_user_files.append(counts_label)
     raw_meta = read_data_table_from_file(meta_fp, index_column_first=False)
     meta = method_preprocessors.meta_preprocessor(raw_meta)
     loaded_user_files.append(meta_fp)

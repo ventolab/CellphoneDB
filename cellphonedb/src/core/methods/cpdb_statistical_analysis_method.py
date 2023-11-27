@@ -7,7 +7,7 @@ from cellphonedb.src.core.utils import subsampler
 
 def call(cpdb_file_path: str = None,
          meta_file_path: str = None,
-         counts_file_path: str = None,
+         counts_file_path=None,
          counts_data: str = None,
          output_path: str = None,
          microenvs_file_path: str = None,
@@ -38,8 +38,8 @@ def call(cpdb_file_path: str = None,
         CellphoneDB database file path
      meta_file_path: str
          Path to metadata csv file
-     counts_file_path: str
-         Path to counts csv file
+     counts_file_path:
+         Path to counts csv file, or an in-memory AnnData object
      counts_data: str
          Type of gene identifiers in the counts data: "ensembl", "gene_name", "hgnc_symbol"
      output_path: str
@@ -91,8 +91,8 @@ def call(cpdb_file_path: str = None,
          - interaction_scores
      """
     # Report error unless the required arguments have been provided
-    required_arguments = [cpdb_file_path, meta_file_path, counts_file_path, counts_data, output_path]
-    if None in required_arguments or '' in required_arguments:
+    required_arguments = [cpdb_file_path, meta_file_path, counts_data, output_path]
+    if None in required_arguments or '' in required_arguments or not counts_file_path:
         raise MissingRequiredArgumentsException(description="All of the following arguments need to be provided: {}"
                                                 .format("cpdb_file_path, meta_file_path, counts_file_path, " +
                                                         "counts_data, output_path"))
@@ -103,7 +103,7 @@ def call(cpdb_file_path: str = None,
 
     # Load user files into memory
     counts, meta, microenvs, degs, active_tf2cell_types = file_utils.get_user_files(
-        counts_fp=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path,
+        counts=counts_file_path, meta_fp=meta_file_path, microenvs_fp=microenvs_file_path,
         active_tfs_fp=active_tfs_file_path,
         gene_synonym2gene_name=gene_synonym2gene_name, counts_data=counts_data)
 
