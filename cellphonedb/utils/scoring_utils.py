@@ -153,8 +153,11 @@ def heteromer_geometric_expression_per_cell_type(
     complex_name_2_subunits = dict(zip(d['name'], d['subunits']))
 
     # Iterate over the complexes to calculate the geometric mean of expressions of their constituents
-    # If any member of the subunit is not present in the means matrix
+    # If any member of the subunit is not present in the means matrix then
     # the geometric mean expression is not calculated
+    # The geometric mean is always lower than the arithmetic mean due to a compounding effect. Note that this is different
+    # than in CellphoneDB methods themselves where the minimum expression across all parts of a heteromer is taken
+    # as its overall expression.
     complex_geom_mean = dict()
     for complex_id in complex_name_2_subunits:
 
