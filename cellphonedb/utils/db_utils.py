@@ -215,8 +215,13 @@ def get_column_names_for_db_version(complex_db_df, interactions_df, protein_df) 
     version = []
 
     if 'directionality' in interactions_df.columns:
+        # v5.0
         interaction_column_names1 = ['directionality', 'classification']
         interaction_column_names2 = ['is_ppi', 'curator']
+        if 'modality' in interactions_df.columns:
+            # v5.1
+            interaction_column_names1 += ['modality', 'growth_factor']
+
     if 'uniprot_5' in complex_db_df.columns:
         protein_column_names += ['uniprot_5']
         complex_columns = COMPLEX_CROSSREFERENCE_FIELDS_FOR_WEB

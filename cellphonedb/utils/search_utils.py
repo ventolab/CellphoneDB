@@ -7,7 +7,8 @@ import pandas as pd
 SIMPLE_PFX = "simple:"
 COMPLEX_PFX = 'complex:'
 ENS_PFX = "ENS"
-INTERACTION_COLUMNS = ['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b', 'directionality', 'classification']
+INTERACTION_COLUMNS = ['interacting_pair', 'partner_a', 'partner_b', 'gene_a', 'gene_b',
+                       'directionality', 'classification', 'modality', 'growth_factor']
 EXTERNAL_RESOURCE2URI = {'Reactome reaction': 'https://reactome.org/content/detail',
                          'Reactome complex': 'https://reactome.org/content/detail',
                          'ComplexPortal complex': 'https://www.ebi.ac.uk/complexportal/complex',
@@ -68,7 +69,7 @@ def assemble_multidata_ids_for_search(
 
 
 def search(query_str: str = "",
-           cpdb_file_path: str = None) -> (list, map, map, map, map):
+           cpdb_file_path: str = None) -> (list, map, map, map, map, map):
     """
     Searches CellphoneDB interactions for genes/proteins/complexes in query_str
 
@@ -95,7 +96,11 @@ def search(query_str: str = "",
     interaction_columns = []
     # Cater for DB version-dependent column names
     if 'directionality' in interactions.columns:
+        # v5.0
         interaction_columns = ['curator', 'source', 'is_ppi', 'directionality', 'classification']
+        if 'modality' in interactions.columns:
+            # v5.1
+            interaction_columns += ['modality', 'growth_factor']
 
     protein2Info, complex2Info, resource2Complex2Acc, proteinAcc2Name = \
         db_utils.get_protein_and_complex_data_for_web(cpdb_file_path)
@@ -111,7 +116,7 @@ def search(query_str: str = "",
     # Output header
     results.append(['CellphoneDB interaction ', 'Partner A', 'Partner B', 'Gene name A', 'Gene name B', ] +
                    [' Ensembl ID A', 'Ensembl ID B', 'Annotation strategy', 'Curator', 'Source', 'Is PPI'] +
-                   ['Directionality', 'Classification'])
+                   ['Directionality', 'Classification', 'Modality', 'Growth Factor'])
     for multidata_id in multidata_ids:
         interactions_data_list = interactions[[
              'id_cp_interaction', 'multidata_1_id', 'multidata_2_id',
@@ -147,7 +152,19 @@ def search(query_str: str = "",
                 interaction[7]
                 ]
             # Cater for DB version-dependent column names
-            if len(interaction) > 8:
+            if len(interaction) > 13:
+                # v5.1
+                output_row += [
+                    interaction[8],
+                    interaction[9],
+                    interaction[10],
+                    interaction[11],
+                    interaction[12],
+                    interaction[13],
+                    interaction[14]
+                ]
+            elif len(interaction) > 8:
+                # v5.0
                 output_row += [
                     interaction[8],
                     interaction[9],

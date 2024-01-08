@@ -290,7 +290,11 @@ def build_results(interactions: pd.DataFrame,
     # Cater for DB version-dependent column names
     interaction_columns = []
     if 'directionality' in interactions.columns:
+        # v5.0
         interaction_columns = ['directionality', 'classification']
+        if 'modality' in interactions.columns:
+            # v5.1
+            interaction_columns += ['modality', 'growth_factor']
     # Remove superfluous columns
     interactions_data_result = pd.DataFrame(
         interactions[['id_cp_interaction', 'partner_a', 'partner_b', 'receptor_1', 'receptor_2', *gene_columns,
