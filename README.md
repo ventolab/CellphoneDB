@@ -48,7 +48,7 @@ We highly recommend using an isolated python environment (as described in steps 
    - Open/Start Jupyter and select the created kernel.
 
 5. Download the database.
-   - Follow this [tutorial](https://github.com/ventolab/CellphoneDB/blob/master/notebooks/T00_DownloadDB.ipynb).
+   - Follow this [tutorial](https://github.com/ventolab/CellphoneDB/blob/master/notebooks/T0_DownloadDB.ipynb).
 
 NOTE: Works with Python v3.8 or greater. If your default Python interpreter is for `v2.x` (you can check it with `python --version`), calls to `python`/`pip` should be substituted by `python3`/`pip3`.
 
