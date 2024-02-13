@@ -32,7 +32,7 @@ We highly recommend using an isolated python environment (as described in steps 
    - Using virtualenv: `python -m venv cpdb`
 
 2. Activate environment
-   - Using conda: `source activate cpdb`
+   - Using conda: `conda activate cpdb`
    - Using virtualenv: `source cpdb/bin/activate`
 
 3. Install CellphoneDB `pip install cellphonedb`
