@@ -30,7 +30,7 @@ version = "5.0.1"
 exclude = ["example_data*"] 
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = "^3.8"
 black = {version = ">=22.3", optional = true}
 isort = {version = ">=5.7", optional = true}
 pandas = ">=1.5.0"
