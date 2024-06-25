@@ -1,2 +1,0 @@
-complex_name,uniprot_1,uniprot_2,uniprot_3,uniprot_4,transmembrane,peripheral,secreted,secreted_desc,secreted_highlight,receptor,receptor_desc,integrin,other,other_desc,pdb_id,pdb_structure,stoichiometry,comments_complex
-test_complex,Q14914,,,,False,False,True,CHEBI:27814,True,False,,False,True,biosynthesis_enzyme,,FALSE,,

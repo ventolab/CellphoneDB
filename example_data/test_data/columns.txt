@@ -1,0 +1,4 @@
+Myeloid|NKcells_1
+Myeloid|Tcells
+NKcells_0|Myeloid
+NKcells_0|NKcells_0

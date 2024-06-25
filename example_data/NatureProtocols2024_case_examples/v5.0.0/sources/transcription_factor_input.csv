@@ -1,0 +1,213 @@
+id_cp_interaction,partner_receptor,partner_TF,protein_name_receptor,protein_name_TF,receptor_id,TF_symbol,Effect,Source,Curator,Xrefs_or_figures,Brivanlou_class
+,ACVL1_ACVR2A,O15198,,SMAD9_HUMAN,ACVL1_ACVR2A,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVL1_ACVR2A,Q15797,,SMAD1_HUMAN,ACVL1_ACVR2A,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVL1_ACVR2A,Q99717,,SMAD5_HUMAN,ACVL1_ACVR2A,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVL1_BMPR2,O15198,,SMAD9_HUMAN,ACVL1_BMPR2,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVL1_BMPR2,Q15797,,SMAD1_HUMAN,ACVL1_BMPR2,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVL1_BMPR2,Q99717,,SMAD5_HUMAN,ACVL1_BMPR2,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR_1A2A_receptor,O15198,,SMAD9_HUMAN,ACVR_1A2A_receptor,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR_1A2A_receptor,Q15797,,SMAD1_HUMAN,ACVR_1A2A_receptor,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR_1A2A_receptor,Q99717,,SMAD5_HUMAN,ACVR_1A2A_receptor,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR_1A2B_receptor,O15198,,SMAD9_HUMAN,ACVR_1A2B_receptor,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR_1A2B_receptor,Q15797,,SMAD1_HUMAN,ACVR_1A2B_receptor,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR_1A2B_receptor,Q99717,,SMAD5_HUMAN,ACVR_1A2B_receptor,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR_1B2B_receptor,P84022,,SMAD3_HUMAN,ACVR_1B2B_receptor,SMAD3,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR_1B2B_receptor,Q15796,,SMAD2_HUMAN,ACVR_1B2B_receptor,SMAD2,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR1_BMPR2,O15198,,SMAD9_HUMAN,ACVR1_BMPR2,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR1_BMPR2,Q15797,,SMAD1_HUMAN,ACVR1_BMPR2,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,ACVR1_BMPR2,Q99717,,SMAD5_HUMAN,ACVR1_BMPR2,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,P30556,P42224,AGTR1_HUMAN,STAT1_HUMAN,AGTR1,STAT1,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P50052,P40763,AGTR1_HUMAN,STAT3_HUMAN,AGTR1,STAT3,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P30556,P42229,AGTR1_HUMAN,STA5A_HUMAN,AGTR1,STAT5A,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P30556,P51692,AGTR1_HUMAN,STA5B_HUMAN,AGTR1,STAT5B,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P30556,P42226,AGTR1_HUMAN,STAT6_HUMAN,AGTR1,STAT6,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P30556,P52630,AGTR1_HUMAN,STAT2_HUMAN,AGTR1,STAT2,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P10275,P10275,ANDR_HUMAN,ANDR_HUMAN,AR,AR,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,BMPR1A_BMPR2,O15198,,SMAD9_HUMAN,BMPR1A_BMPR2,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,BMPR1A_BMPR2,P0C6A0,,ZGLP1_HUMAN,BMPR1A_BMPR2,ZGLP1,1,PMID:32054698,LGarciaAlonso,,IIA_developmental
+,BMPR1A_BMPR2,Q15797,,SMAD1_HUMAN,BMPR1A_BMPR2,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,BMPR1A_BMPR2,Q99717,,SMAD5_HUMAN,BMPR1A_BMPR2,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,BMPR1B_BMPR2,O15198,,SMAD9_HUMAN,BMPR1B_BMPR2,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,BMPR1B_BMPR2,P0C6A0,,ZGLP1_HUMAN,BMPR1B_BMPR2,ZGLP1,1,PMID:32054698,LGarciaAlonso,,IIA_developmental
+,BMPR1B_BMPR2,Q15797,,SMAD1_HUMAN,BMPR1B_BMPR2,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,BMPR1B_BMPR2,Q99717,,SMAD5_HUMAN,BMPR1B_BMPR2,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,BMPR1B_BMPR2_ACVR1B,O15198,,SMAD9_HUMAN,BMPR1B_BMPR2_ACVR1B,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,BMPR1B_BMPR2_ACVR1B,Q15797,,SMAD1_HUMAN,BMPR1B_BMPR2_ACVR1B,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,BMPR1B_BMPR2_ACVR1B,Q99717,,SMAD5_HUMAN,BMPR1B_BMPR2_ACVR1B,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1A_ACR2A,O15198,,SMAD9_HUMAN,BMR1A_ACR2A,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1A_ACR2A,P0C6A0,,ZGLP1_HUMAN,BMR1A_ACR2A,ZGLP1,1,PMID:32054698,LGarciaAlonso,,IIA_developmental
+,BMR1A_ACR2A,Q15797,,SMAD1_HUMAN,BMR1A_ACR2A,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1A_ACR2A,Q99717,,SMAD5_HUMAN,BMR1A_ACR2A,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1A_AVR2B,O15198,,SMAD9_HUMAN,BMR1A_AVR2B,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1A_AVR2B,P0C6A0,,ZGLP1_HUMAN,BMR1A_AVR2B,ZGLP1,1,PMID:32054698,LGarciaAlonso,,IIA_developmental
+,BMR1A_AVR2B,Q15797,,SMAD1_HUMAN,BMR1A_AVR2B,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1A_AVR2B,Q99717,,SMAD5_HUMAN,BMR1A_AVR2B,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1B_AVR2A,O15198,,SMAD9_HUMAN,BMR1B_AVR2A,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1B_AVR2A,P0C6A0,,ZGLP1_HUMAN,BMR1B_AVR2A,ZGLP1,1,PMID:32054698,LGarciaAlonso,,IIA_developmental
+,BMR1B_AVR2A,Q15797,,SMAD1_HUMAN,BMR1B_AVR2A,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1B_AVR2A,Q99717,,SMAD5_HUMAN,BMR1B_AVR2A,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1B_AVR2B,O15198,,SMAD9_HUMAN,BMR1B_AVR2B,SMAD9,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1B_AVR2B,P0C6A0,,ZGLP1_HUMAN,BMR1B_AVR2B,ZGLP1,1,PMID:32054698,LGarciaAlonso,,IIA_developmental
+,BMR1B_AVR2B,Q15797,,SMAD1_HUMAN,BMR1B_AVR2B,SMAD1,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,BMR1B_AVR2B,Q99717,,SMAD5_HUMAN,BMR1B_AVR2B,SMAD5,1,Uniprot;PMID:25136781,LGarciaAlonso,https://www.jbc.org/content/273/40/25628/F9.medium.gif,IIB3b_RL_signal_dependent_cytoplasmic
+,P61073,P40763,CXCR4_HUMAN,STAT3_HUMAN,CXCR4,STAT3,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P61073,P42224,CXCR4_HUMAN,STAT1_HUMAN,CXCR4,STAT1,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P61073,P42226,CXCR4_HUMAN,STAT6_HUMAN,CXCR4,STAT6,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P61073,P42229,CXCR4_HUMAN,STA5A_HUMAN,CXCR4,STAT5A,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P61073,P51692,CXCR4_HUMAN,STA5B_HUMAN,CXCR4,STAT5B,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P61073,Q14765,CXCR4_HUMAN,STAT4_HUMAN,CXCR4,STAT4,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P43146,P32243,,OTX2_HUMAN,DCC,OTX2,1,PMID:33195252,LGarciaAlonso,,IIA_developmental
+,P00533,P40763,EGFR_HUMAN,STAT3_HUMAN,EGFR,STAT3,1,Uniprot;PBMID: 8524316,LGarciaAlonso;RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P00533,P42224,EGFR_HUMAN,STAT1_HUMAN,EGFR,STAT1,1,Uniprot;PBMID: 8524316,LGarciaAlonso;RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P00533,P42229,EGFR_HUMAN,STA5A_HUMAN,EGFR,STAT5A,1,Uniprot;PBMID: 8524316,LGarciaAlonso;RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P00533,P51692,EGFR_HUMAN,STA5B_HUMAN,EGFR,STAT5B,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P29323,P19419,EPHB2_HUMAN,ELK1_HUMAN,EPHB2,ELK1,1,PMID:12486127,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P54760,P19419,EPHB4_HUMAN,ELK1_HUMAN,EPHB4,ELK1,1,PMID:32299362,LGarciaAlonso,,IIA_developmental
+,P19235,P40763,EPOR_HUMAN,STAT3_HUMAN,EPOR,STAT3,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P19235,P42224,EPOR_HUMAN,STAT1_HUMAN,EPOR,STAT1,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P19235,P42229,EPOR_HUMAN,STA5A_HUMAN,EPOR,STAT5A,1,Uniprot;PMID: 8665851,LGarciaAlonso;RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P19235,P51692,EPOR_HUMAN,STA5B_HUMAN,EPOR,STAT5B,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q15303,P42229,ERBB4_HUMAN,STA5A_HUMAN,ERBB4,STAT5A,1,PMID: 15863494,RuxTes ,,
+,P03372,P03372,ESR1_HUMAN,ESR1_HUMAN,ESR1,ESR1,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q92731,Q92731,ESR2_HUMAN,ESR2_HUMAN,ESR2,ESR2,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P21802,P03372,FGFR2_HUMAN,ESR1_HUMAN,FGFR2,ESR1,-1,PMID: 29180470; PMID: 27236187 ,RuxTes ,,
+,P23945,O43524,FSHR_HUMAN,FOXO3_HUMAN,FSHR,FOXO3,-1,PMID:11875118,LGarciaAlonso,,IIA_developmental
+,P23945,Q12778,FSHR_HUMAN,FOXO1_HUMAN,FSHR,FOXO1,-1,PMID:11875118,LGarciaAlonso,,IIA_developmental
+,FZD7_LRP5,O15178,,TBXT_HUMAN,FZD7_LRP5,TBXT,1,PMID:27641648;https://doi.org/10.1016/C2015-0-05642-8,LGarciaAlonso,,IIA_developmental
+,FZD7_LRP6,O15178,,TBXT_HUMAN,FZD7_LRP6,TBXT,1,PMID:27641648;https://doi.org/10.1016/C2015-0-05642-8,LGarciaAlonso,,IIA_developmental
+,P41235,P41235,HNF4A_HUMAN,HNF4A_HUMAN,HNF4A,HNF4A,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q14541,Q14541,HNF4G_HUMAN,HNF4G_HUMAN,HNF4G,HNF4G,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P35367,P19838,HRH1_HUMAN,NFKB1_HUMAN,HRH1,NFKB1,1,PMID:23268457,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL1_receptor,P19838,,NFKB1_HUMAN,IL1_receptor,NFKB1,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL10_receptor,P40763,,STAT3_HUMAN,IL10_receptor,STAT3,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL10_receptor,P42224,,STAT1_HUMAN,IL10_receptor,STAT1,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL10_receptor,P42229,,STA5A_HUMAN,IL10_receptor,STAT5A,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL10_receptor,P51692,,STA5B_HUMAN,IL10_receptor,STAT5B,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL12_receptor,P40763,,STAT3_HUMAN,IL12_receptor,STAT3,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL12_receptor,P42224,,STAT1_HUMAN,IL12_receptor,STAT1,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL12_receptor,P42226,,STAT6_HUMAN,IL12_receptor,STAT6,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL12_receptor,P42229,,STA5A_HUMAN,IL12_receptor,STAT5A,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL12_receptor,P51692,,STA5B_HUMAN,IL12_receptor,STAT5B,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL12_receptor,Q14765,,STAT4_HUMAN,IL12_receptor,STAT4,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL2_receptor_I,P40763,,STAT3_HUMAN,IL2_receptor_I,STAT3,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL2_receptor_I,P42224,,STAT1_HUMAN,IL2_receptor_I,STAT1,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL2_receptor_I,P42226,,STAT6_HUMAN,IL2_receptor_I,STAT6,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL2_receptor_I,P42229,,STA5A_HUMAN,IL2_receptor_I,STAT5A,1,Uniprot;PMID: 9597132,LGarciaAlonso;RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL2_receptor_I,P51692,,STA5B_HUMAN,IL2_receptor_I,STAT5B,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL2_receptor_I,Q14765,,STAT4_HUMAN,IL2_receptor_I,STAT4,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL3_receptor,P40763,,STAT3_HUMAN,IL3_receptor,STAT3,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL3_receptor,P42224,,STAT1_HUMAN,IL3_receptor,STAT1,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL3_receptor,P42226,,STAT6_HUMAN,IL3_receptor,STAT6,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL3_receptor,P42229,,STA5A_HUMAN,IL3_receptor,STAT5A,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL3_receptor,P51692,,STA5B_HUMAN,IL3_receptor,STAT5B,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL4_receptor,P42226,,STAT6_HUMAN,IL4_receptor,STAT6,1,PMID: 8602263; PMID: 25145352,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL4_receptor,P42229,,STA5A_HUMAN,IL4_receptor,STAT5A,1,,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL5_receptor,Q06945,,SOX4_HUMAN,IL5_receptor,SOX4,1,PMID:11498591,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL6_receptor,P40763,,STAT3_HUMAN,IL6_receptor,STAT3,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL6_receptor,P42224,,STAT1_HUMAN,IL6_receptor,STAT1,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,IL7_receptor,P42229,,STA5A_HUMAN,IL7_receptor,STAT5A,1,PMID: 9597132,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P06213,Q12778,INSR_HUMAN,FOXO1_HUMAN,INSR,FOXO1,-1,Uniprot,LGarciaAlonso,,IIA_developmental
+,P10721,P40763,KIT_HUMAN,STAT3_HUMAN,KIT,STAT3,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P10721,P42224,KIT_HUMAN,STAT1_HUMAN,KIT,STAT1,1,Uniprot;PMID:10358045;PMID: 9355737,LGarciaAlonso;RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P10721,P42229,KIT_HUMAN,STA5A_HUMAN,KIT,STAT5A,1,Uniprot;PMID:10358045,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P10721,P51692,KIT_HUMAN,STA5B_HUMAN,KIT,STAT5B,1,Uniprot;PMID:10358045,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P22888,O43524,,FOXO3_HUMAN,LHCGR,FOXO3,-1,PMID:11875118,LGarciaAlonso,,IIA_developmental
+,P22888,Q12778,,FOXO1_HUMAN,LHCGR,FOXO1,-1,PMID:11875118,LGarciaAlonso,,IIA_developmental
+,Q12866,P42224,,STAT1_HUMAN,MERTK,STAT1,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P46531,O95936,,EOMES_HUMAN,NOTCH1,EOMES,1,PMID:19265115,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P46531,Q06330,,SUH_HUMAN,NOTCH1,RBPJ,1,Uniprot;signalink;PMID:10637481;PMID:8749394;NetPath;PMID: 22718343; PMID: 12039915; PMID: 16921404,LGarciaAlonso;RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P46531,Q14469,,HES1_HUMAN,NOTCH1,HES1,1,Uniprot;NetPath;PMID 10520600,LGarciaAlonso;RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P46531,Q5TA89,,HES5_HUMAN,NOTCH1,HES5,1,Uniprot;NetPath;PMID 10520600,LGarciaAlonso;RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P46531,Q9UBP5,,HEY2_HUMAN,NOTCH1,HEY2,1,Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P46531,Q9Y5J3,,HEY1_HUMAN,NOTCH1,HEY1,1,Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q04721,P47928,,ID4_HUMAN,NOTCH2,ID4,1,PMID:31390563,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q04721,Q06330,,SUH_HUMAN,NOTCH2,RBPJ,1,PMID: 22718343; PMID: 12039915; PMID: 16921404,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q04721,Q14469,,HES1_HUMAN,NOTCH2,HES1,1,Uniprot;NetPath;PMID 10520600,LGarciaAlonso;RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q9UM47,Q06330,,SUH_HUMAN,NOTCH3,RBPJ,1,PMID: 22718343; PMID: 12039915; PMID: 16921405,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q9UM47,Q9HCC6,,HES4_HUMAN,NOTCH3,HES4,1,PMID:27791012,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q99466,Q06330,,SUH_HUMAN,NOTCH4,RBPJ,1,PMID: 22718343; PMID: 12039915; PMID: 16921406,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q99466,Q9NQ87,,HEYL_HUMAN,NOTCH4,HEYL,1,PMID:27791013,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P51843,P51843,,NR0B1_HUMAN,NR0B1,NR0B1,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q15466,Q15466,,NR0B2_HUMAN,NR0B2,NR0B2,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P20393,P20393,,NR1D1_HUMAN,NR1D1,NR1D1,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q14995,Q14995,,NR1D2_HUMAN,NR1D2,NR1D2,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P55055,P55055,,NR1H2_HUMAN,NR1H2,NR1H2,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q13133,Q13133,,NR1H3_HUMAN,NR1H3,NR1H3,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q96RI1,Q96RI1,,NR1H4_HUMAN,NR1H4,NR1H4,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,O75469,O75469,,NR1I2_HUMAN,NR1I2,NR1I2,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q14994,Q14994,,NR1I3_HUMAN,NR1I3,NR1I3,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P13056,P13056,,NR2C1_HUMAN,NR2C1,NR2C1,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P49116,P49116,,NR2C2_HUMAN,NR2C2,NR2C2,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q9Y466,Q9Y466,,NR2E1_HUMAN,NR2E1,NR2E1,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q9Y5X4,Q9Y5X4,,NR2E3_HUMAN,NR2E3,NR2E3,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P10589,P10589,,COT1_HUMAN,NR2F1,NR2F1,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P24468,P24468,,COT2_HUMAN,NR2F2,NR2F2,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P10588,P10588,,NR2F6_HUMAN,NR2F6,NR2F6,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P04150,P04150,,GCR_HUMAN,NR3C1,NR3C1,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P08235,P08235,,MCR_HUMAN,NR3C2,NR3C2,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P22736,P22736,,NR4A1_HUMAN,NR4A1,NR4A1,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P43354,P43354,,NR4A2_HUMAN,NR4A2,NR4A2,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q92570,Q92570,,NR4A3_HUMAN,NR4A3,NR4A3,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q13285,Q13285,,STF1_HUMAN,NR5A1,NR5A1,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,O00482,O00482,,NR5A2_HUMAN,NR5A2,NR5A2,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q15406,Q15406,,NR6A1_HUMAN,NR6A1,NR6A1,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P16234,P40763,,STAT3_HUMAN,PDGFRA,STAT3,1,PMID: 9788278,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P16234,P42224,,STAT1_HUMAN,PDGFRA,STAT1,1,PMID: 9788278,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P16234,P42229,,STA5A_HUMAN,PDGFRA,STAT5A,1,PMID: 9484840,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P16234,P51692,,STA5B_HUMAN,PDGFRA,STAT5B,1,PMID: 9484840,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P09619,P40763,,STAT3_HUMAN,PDGFRB,STAT3,1,PMID:10207096;PMID:9484840,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P09619,P42224,,STAT1_HUMAN,PDGFRB,STAT1,1,PMID:10207096;PMID:9484840,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P09619,P42229,,STA5A_HUMAN,PDGFRB,STAT5A,1,PMID: 9813029,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P09619,P51692,,STA5B_HUMAN,PDGFRB,STAT5B,1,PMID: 9813029,RuxTes ,,IIB3b_RL_signal_dependent_cytoplasmic
+,P06401,P06401,,PRGR_HUMAN,PGR,PGR,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q07869,Q07869,,PPARA_HUMAN,PPARA,PPARA,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q03181,Q03181,,PPARD_HUMAN,PPARD,PPARD,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P37231,P37231,,PPARG_HUMAN,PPARG,PPARG,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,PTCH_BOC_transmembrane_receptor ,P08151,,GLI1_HUMAN,PTCH_BOC_transmembrane_receptor ,GLI1,1,reactome;Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,PTCH_BOC_transmembrane_receptor ,P10070,,GLI2_HUMAN,PTCH_BOC_transmembrane_receptor ,GLI2,1,reactome;Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,PTCH_BOC_transmembrane_receptor ,P10071,,GLI3_HUMAN,PTCH_BOC_transmembrane_receptor ,GLI3,1,reactome;Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,PTCH_CDON_transmembrane_receptor ,P08151,,GLI1_HUMAN,PTCH_CDON_transmembrane_receptor ,GLI1,1,reactome;Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,PTCH_CDON_transmembrane_receptor ,P10070,,GLI2_HUMAN,PTCH_CDON_transmembrane_receptor ,GLI2,1,reactome;Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,PTCH_CDON_transmembrane_receptor ,P10071,,GLI3_HUMAN,PTCH_CDON_transmembrane_receptor ,GLI3,1,reactome;Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,PTCH_GAS1_transmembrane_receptor ,P08151,,GLI1_HUMAN,PTCH_GAS1_transmembrane_receptor ,GLI1,1,reactome;Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,PTCH_GAS1_transmembrane_receptor ,P10070,,GLI2_HUMAN,PTCH_GAS1_transmembrane_receptor ,GLI2,1,reactome;Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,PTCH_GAS1_transmembrane_receptor ,P10071,,GLI3_HUMAN,PTCH_GAS1_transmembrane_receptor ,GLI3,1,reactome;Uniprot;NetPath,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P43115,P14921,PE2R3_HUMAN,ETS1_HUMAN,PTGER3,ETS1,1,PMID:12486127,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P43115,P19419,PE2R3_HUMAN,ELK1_HUMAN,PTGER3,ELK1,1,PMID:12486127,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q03431,Q12948,PTH1R_HUMAN,FOXC1_HUMAN,PTH1R,FOXC1,1,PMID:32431614,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q03431,Q13950,PTH1R_HUMAN,RUNX2_HUMAN,PTH1R,RUNX2,1,PMID:32431614,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,RAreceptor_RARA,P10276,,RARA_HUMAN,RAreceptor_RARA,RARA,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RARA_RXRA,C9JSJ3,,MEIOS_HUMAN,RAreceptor_RARA_RXRA,MEIOSIN,1,publication,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,RAreceptor_RARA_RXRA,P10276,,RARA_HUMAN,RAreceptor_RARA_RXRA,RARA,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RARA_RXRA,P19793,,RXRA_HUMAN,RAreceptor_RARA_RXRA,RXRA,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RARB,P10826,,RARB_HUMAN,RAreceptor_RARB,RARB,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RARB_RXRB,C9JSJ3,,MEIOS_HUMAN,RAreceptor_RARB_RXRB,MEIOSIN,1,publication,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,RAreceptor_RARB_RXRB,P10826,,RARB_HUMAN,RAreceptor_RARB_RXRB,RARB,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RARB_RXRB,P28702,,RXRB_HUMAN,RAreceptor_RARB_RXRB,RXRB,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RARG,P13631,,RARG_HUMAN,RAreceptor_RARG,RARG,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RARG_RXRG,C9JSJ3,,MEIOS_HUMAN,RAreceptor_RARG_RXRG,MEIOSIN,1,publication,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,RAreceptor_RARG_RXRG,P13631,,RARG_HUMAN,RAreceptor_RARG_RXRG,RARG,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RARG_RXRG,P48443,,RXRG_HUMAN,RAreceptor_RARG_RXRG,RXRG,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RXRA,P19793,,RXRA_HUMAN,RAreceptor_RXRA,RXRA,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RXRB,P28702,,RXRB_HUMAN,RAreceptor_RXRB,RXRB,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,RAreceptor_RXRG,P48443,,RXRG_HUMAN,RAreceptor_RXRG,RXRG,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P35398,P35398,,RORA_HUMAN,RORA,RORA,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q92753,Q92753,,RORB_HUMAN,RORB,RORB,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P51449,P51449,,RORG_HUMAN,RORC,RORC,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,TGFbeta_receptor1,P84022,,SMAD3_HUMAN,TGFbeta_receptor1,SMAD3,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,TGFbeta_receptor1,Q15796,,SMAD2_HUMAN,TGFbeta_receptor1,SMAD2,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,TGFbeta_receptor2,P84022,,SMAD3_HUMAN,TGFbeta_receptor2,SMAD3,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,TGFbeta_receptor2,Q15796,,SMAD2_HUMAN,TGFbeta_receptor2,SMAD2,1,Uniprot;PMID:25136781,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P10827,P10827,,THA_HUMAN,THRA,THRA,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,P10828,P10828,,THB_HUMAN,THRB,THRB,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
+,Q9NYK1,Q13568,,IRF5_HUMAN,TLR7,IRF5,1,PMID:15695821,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Q9NR97,Q13568,,IRF5_HUMAN,TLR8,IRF5,1,PMID:15695821,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P19438,P19838,TNR1A_HUMAN,NFKB1_HUMAN,TNFRSF1A,NFKB1,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P20333,P19838,TNR1B_HUMAN,NFKB1_HUMAN,TNFRSF1B,NFKB1,1,,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Type_I_IFNR,P42224,,STAT1_HUMAN,Type_I_IFNR,STAT1,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Type_I_IFNR,P52630,,STAT2_HUMAN,Type_I_IFNR,STAT2,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Type_II_IFNR,P42224,,STAT1_HUMAN,Type_II_IFNR,STAT1,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Type_II_IFNR,P52630,,STAT2_HUMAN,Type_II_IFNR,STAT2,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Type_III_IFNR,P42224,,STAT1_HUMAN,Type_III_IFNR,STAT1,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,Type_III_IFNR,P52630,,STAT2_HUMAN,Type_III_IFNR,STAT2,1,Uniprot,LGarciaAlonso,,IIB3b_RL_signal_dependent_cytoplasmic
+,P11473,P11473,VDR_HUMAN,VDR_HUMAN,VDR,VDR,1,selfAssos,LGarciaAlonso,,IIB1_steroid_receptor
