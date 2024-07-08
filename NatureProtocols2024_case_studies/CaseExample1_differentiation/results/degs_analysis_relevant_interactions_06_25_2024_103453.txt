@@ -1,0 +1,176 @@
+id_cp_interaction	interacting_pair	partner_a	partner_b	gene_a	gene_b	secreted	receptor_a	receptor_b	annotation_strategy	is_integrin	directionality	classification	Germ.PGC|Germ.PGC	Germ.PGC|Somatic.OSE	Germ.PGC|Somatic.preGC_IIa	Somatic.OSE|Germ.PGC	Somatic.OSE|Somatic.OSE	Somatic.OSE|Somatic.preGC_IIa	Somatic.preGC_IIa|Germ.PGC	Somatic.preGC_IIa|Somatic.OSE	Germ.oogonia_STRA8|Somatic.preGC_IIb	Germ.oogonia_meiotic|Somatic.preGC_IIb	Somatic.preGC_IIb|Germ.oogonia_STRA8	Somatic.preGC_IIb|Germ.oogonia_meiotic	Somatic.preGC_IIb|Somatic.preGC_IIb	Germ.oocyte|Germ.oocyte	Germ.oocyte|Somatic.granulosa	Somatic.granulosa|Germ.oocyte	Somatic.granulosa|Somatic.granulosa
+CPI-SC0A2DB962D	CDH1_integrin_a2b1_complex	simple:P12830	complex:integrin_a2b1_complex	CDH1		False	False	False	curated	True	Adhesion-Adhesion	Adhesion by Cadherin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0C8B7BCBB	COL11A1_integrin_a2b1_complex	simple:P12107	complex:integrin_a2b1_complex	COL11A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC0CCCF9A7F	COL14A1_integrin_a2b1_complex	simple:Q05707	complex:integrin_a2b1_complex	COL14A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC04BD52124	COL18A1_integrin_a2b1_complex	simple:P39060	complex:integrin_a2b1_complex	COL18A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC04BCFC59C	COL1A1_integrin_a2b1_complex	simple:P02452	complex:integrin_a2b1_complex	COL1A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC03D0A4AD2	COL1A2_integrin_a2b1_complex	simple:P08123	complex:integrin_a2b1_complex	COL1A2		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0D10396B4	COL21A1_integrin_a2b1_complex	simple:Q96P44	complex:integrin_a2b1_complex	COL21A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC04D3AE2F6	COL22A1_integrin_a2b1_complex	simple:Q8NFW1	complex:integrin_a2b1_complex	COL22A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SC0F179D307	COL26A1_integrin_a2b1_complex	simple:Q96A83	complex:integrin_a2b1_complex	COL26A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC044C2FDA4	COL27A1_integrin_a2b1_complex	simple:Q8IZC6	complex:integrin_a2b1_complex	COL27A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC04251A46C	COL28A1_integrin_a2b1_complex	simple:Q2UY09	complex:integrin_a2b1_complex	COL28A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SC09C62F412	COL2A1_integrin_a2b1_complex	simple:P02458	complex:integrin_a2b1_complex	COL2A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC06A152CC0	COL3A1_integrin_a2b1_complex	simple:P02461	complex:integrin_a2b1_complex	COL3A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC03515B178	COL4A1_integrin_a2b1_complex	simple:P02462	complex:integrin_a2b1_complex	COL4A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC046604E76	COL4A2_integrin_a2b1_complex	simple:P08572	complex:integrin_a2b1_complex	COL4A2		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0926FDACC	COL4A3_integrin_a2b1_complex	simple:Q01955	complex:integrin_a2b1_complex	COL4A3		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC072376C7B	COL4A4_integrin_a2b1_complex	simple:P53420	complex:integrin_a2b1_complex	COL4A4		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC0C287AFC3	COL4A5_integrin_a2b1_complex	simple:P29400	complex:integrin_a2b1_complex	COL4A5		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0681DB40E	COL5A1_integrin_a2b1_complex	simple:P20908	complex:integrin_a2b1_complex	COL5A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0345262E7	COL5A2_integrin_a2b1_complex	simple:P05997	complex:integrin_a2b1_complex	COL5A2		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC0CCB0D955	COL6A1_integrin_a2b1_complex	simple:P12109	complex:integrin_a2b1_complex	COL6A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC01A5C5096	COL6A2_integrin_a2b1_complex	simple:P12110	complex:integrin_a2b1_complex	COL6A2		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC084C79E20	COL6A3_integrin_a2b1_complex	simple:P12111	complex:integrin_a2b1_complex	COL6A3		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC00D0AFED0	COL6A6_integrin_a2b1_complex	simple:A6NMZ7	complex:integrin_a2b1_complex	COL6A6		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SC0BB68FB34	COL9A3_integrin_a2b1_complex	simple:Q14050	complex:integrin_a2b1_complex	COL9A3		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SC01D1C56CC	FN1_integrin_a2b1_complex	simple:P02751	complex:integrin_a2b1_complex	FN1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Fibronectin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0A460766C	LAMC1_integrin_a2b1_complex	simple:P11047	complex:integrin_a2b1_complex	LAMC1		True	False	False	curated	True	Ligand-Receptor	Adhesion by Laminin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0E53A238E	COL11A1_integrin_a1b1_complex	simple:P12107	complex:integrin_a1b1_complex	COL11A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC0AB5FBF10	COL14A1_integrin_a1b1_complex	simple:Q05707	complex:integrin_a1b1_complex	COL14A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC0C739EDCE	COL18A1_integrin_a1b1_complex	simple:P39060	complex:integrin_a1b1_complex	COL18A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC08DBCCFF0	COL1A1_integrin_a1b1_complex	simple:P02452	complex:integrin_a1b1_complex	COL1A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC09DB9D20A	COL1A2_integrin_a1b1_complex	simple:P08123	complex:integrin_a1b1_complex	COL1A2		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC065DB6486	COL21A1_integrin_a1b1_complex	simple:Q96P44	complex:integrin_a1b1_complex	COL21A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC0713C9654	COL22A1_integrin_a1b1_complex	simple:Q8NFW1	complex:integrin_a1b1_complex	COL22A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SC01E6BE079	COL26A1_integrin_a1b1_complex	simple:Q96A83	complex:integrin_a1b1_complex	COL26A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC050F64BB5	COL27A1_integrin_a1b1_complex	simple:Q8IZC6	complex:integrin_a1b1_complex	COL27A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC01C274A51	COL28A1_integrin_a1b1_complex	simple:Q2UY09	complex:integrin_a1b1_complex	COL28A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SC0EA8ABCFD	COL2A1_integrin_a1b1_complex	simple:P02458	complex:integrin_a1b1_complex	COL2A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC00367777A	COL3A1_integrin_a1b1_complex	simple:P02461	complex:integrin_a1b1_complex	COL3A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0744E13CB	COL4A1_integrin_a1b1_complex	simple:P02462	complex:integrin_a1b1_complex	COL4A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC03F728659	COL4A2_integrin_a1b1_complex	simple:P08572	complex:integrin_a1b1_complex	COL4A2		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0886D58EF	COL4A3_integrin_a1b1_complex	simple:Q01955	complex:integrin_a1b1_complex	COL4A3		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC04ABF0023	COL4A4_integrin_a1b1_complex	simple:P53420	complex:integrin_a1b1_complex	COL4A4		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC042B580A3	COL4A5_integrin_a1b1_complex	simple:P29400	complex:integrin_a1b1_complex	COL4A5		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0592501EA	COL5A1_integrin_a1b1_complex	simple:P20908	complex:integrin_a1b1_complex	COL5A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC037A0554C	COL5A2_integrin_a1b1_complex	simple:P05997	complex:integrin_a1b1_complex	COL5A2		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC0549A759B	COL6A1_integrin_a1b1_complex	simple:P12109	complex:integrin_a1b1_complex	COL6A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0F9FB6DCB	COL6A2_integrin_a1b1_complex	simple:P12110	complex:integrin_a1b1_complex	COL6A2		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0ECDD1074	COL6A3_integrin_a1b1_complex	simple:P12111	complex:integrin_a1b1_complex	COL6A3		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SC0D3870098	COL6A6_integrin_a1b1_complex	simple:A6NMZ7	complex:integrin_a1b1_complex	COL6A6		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SC0DC74CBE5	COL9A3_integrin_a1b1_complex	simple:Q14050	complex:integrin_a1b1_complex	COL9A3		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SC03AF43F8B	SEMA7A_integrin_a1b1_complex	simple:O75326	complex:integrin_a1b1_complex	SEMA7A		False	False	False	curated	True	Ligand-Receptor	Signaling by Semaphorin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC092A2325E	COL14A1_integrin_a11b1_complex	simple:Q05707	complex:integrin_a11b1_complex	COL14A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SC0C061DC28	COL3A1_integrin_a11b1_complex	simple:P02461	complex:integrin_a11b1_complex	COL3A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SC0C351F7DF	COL4A1_integrin_a11b1_complex	simple:P02462	complex:integrin_a11b1_complex	COL4A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SC09AE93F66	COL4A2_integrin_a11b1_complex	simple:P08572	complex:integrin_a11b1_complex	COL4A2		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SC08F17FB3E	COL4A3_integrin_a11b1_complex	simple:Q01955	complex:integrin_a11b1_complex	COL4A3		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SC0FAC9844A	COL4A4_integrin_a11b1_complex	simple:P53420	complex:integrin_a11b1_complex	COL4A4		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SC0FB1817EE	COL6A1_integrin_a11b1_complex	simple:P12109	complex:integrin_a11b1_complex	COL6A1		True	False	False	curated	True	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SS0343DD0EE	COL3A1_ADGRG1	simple:P02461	simple:Q9Y653	COL3A1	ADGRG1	True	False	True	curated	False	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SS015BF69EE	COL4A1_ADGRG6	simple:P02462	simple:Q86SQ4	COL4A1	ADGRG6	True	False	True	curated	False	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SS01771D11B	COL4A2_ADGRG6	simple:P08572	simple:Q86SQ4	COL4A2	ADGRG6	True	False	True	curated	False	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1	0
+CPI-SS0AADAB219	COL4A3_ADGRG6	simple:Q01955	simple:Q86SQ4	COL4A3	ADGRG6	True	False	True	curated	False	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SS06D2944B5	COL4A4_ADGRG6	simple:P53420	simple:Q86SQ4	COL4A4	ADGRG6	True	False	True	curated	False	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SS0924C61F1	COL4A5_ADGRG6	simple:P29400	simple:Q86SQ4	COL4A5	ADGRG6	True	False	True	curated	False	Adhesion-Adhesion	Adhesion by Collagen/Integrin	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1	0
+CPI-SS0335C4DDE	LAMA2_ADGRG6	simple:P24043	simple:Q86SQ4	LAMA2	ADGRG6	True	False	True	curated	False	Ligand-Receptor		0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1	0
+CPI-SS0087B834D	PRNP_ADGRG6	simple:F7VJQ1	simple:Q86SQ4	PRNP	ADGRG6	False	False	True	curated	False	Ligand-Receptor		0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1	0
+CPI-SS06D13FCD3	DSC2_DSG2	simple:Q02487	simple:Q14126	DSC2	DSG2	False	False	False	curated	False	Adhesion-Adhesion	Adhesion by Desmosome	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS0D9DE7106	DAG1_NRXN3	simple:Q14118	simple:Q9HDB5	DAG1	NRXN3	True	True	False	curated	False	Ligand-Receptor		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SS0DD3733E8	CLSTN1_NRXN3	simple:O94985	simple:Q9HDB5	CLSTN1	NRXN3	False	False	False	curated	False	Ligand-Receptor	Signaling by Calsyntenin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SS04829AC68	GJA1_GJA1	simple:P17302	simple:P17302	GJA1	GJA1	False	False	False	curated	False	Gap-Gap	Adhesion by GAP junction	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0
+CPI-SS0C4261737	GJC1_GJA1	simple:P36383	simple:P17302	GJC1	GJA1	False	False	False	curated	False	Gap-Gap	Adhesion by GAP junction	0	0	0	0	0	0	0	0	1	1	0	0	0	0	0	0	0
+CPI-SC024FAED24	LAMC1_integrin_a6b1_complex	simple:P11047	complex:integrin_a6b1_complex	LAMC1		True	False	False	curated	True	Ligand-Receptor	Adhesion by Laminin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1	1
+CPI-SS0C93E48D7	THBS1_CD36	simple:P07996	simple:P16671	THBS1	CD36	False	False	True	curated	False	Ligand-Receptor	Signaling by Thrombospondin precursor	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SS0593F278B	AGRN_PTPRS	simple:O00468	simple:Q13332	AGRN	PTPRS	True	False	True	curated	False	Ligand-Receptor	Signaling by Agrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+CPI-SS080C81D37	APP_CD74	simple:P05067	simple:P04233	APP	CD74	False	False	True	curated	False	Ligand-Receptor	Signaling by Amyloid-beta precursor protein	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1	1
+CPI-SS0CB6F5575	APP_PLXNA4	simple:P05067	simple:Q9HCM2	APP	PLXNA4	False	False	True	curated	False	Ligand-Receptor	Signaling by Amyloid-beta precursor protein	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SS07ACDDCD6	APP_SORL1	simple:P05067	simple:Q92673	APP	SORL1	True	False	True	curated	False	Ligand-Receptor	Signaling by Amyloid-beta precursor protein	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-CS019C00E02	Androsterone_byHSD17B6_NR1H4	complex:Androsterone_byHSD17B6	simple:Q96RI1		NR1H4	True	False	True	curated	False	Ligand-Receptor	Signaling by Steroids	0	0	0	0	0	0	0	0	1	1	0	0	0	0	0	0	0
+CPI-CS08D535BCF	22Hydroxycholesterol_byCYP11A1_NR1H4	complex:22Hydroxycholesterol_byCYP11A1	simple:Q96RI1		NR1H4	True	False	True	curated	False	Ligand-Receptor	Signaling by Steroids	0	0	0	0	0	0	0	0	1	1	0	0	1	0	0	0	1
+CPI-SC0C403F032	BMP2_BMPR1B_BMPR2	simple:P12643	complex:BMPR1B_BMPR2	BMP2		True	False	True	curated	False	Ligand-Receptor	Signaling by BMP	0	0	0	0	0	0	0	0	0	0	1	1	1	0	0	0	1
+CPI-SC0DDF53DDB	BMP6_BMPR1B_BMPR2	simple:P22004	complex:BMPR1B_BMPR2	BMP6		True	False	True	curated	False	Ligand-Receptor	Signaling by BMP	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SC0464F1C6E	BMP2_BMR1A_ACR2A	simple:P12643	complex:BMR1A_ACR2A	BMP2		True	False	True	curated	False	Ligand-Receptor	Signaling by BMP	0	0	0	0	0	0	0	0	0	0	1	1	0	0	0	0	0
+CPI-SC05FF723A3	BMP2_BMR1B_AVR2A	simple:P12643	complex:BMR1B_AVR2A	BMP2		True	False	True	curated	False	Ligand-Receptor	Signaling by BMP	0	0	0	0	0	0	0	0	0	0	1	1	0	0	0	0	0
+CPI-SC04266947A	BMP2_BMR1A_AVR2B	simple:P12643	complex:BMR1A_AVR2B	BMP2		True	False	True	curated	False	Ligand-Receptor	Signaling by BMP	0	0	0	0	0	0	0	0	0	0	1	1	0	0	0	0	0
+CPI-SC0FB40175C	BMP2_BMR1B_AVR2B	simple:P12643	complex:BMR1B_AVR2B	BMP2		True	False	True	curated	False	Ligand-Receptor	Signaling by BMP	0	0	0	0	0	0	0	0	0	0	1	1	0	0	0	0	0
+CPI-SC070B9F112	BMP2_BMPR1A_BMPR2	simple:P12643	complex:BMPR1A_BMPR2	BMP2		True	False	True	curated	False	Ligand-Receptor	Signaling by BMP	0	0	0	0	0	0	0	0	0	0	1	1	1	0	0	0	1
+CPI-SC00D19A858	BMP6_BMPR1A_BMPR2	simple:P22004	complex:BMPR1A_BMPR2	BMP6		True	False	True	curated	False	Ligand-Receptor	Signaling by BMP	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-CS0569B9B91	BMPR1B_BMPR2_BMPR1A	complex:BMPR1B_BMPR2	simple:P36894		BMPR1A	False	True	True	curated	False	Receptor-Receptor	Signaling by BMP	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+CPI-SS0BA601DC4	BDNF_NTRK2	simple:P23560	simple:Q16620	BDNF	NTRK2	True	False	True	curated	False	Ligand-Receptor	Signaling by Brain-derived neurotrophic factor	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS0E3AA6B7B	NTN4_NTRK2	simple:Q9HB63	simple:Q16620	NTN4	NTRK2	True	False	True	curated	False	Ligand-Receptor	Signaling by Netrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS084EA55C0	CLSTN1_NRXN1	simple:O94985	simple:Q9ULB1	CLSTN1	NRXN1	False	False	False	curated	False	Ligand-Receptor	Signaling by Calsyntenin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-SS0BF9265F0	CLSTN1_NRXN2	simple:O94985	simple:P58401	CLSTN1	NRXN2	False	False	False	curated	False	Ligand-Receptor	Signaling by Calsyntenin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS015162AFC	IL34_CSF1R	simple:Q6ZMJ4	simple:P07333	IL34	CSF1R	True	False	True	curated	False	Ligand-Receptor	Signaling by Interleukin	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0
+CPI-SS07C846DEE	DHH_HHIP	simple:O43323	simple:Q96QV1	DHH	HHIP	True	False	False	curated	False	Ligand-Ligand	Signaling by Desert hedgehog	0	0	0	0	0	0	0	1	0	0	0	0	0	0	0	0	0
+CPI-SS03446CB39	EFNB1_EPHA4	simple:P98172	simple:P54764	EFNB1	EPHA4	False	False	True	curated	False	Ligand-Receptor	Signaling by Ephrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS06E797E50	EFNB1_EPHB2	simple:P98172	simple:P29323	EFNB1	EPHB2	False	False	True	curated	False	Ligand-Receptor	Signaling by Ephrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS09D9D6811	EFNB1_EPHB4	simple:P98172	simple:P54760	EFNB1	EPHB4	False	False	True	curated	False	Ligand-Receptor	Signaling by Ephrin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS0627D0E22	NRG4_ERBB4	simple:Q8WWG1	simple:Q15303	NRG4	ERBB4	True	False	True	curated	False	Ligand-Receptor	Signaling by Neuregulin	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1	0	0
+CPI-SS0C21302BC	NCAM1_AGRN	simple:P13591	simple:O00468	NCAM1	AGRN	True	True	False	curated	False	Ligand-Receptor	Signaling by Leucine-Rich Repeat Transmembrane Neuronal Protein	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-CS0A7EA055F	GABA_byGAD1_and_SLC6A11_GABBR2	complex:GABA_byGAD1_and_SLC6A11	simple:O75899		GABBR2	True	False	True	curated	False	Ligand-Receptor	Signaling by GABA	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0
+CPI-SS076940BCD	LGALS3_MERTK	simple:P17931	simple:Q12866	LGALS3	MERTK	True	False	True	curated	False	Ligand-Receptor	Signaling by Galectin	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1	0	0
+CPI-SS0F7FF099C	GAS6_MERTK	simple:Q14393	simple:Q12866	GAS6	MERTK	True	False	True	curated	False	Ligand-Receptor	Signaling by Growth arrest	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+CPI-CS0F1EA3405	Glutamate_byGLS_and_SLC17A8_GRIK2	complex:Glutamate_byGLS_and_SLC17A8	simple:Q13002		GRIK2	True	False	True	curated	False	Ligand-Receptor	Signaling by Glutamate	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-CS0940331BF	Glutamate_byGLS2_and_SLC17A7_GRIK2	complex:Glutamate_byGLS2_and_SLC17A7	simple:Q13002		GRIK2	True	False	True	curated	False	Ligand-Receptor	Signaling by Glutamate	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0
+CPI-CS0D9BFD8AF	Glutamate_byGLS2_and_SLC1A6_GRIK2	complex:Glutamate_byGLS2_and_SLC1A6	simple:Q13002		GRIK2	True	False	True	curated	False	Ligand-Receptor	Signaling by Glutamate	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0
+CPI-CC01959C6DB	Glutamate_byGLS_and_SLC17A8_Glutamate_Kainate_2_4_complex	complex:Glutamate_byGLS_and_SLC17A8	complex:Glutamate_Kainate_2_4_complex			True	False	True	curated	False	Ligand-Receptor	Signaling by Glutamate	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0
+CPI-CC032282108	Glutamate_byGLS2_and_SLC17A7_Glutamate_Kainate_2_4_complex	complex:Glutamate_byGLS2_and_SLC17A7	complex:Glutamate_Kainate_2_4_complex			True	False	True	curated	False	Ligand-Receptor	Signaling by Glutamate	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0
+CPI-CC0ACDCA68F	Glutamate_byGLS2_and_SLC1A6_Glutamate_Kainate_2_4_complex	complex:Glutamate_byGLS2_and_SLC1A6	complex:Glutamate_Kainate_2_4_complex			True	False	True	curated	False	Ligand-Receptor	Signaling by Glutamate	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0
+CPI-SS0AE964947	GAS6_AXL	simple:Q14393	simple:P30530	GAS6	AXL	True	False	True	curated	False	Ligand-Receptor	Signaling by Growth arrest	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS0BDA0E5E0	GAS6_TYRO3	simple:Q14393	simple:Q06418	GAS6	TYRO3	True	False	True	curated	False	Ligand-Receptor	Signaling by Growth arrest	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+CPI-SC0FDB4B6D9	GDF9_TGFR_BMPR2	simple:O60383	complex:TGFR_BMPR2	GDF9		True	False	True	curated	False	Ligand-Receptor	Signaling by Growth differentiation factor	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-CS0FF6E7611	Histamine_byHDC_HRH1	complex:Histamine_byHDC	simple:P35367		HRH1	True	False	True	curated	False	Ligand-Receptor	Signaling by Histamine	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SS0118D1B89	THY1_ADGRE5	simple:P04216	simple:P48960	THY1	ADGRE5	True	False	True	curated	False	Adhesion-Adhesion	Adhesion by antigen THY1	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SS04F1CBF06	NTN1_DCC	simple:O95631	simple:P43146	NTN1	DCC	True	False	True	curated	False	Ligand-Receptor	Signaling by Netrin	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1	0
+CPI-SS085E14488	NRXN1_DAG1	simple:Q9ULB1	simple:Q14118	NRXN1	DAG1	True	False	True	curated	False	Receptor-Receptor	Signaling by Neurexin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SS0193D81E1	NRXN2_DAG1	simple:P58401	simple:Q14118	NRXN2	DAG1	True	False	True	curated	False	Receptor-Receptor	Signaling by Neurexin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS052ADA696	JAG1_NOTCH1	simple:P78504	simple:P46531	JAG1	NOTCH1	False	False	True	curated	False	Ligand-Receptor	Signaling by Notch	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SS060B82BBC	JAG1_NOTCH2	simple:P78504	simple:Q04721	JAG1	NOTCH2	False	False	True	curated	False	Ligand-Receptor	Signaling by Notch	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1	0	0
+CPI-SS035E5A708	DLL3_NOTCH3	simple:Q9NYJ7	simple:Q9UM47	DLL3	NOTCH3	False	False	True	curated	False	Ligand-Receptor	Signaling by Notch	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SS0B99F22A2	JAG1_NOTCH3	simple:P78504	simple:Q9UM47	JAG1	NOTCH3	False	False	True	curated	False	Ligand-Receptor	Signaling by Notch	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SS015B87133	JAG1_CD46	simple:P78504	simple:P15529	JAG1	CD46	False	False	True	curated	False	Ligand-Receptor		0	0	0	0	0	0	0	0	0	0	0	0	0	1	1	0	0
+CPI-SS0EDD8CDD4	JAG1_VASN	simple:P78504	simple:Q6EMK4	JAG1	VASN	True	False	False	curated	False	Ligand-Receptor		0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SS043E22BF5	VEGFA_NRP1	simple:P15692	simple:O14786	VEGFA	NRP1	True	False	True	curated	False	Ligand-Receptor	Signaling by Vascular endothelial growth factor	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS00508D1C2	VEGFB_NRP1	simple:P49765	simple:O14786	VEGFB	NRP1	True	False	True	curated	False	Ligand-Receptor	Signaling by Vascular endothelial growth factor	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1
+CPI-SS0F67B526A	SEMA3C_NRP2	simple:Q99985	simple:O60462	SEMA3C	NRP2	True	False	True	curated	False	Ligand-Receptor	Signaling by Semaphorin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS046F8AD8B	VEGFA_NRP2	simple:P15692	simple:O60462	VEGFA	NRP2	True	False	True	curated	False	Ligand-Receptor	Signaling by Vascular endothelial growth factor	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS0A9F17199	PYY_NPY1R	simple:P10082	simple:P25929	PYY	NPY1R	True	False	True	curated	False	Ligand-Receptor	Signaling by Peptide YY	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SS01E3453DB	RSPO2_LGR4	simple:Q6UXX9	simple:Q9BXB1	RSPO2	LGR4	True	False	True	curated	False	Ligand-Receptor	Signaling by R-spondin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0
+CPI-SS06DF3325D	RELN_VLDLR	simple:P78509	simple:P98155	RELN	VLDLR	True	False	True	curated	False	Ligand-Receptor	Signaling by Reelin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-CC0010C54C6	atRetinoicAcid_byALDH1A1_RAreceptor_RARA	complex:atRetinoicAcid_byALDH1A1	complex:RAreceptor_RARA			True	False	True	curated	False	Ligand-Receptor	Signaling by Retinoic Acid	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0
+CPI-CC048F01E8D	atRetinoicAcid_byALDH1A1_RAreceptor_RARA_RXRA	complex:atRetinoicAcid_byALDH1A1	complex:RAreceptor_RARA_RXRA			True	False	True	curated	False	Ligand-Receptor	Signaling by Retinoic Acid	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0
+CPI-CC06F5021B7	atRetinoicAcid_byALDH1A1_RAreceptor_RARB	complex:atRetinoicAcid_byALDH1A1	complex:RAreceptor_RARB			True	False	True	curated	False	Ligand-Receptor	Signaling by Retinoic Acid	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0
+CPI-CC036F9AC3C	atRetinoicAcid_byALDH1A1_RAreceptor_RARB_RXRB	complex:atRetinoicAcid_byALDH1A1	complex:RAreceptor_RARB_RXRB			True	False	True	curated	False	Ligand-Receptor	Signaling by Retinoic Acid	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0
+CPI-CC065AB1F5E	atRetinoicAcid_byALDH1A1_RAreceptor_RARG	complex:atRetinoicAcid_byALDH1A1	complex:RAreceptor_RARG			True	False	True	curated	False	Ligand-Receptor	Signaling by Retinoic Acid	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0
+CPI-CC0A31C8D8B	atRetinoicAcid_byALDH1A1_RAreceptor_RXRA	complex:atRetinoicAcid_byALDH1A1	complex:RAreceptor_RXRA			True	False	True	curated	False	Ligand-Receptor	Signaling by Retinoic Acid	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0
+CPI-CC0A06D2C2D	atRetinoicAcid_byALDH1A1_RAreceptor_RXRB	complex:atRetinoicAcid_byALDH1A1	complex:RAreceptor_RXRB			True	False	True	curated	False	Ligand-Receptor	Signaling by Retinoic Acid	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0
+CPI-SS0CDEE4A57	RARRES2_CMKLR1	simple:Q99969	simple:Q99788	RARRES2	CMKLR1	True	False	True	curated	False	Ligand-Receptor	Signaling by Retinoid acid	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	1	0
+CPI-SC08F771F98	SEMA6A_PlexinA2_complex1	simple:Q9H2E6	complex:PlexinA2_complex1	SEMA6A		False	False	True	curated	False	Ligand-Receptor	Signaling by Semaphorin	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS0D681D90E	SDC2_ADGRA2	simple:P34741	simple:Q96PE1	SDC2	ADGRA2	True	False	True	curated	False	Ligand-Receptor	Signaling by Syndecan	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS085EE60B1	TGFB1_TGFBR3	simple:P01137	simple:Q03167	TGFB1	TGFBR3	True	False	True	curated	False	Ligand-Receptor	Signaling by Transforming growth factor	0	1	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-CS0245870E9	Lthyroxine_byTPO_THRB	complex:Lthyroxine_byTPO	simple:P10828		THRB	True	False	False	curated	False	Ligand-Receptor		0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0
+CPI-SC0A81AF307	WNT2B_FZD10_LRP5	simple:Q93097	complex:FZD10_LRP5	WNT2B		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	1	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC07B51ACC4	WNT2B_FZD10_LRP6	simple:Q93097	complex:FZD10_LRP6	WNT2B		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	1	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC058678C1B	WNT2B_FZD2_LRP6	simple:Q93097	complex:FZD2_LRP6	WNT2B		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	1	0	0	1	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC0671450D5	WNT2B_FZD3_LRP5	simple:Q93097	complex:FZD3_LRP5	WNT2B		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	1	1	0	1	1	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC01D3E6936	WNT6_FZD3_LRP5	simple:Q9Y6F9	complex:FZD3_LRP5	WNT6		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC015580274	WNT2B_FZD3_LRP6	simple:Q93097	complex:FZD3_LRP6	WNT2B		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	1	1	1	1	1	1	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC0D8C38952	WNT6_FZD3_LRP6	simple:Q9Y6F9	complex:FZD3_LRP6	WNT6		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+CPI-SC05D7BF6AC	WNT2B_FZD4_LRP5	simple:Q93097	complex:FZD4_LRP5	WNT2B		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	1	1	0	1	1	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC056F2D04E	WNT6_FZD4_LRP5	simple:Q9Y6F9	complex:FZD4_LRP5	WNT6		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC0B6207B1C	WNT2B_FZD4_LRP6	simple:Q93097	complex:FZD4_LRP6	WNT2B		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	1	1	0	1	1	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC0B2882B83	WNT6_FZD4_LRP6	simple:Q9Y6F9	complex:FZD4_LRP6	WNT6		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC012DB3194	WNT10A_FZD5_LRP5	simple:Q9GZT5	complex:FZD5_LRP5	WNT10A		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC0FBD05A5F	WNT2B_FZD5_LRP5	simple:Q93097	complex:FZD5_LRP5	WNT2B		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	1	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC0991BCC7F	WNT10A_FZD5_LRP6	simple:Q9GZT5	complex:FZD5_LRP6	WNT10A		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC081C6762E	WNT2B_FZD5_LRP6	simple:Q93097	complex:FZD5_LRP6	WNT2B		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	1	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC04CBB7552	WNT6_FZD6_LRP5	simple:Q9Y6F9	complex:FZD6_LRP5	WNT6		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC04FC6D5DC	WNT6_FZD6_LRP6	simple:Q9Y6F9	complex:FZD6_LRP6	WNT6		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	1
+CPI-SC0CBE0F4A0	WNT6_FZD7_LRP5	simple:Q9Y6F9	complex:FZD7_LRP5	WNT6		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SC0AB470FD0	WNT10A_FZD7_LRP6	simple:Q9GZT5	complex:FZD7_LRP6	WNT10A		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC063E27411	WNT2B_FZD7_LRP6	simple:Q93097	complex:FZD7_LRP6	WNT2B		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	1	0	0	1	0	0	0	0	0	0	0	0	0	0	0
+CPI-SC0F73E951B	WNT6_FZD7_LRP6	simple:Q9Y6F9	complex:FZD7_LRP6	WNT6		True	False	False	curated	False	Ligand-Receptor	Signaling by WNT	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS05207EFF8	WNT2B_SFRP1	simple:Q93097	simple:Q8N474	WNT2B	SFRP1	True	False	False	curated	False	Ligand-Ligand	Signaling by WNT inhibition	0	1	1	0	1	1	0	1	0	0	0	0	0	0	0	0	0
+CPI-SS0DF9024C0	WNT3_SFRP1	simple:P56703	simple:Q8N474	WNT3	SFRP1	True	False	False	curated	False	Ligand-Ligand	Signaling by WNT inhibition	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SS0F1E79A03	WNT5A_SFRP1	simple:P41221	simple:Q8N474	WNT5A	SFRP1	True	False	False	curated	False	Ligand-Ligand	Signaling by WNT inhibition	0	0	0	0	1	0	0	1	0	0	0	0	0	0	0	0	0
+CPI-SS0FF2EEAE8	WNT5B_SFRP1	simple:Q9H1J7	simple:Q8N474	WNT5B	SFRP1	True	False	False	curated	False	Ligand-Ligand	Signaling by WNT inhibition	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SS097860321	WNT6_SFRP1	simple:Q9Y6F9	simple:Q8N474	WNT6	SFRP1	True	False	False	curated	False	Ligand-Ligand	Signaling by WNT inhibition	0	0	0	0	1	0	0	1	0	0	0	0	0	0	0	0	1
+CPI-SS08643DD8A	WNT2B_SFRP2	simple:Q93097	simple:Q96HF1	WNT2B	SFRP2	True	False	False	curated	False	Ligand-Ligand	Signaling by WNT inhibition	1	1	1	1	1	1	1	1	0	0	0	0	0	0	0	0	0
+CPI-SS0E9BE6A4E	WNT3_SFRP2	simple:P56703	simple:Q96HF1	WNT3	SFRP2	True	False	False	curated	False	Ligand-Ligand	Signaling by WNT inhibition	1	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SS03F33B34C	WNT5A_SFRP2	simple:P41221	simple:Q96HF1	WNT5A	SFRP2	True	False	False	curated	False	Ligand-Ligand	Signaling by WNT inhibition	0	0	0	1	1	0	1	1	0	0	0	0	0	0	0	0	0
+CPI-SS0AC302C73	WNT5B_SFRP2	simple:Q9H1J7	simple:Q96HF1	WNT5B	SFRP2	True	False	False	curated	False	Ligand-Ligand	Signaling by WNT inhibition	1	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+CPI-SS07B6C7A75	WNT6_SFRP2	simple:Q9Y6F9	simple:Q96HF1	WNT6	SFRP2	True	False	False	curated	False	Ligand-Ligand	Signaling by WNT inhibition	0	0	0	1	1	0	1	1	0	0	0	0	0	0	0	0	0
+CPI-SS0DBA22B92	CHL1_CHL1	simple:O00533	simple:O00533	CHL1	CHL1	True	False	False	curated	False	Adhesion-Adhesion		0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1
+CPI-SS0E0DEA7D5	PECAM1_CD38	simple:P16284	simple:P28907	PECAM1	CD38	False	True	True	curated	False	Receptor-Receptor		0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0
