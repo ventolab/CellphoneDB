@@ -471,10 +471,21 @@ Tutorials to run CellphoneDB are available [here](https://github.com/ventolab/Ce
 
 FAQs
 ============================================
-### 1. What are the counts input files accepted? 
+### 1. What method should I use?
+
+There is no universal method to infer cell-cell communication from single-cell transcriptomics datasets that applies to all research scenarios. The 'optimal' method depends on the specific application, considering the experimental design and the particular biological questions being addressed. Key factors, such as managing batch effects or defining reference populations for comparisons (i.e., determining which conditions or cell types should form the null distribution), are crucial in selecting a method that will yield __resolve the question that is being asked__.
+
+   - Method 1 (aka ``simple analysis``) returns, for each interaction in each cell type pair, the mean expression of the interacting partners. Thus, Method 1 returns all interactions whose partners are expressed above a threshold with no statistics; these results can be used either as an initial exploratory analysis to extract all potential interactions or to generate a dataset-tailored database of cell-cell interactions for downstream analyses. Thus, this method is of interest to answer: __what are the interactions whose ligands/receptors are expressed?__.
+
+   - Method 2 (aka ``statistical analysis``), extends Method 1 by assessing the probability that the mean interaction expression occurs by chance. Method 2 is designed to identify interactions that are upregulated by a specific cell type pair within the entire dataset, making it suitable for general exploratory analysis where the user seeks to perform a 'One-versus-Rest' comparison. In other words, it attempts to answer the question __“is a particular interaction significantly more expressed in a given cell type pair compared to all other cell type pairs in the dataset?”__.
+
+   - Method 3 (aka ``differential expression analysis``) offers an alternative approach to the “One-versus-Rest” Method 2. It allows the user to design more targeted queries to identify relevant interactions for specific cell types or conditions. This is particularly useful to identify interactions in the following contexts: __what are the interactions (i) specific to individual cell states within a cell type or lineage?; (ii) specific to cells from a given condition (i.e. by comparing disease vs control or perturbation vs steady-state)?; (iii) arising during differentiation processes?; or (iv) differentially expressed along a spatial axis?__. Method 3 requires a user-provided list of differentially expressed genes in cell types of interest, which is estimated by the user from either comparing discrete cell types (applications i and ii) or by modelling the expression dynamics along a trajectory (applications iii and iv). Thus, the differential expression analysis is pre-computed by the user using their preferred method, in a way that fits their experimental design (for example, modelling confounding covariates and technical batches) and research question (for example, by defining the null hypothesis or restricting the background distribution of expression to specific cell lineages or conditions, instead of all cells in a dataset). Using this approach, CellPhoneDB retrieves those interactions in which at least one partner is differentially expressed in a cell type (according to the user-provided differentially expressed list) and the other partner is expressed by any other cell type (above the user-specified threshold). 
+
+### 2. What are the counts input files accepted? 
 CellphoneDB accepts counts files in the following formats: as a text file (with columns indicating individual cells and rows indicating genes), as a h5ad (recommended), a h5 or a path to a folder containing a 10x output with mtx/barcode/features files.
 
-### 2. How to extract the CellphoneDB input files from a Seurat object? 
+
+### 3. How to extract the CellphoneDB input files from a Seurat object? 
 We recommend using normalised count data. This can be obtained by taking the normalised slot from the Seurat object or by taking the raw data slot and applying the normalisation manually. The user can also normalise the data using their preferred method.
 
 
@@ -500,23 +511,32 @@ write.table(colData(seurat_obj), file = 'outdir/barcodes.tsv', sep = '\t', quote
 # and then compress the files to get .gz
 ```
                     
-### 3. How to extract the CellphoneDB input files from a scanpy anndata? 
+### 4. How to extract the CellphoneDB input files from a scanpy anndata? 
 
 You can provide an anndata as .h5ad file.
                    
                     
-### 4. Should the input file with the count data be with HGNC symbols (gene names) or Ensembl IDs? 
+### 5. Should the input file with the count data be with HGNC symbols (gene names) or Ensembl IDs? 
 
 CellphoneDB.2 allows the use of both HGNC symbols and Ensembl IDs.
 
 Please, specify HGNC symbols with  `counts-data = hgnc_symbol`.
 
 
-### 5. What is the purpose of subsampling? 
+### 6. What is the purpose of subsampling? 
 The datasets that are generated are increasing in the number of sequenced cells exponentially. In order to increase the speed of CellphoneDB, we included an optional step in the analysis the method described in (Hie B, Cho H, DeMeo B, Bryson B and Berger B, Geometric Sketching Compactly Summarizes the Single-Cell Transcriptomic Landscape, Cell Systems 2019). The user can also choose another method to subsample and simply input the subsampled data into CellphoneDB in the same way as described above. We recommend subsampling for very big datasets; the minimum number of cells to use the subsampling option is 1000.
 
-### 6. What is the meaning of “Rank” in the “significant_means.txt” output file? 
+### 7. What is the meaning of “Rank” in the “significant_means.txt” output file? 
 The rank is calculated by counting the significant p-values per interaction pair (per row) and dividing with the total number of cluster-cluster comparisons. The idea is to prioritise interactions that are highly specific, that is they have only one or few significant p-values and to have on the bottom of the list the interactions that are present everywhere or not present anywhere at all.
+
+### 8. Why values of clusterA-clusterB are different to the values of clusterB-clusterA?
+
+Cell-cell interactions are not symmetric and their values will be different. Partner A expression is considered for the first cluster/cell type (clusterA), and partner B expression is considered on the second cluster/cell type (clusterB). Thus, `IL12`-`IL12 receptor` for clusterA-clusterB (i.e. the receptor is in clusterB) is not the same that `IL12`-`IL12 receptor` for clusterB-clusterA (i.e. the receptor is in clusterA), and will have different values.
+
+In other words:
+* ``clusterA_clusterB`` = clusterA expressing __partner A__ and clusterB expressing __partner B__.
+* ``clusterB_clusterA`` = clusterB expressing __partner A__ and clusterA expressing __partner B__.
+* ``clusterA_clusterB`` and ``clusterB_clusterA`` values will be different.
 
 
 Citing
