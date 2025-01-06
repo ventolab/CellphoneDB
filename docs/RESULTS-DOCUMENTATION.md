@@ -427,7 +427,7 @@ Do you want to contribute  our curation effort?
 Users can submit their lists using the Python package version of CellphoneDB, and then send them via <contact@cellphonedb.org> or a pull request to the CellphoneDB data [repository](https://github.com/ventolab/CellphoneDB-data).
 
 
-CellphoneDBViz
+Plot CellphoneDB Data: CellphoneDBViz
 ============================================
 
 Display and query CellphoneDB results using CellphoneDBViz, developed to provide an accurate, intuitive visualization of any result data. See some example visualizations on [cellphonedb.org](https://www.cellphonedb.org/viz/). See [the CellphoneDBViz repository](https://github.com/ventolab/cellphonedbviz) for the source code.
