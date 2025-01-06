@@ -427,10 +427,91 @@ Do you want to contribute  our curation effort?
 Users can submit their lists using the Python package version of CellphoneDB, and then send them via <contact@cellphonedb.org> or a pull request to the CellphoneDB data [repository](https://github.com/ventolab/CellphoneDB-data).
 
 
-Plotting results
+CellphoneDBViz
 ============================================
 
-Currently CellphoneDB relies on external plotting implementations to represent the results. Examples are provided in the [tutorials](notebooks).
+Display and query CellphoneDB results using CellphoneDBViz, developed to provide an accurate, intuitive visualization of any result data. See some example visualizations on [cellphonedb.org](https://www.cellphonedb.org/viz/). See [the CellphoneDBViz repository](https://github.com/ventolab/cellphonedbviz) for the source code.
+
+## Individual plots
+
+The following plots are displayed on a CellphoneDBViz page:
+
+### Input plots
+
+#### Spatial Microenvironments
+
+Shows the mapping between cell types and microenvironments. Requires 'microenvironments' to be defined in the configuration file (please see 'CellphoneDBViz Requirements').
+![Spatial Microenvironments plot](./CPDBViz-SPME-example.png)
+
+#### Cell Composition
+
+Shows the mapping between different cell type characteristics. Requires 'celltype_composition' to be defined in the configuration file (please see 'CellphoneDBViz Requirements').
+![Cell Composition plot](./CPDBViz-Cell-Composition-example.png)
+
+### Output plots
+
+#### Cell-cell Interaction Summary
+
+Shows the number of significant interactions between each cell type pair within individual microenvironments (up to 9 microenvironments may be selected). Users may select either a heatmap plot or a chord plot here. Additionally, users may view interactions between all cell type pairs if they wish.
+
+![Cell-Cell Interaction Summary plot](./CPDBViz-CCI-Summary-example.png)
+
+#### Cell-cell Interaction Search
+
+Shows significant interactions between all selected cell type / interacting pairs. Larger dots indicate that the interaction (y-axis) for the cell-type pair (x-axis) is relevant, whilst colour indicates mean expression.
+
+![Cell-Cell Interaction Search plot](./CPDBViz-CCI-Search-example.png)
+
+#### Single Gene Expression
+
+Shows mean expressions of genes/complexes and cell types/microenvironments, including whether the gene is differentially expressed within the cell type.
+
+![Single Gene Expression plot](./CPDBViz-Single-Gene-Expression-example.png)
+
+## Filtering
+
+Output data may be filtered in the following way within a CellphoneDBViz page:
+
+### For Cell-Cell Interaction Summary plot
+- By show all cell types OR by microenvironments (maximum of 9)
+- By interaction class
+
+### For Cell-Cell Interaction Search plot
+- By cell types (including cell type pairs) OR by microenvironments
+- By gene pairs (can select significant interactions with currently selected cell types/microenvironments) OR by interaction classes OR by genes
+
+### For Single Gene Expression plot
+- By cell types OR by microenvironments
+- By genes
+
+## CellphoneDBViz Input Data Requirements
+
+CellphoneDBViz requires multiple files, most of which are the output from CellphoneDB. These files should be referenced in a single YAML file. For more information on which files are required or optional, and where things should be stored for CellphoneDBViz to work, please see [the CellphoneDBViz repository](https://github.com/ventolab/cellphonedbviz). 
+
+An example config.YAML file can be found [here](https://github.com/ventolab/cellphonedbviz/blob/main/data/CaseExample1_differentiation/config.yml).
+
+## Deploying your own CellphoneDBViz
+
+The recommended steps are as follows:
+1. Clone [the CellphoneDBViz repository](https://github.com/ventolab/cellphonedbviz).
+2. Add your data to the `data/` folder within the cloned repository, in the same format as the exemplar data (remove example data if you don't want it). Refer to the above section on input data requirements for information on populating config files.
+3. Create a Python virtual environment, `pip install -r requirements.txt` to install required packages.
+4. From here, use Docker to create the service:
+   ```
+   #Create Docker image
+   docker-compose build --no-cache
+   #Deploy the image in a Docker container
+   docker-compose up -d
+   #Shut down the Docker container when you no longer need the service
+   docker-compose down
+   ```
+5. CellphoneDBViz should now be accessible via port 8001. View the list of available data on http://localhost:8001/.
+
+
+Plotting alternatives
+============================================
+
+Alternatively, you can represent results using external plotting implementations. Examples are provided in the [tutorials](notebooks).
 
 We recommend using tools such as the ktplots:
 [@zktuong](https://github.com/zktuong):
