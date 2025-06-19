@@ -6,3 +6,4 @@ out
 docs/api/_build
 cellphonedb/src/tests/test_data
 .DS_Store
+tests/test_data
