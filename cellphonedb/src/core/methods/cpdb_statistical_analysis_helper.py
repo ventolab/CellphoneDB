@@ -782,7 +782,10 @@ def add_multidata_and_means_to_counts(counts: pd.DataFrame, genes: pd.DataFrame,
 
     counts_relations = counts[['id_multidata', 'ensembl', 'gene_name', 'hgnc_symbol']].copy()
 
-    counts.set_index('id_multidata', inplace=True, drop=True)
+    # Manually set index to avoid issues with large DataFrames and set_index
+    counts.index = counts['id_multidata']
+    counts.index.name = 'id_multidata'
+
     counts = counts[cells_names]
     if np.any(counts.dtypes.values != np.dtype('float32')):
         counts = counts.astype(np.float32)
