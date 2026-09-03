@@ -599,10 +599,13 @@ def sanity_test_report_unknown_proteins(
         complex_db_df: pd.DataFrame,
         protein_column_names: list):
     unknown_proteins = set()
+    known_proteins = set(protein_db_df['uniprot'].tolist())
     for col in protein_column_names:
-        aux_df = pd.merge(complex_db_df, protein_db_df, left_on=col, right_on='uniprot', how='outer')
-        unknown_complex_proteins = set(aux_df[pd.isnull(aux_df['uniprot']) & ~pd.isnull(aux_df[col])][col].tolist())
-        unknown_proteins = unknown_proteins.union(unknown_complex_proteins)
+        # NB. Empty subunit slots are skipped. In particular, a uniprot_N column that no complex in
+        # complex_input.csv uses is read by pandas as an all-NaN float64 column; merging it against the
+        # string 'uniprot' column used to raise ValueError (see #224).
+        complex_proteins = set(complex_db_df[col].dropna().tolist())
+        unknown_proteins = unknown_proteins.union(complex_proteins - known_proteins)
     if unknown_proteins:
         print("WARNING: The following proteins in complex_input.txt could not be found in protein_input.csv:")
         print("\n".join(sorted(unknown_proteins)) + "\n")

@@ -1,8 +1,13 @@
 import unittest
 import os
 import fnmatch
+import io
 import re
+import shutil
+import tempfile
 import zipfile
+from contextlib import redirect_stdout
+import pandas as pd
 from cellphonedb.utils import search_utils, db_utils, db_releases_utils
 from cellphonedb.src.core.methods import cpdb_analysis_method, cpdb_statistical_analysis_method, cpdb_degs_analysis_method
 
@@ -192,6 +197,62 @@ class UnitTests(unittest.TestCase):
         # 'CellSign_active_interactions dataframe is empty')
         # Ready for v5.0.0 data release: self.assertFalse(analysis_result['CellSign_active_interactions_deconvoluted'].empty,
         # 'CellSign_active_interactions_deconvoluted dataframe is empty')
+
+
+class CreateDbUnitTests(unittest.TestCase):
+    """Unit tests for db_utils.create_db on hand-written *_input.csv files (no database download)."""
+
+    GENE_INPUT = ("gene_name,uniprot,hgnc_symbol,ensembl\n"
+                  "LIG1,P00001,LIG1,ENSG00000000001\n"
+                  "SUB1,P00003,SUB1,ENSG00000000003\n"
+                  "SUB2,P00004,SUB2,ENSG00000000004\n")
+    PROTEIN_INPUT = ("uniprot,protein_name,transmembrane,peripheral,secreted,secreted_desc,secreted_highlight,"
+                     "receptor,receptor_desc,integrin,other,other_desc,tags,tags_reason,tags_description\n"
+                     "P00001,LIG1_HUMAN,False,False,True,,True,False,,False,False,,,,\n"
+                     "P00003,SUB1_HUMAN,True,False,False,,False,True,,False,False,,,,\n"
+                     "P00004,SUB2_HUMAN,True,False,False,,False,True,,False,False,,,,\n")
+    # The released complex_input.csv header, but the only complex is a dimer: uniprot_3 and uniprot_4
+    # are empty in every row, so pandas reads them as all-NaN float64 columns (see issue #224).
+    COMPLEX_INPUT = ("complex_name,uniprot_1,uniprot_2,uniprot_3,uniprot_4,transmembrane,peripheral,secreted,"
+                     "secreted_desc,secreted_highlight,receptor,receptor_desc,integrin,other,other_desc,"
+                     "pdb_id,pdb_structure,stoichiometry,comments_complex\n"
+                     "RECCPLX,P00003,P00004,,,True,False,False,,False,True,,False,False,,,,,\n")
+    INTERACTION_INPUT = ("partner_a,partner_b,protein_name_a,protein_name_b,annotation_strategy,source\n"
+                         "P00001,RECCPLX,LIG1_HUMAN,,curated,test\n")
+
+    def setUp(self):
+        self.input_dir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.input_dir, ignore_errors=True)
+        for file_name, content in [("gene_input.csv", self.GENE_INPUT), ("protein_input.csv", self.PROTEIN_INPUT),
+                                   ("complex_input.csv", self.COMPLEX_INPUT),
+                                   ("interaction_input.csv", self.INTERACTION_INPUT)]:
+            with open(os.path.join(self.input_dir, file_name), "w") as f:
+                f.write(content)
+
+    def test_create_db_with_unused_subunit_columns(self):
+        """complex_input.csv with entirely empty uniprot_N columns must build (used to raise ValueError)."""
+        db_utils.create_db(self.input_dir)
+        db_files = [f for f in os.listdir(self.input_dir) if fnmatch.fnmatch(f, GENERATED_CPDB_PATTERN)]
+        assert len(db_files) == 1, "expected one generated database file, got {}".format(db_files)
+        with zipfile.ZipFile(os.path.join(self.input_dir, db_files[0]), 'r') as zip_ref:
+            multidata = pd.read_csv(zip_ref.open('multidata_table.csv'))
+            complex_composition = pd.read_csv(zip_ref.open('complex_composition_table.csv'))
+        assert multidata[multidata['is_complex']]['name'].tolist() == ['RECCPLX']
+        assert len(complex_composition) == 2
+        assert complex_composition['total_protein'].tolist() == [2, 2]
+
+    def test_unknown_complex_proteins_still_reported(self):
+        """The sanity test must still name subunits missing from protein_input.csv, and skip empty slots."""
+        protein_df = pd.read_csv(io.StringIO(self.PROTEIN_INPUT))
+        complex_df = pd.read_csv(io.StringIO(
+            self.COMPLEX_INPUT + "OTHERCPLX,P00003,P99999,,,True,False,False,,False,True,,False,False,,,,,\n"))
+        assert str(complex_df['uniprot_4'].dtype) == 'float64'  # the all-NaN column that used to break the merge
+        out = io.StringIO()
+        with redirect_stdout(out):
+            db_utils.sanity_test_report_unknown_proteins(
+                protein_df, complex_df, ['uniprot_1', 'uniprot_2', 'uniprot_3', 'uniprot_4'])
+        assert 'P99999' in out.getvalue()
+        assert 'P00003' not in out.getvalue() and 'nan' not in out.getvalue()
 
 
 if __name__ == "__main__":
